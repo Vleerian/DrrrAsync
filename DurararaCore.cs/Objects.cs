@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 
+using DrrrAsync.AsyncEvents;
+
 namespace DrrrAsync
 {
     namespace Objects
     {
-        public class DrrrRoom
+        public class DrrrRoom : DrrrAsyncEventArgs
         {
             public string Language { get; private set; }
             public string RoomId { get; private set; }
@@ -42,10 +44,10 @@ namespace DrrrAsync
             public DrrrRoom(JObject RoomObject)
             {
                 Language = RoomObject["language"].Value<string>();
-                RoomId = RoomObject["id"].Value<string>();
+                RoomId = RoomObject["roomId"].Value<string>();
                 Name = RoomObject["name"].Value<string>();
                 Description = RoomObject["description"].Value<string>();
-                Update = RoomObject["update"].Value<string>();
+                Update = RoomObject.ContainsKey("update") ? RoomObject["update"].Value<string>() : "0";
 
                 Limit = RoomObject["limit"].Value<int>();
 
@@ -64,13 +66,19 @@ namespace DrrrAsync
                     Users.Add(new DrrrUser(item));
                 }
 
-                Messages = new List<DrrrMessage>();
-                foreach (JObject item in RoomObject["talks"])
-                {
-                    Messages.Add(new DrrrMessage(item, this));
-                }
+                if (RoomObject["host"].Type == JTokenType.Object)
+                    Host = new DrrrUser((JObject)RoomObject["host"]);
+                else
+                    Host = Users.Find(Usr => Usr.ID == RoomObject["host"].Value<string>());
 
-                Host = Users.Find(Usr => Usr.ID == RoomObject["host"].Value<string>());
+                Messages = new List<DrrrMessage>();
+                if (RoomObject.ContainsKey("talks"))
+                {
+                    foreach (JObject item in RoomObject["talks"])
+                    {
+                        Messages.Add(new DrrrMessage(item, this));
+                    }
+                }
             }
 
             public List<DrrrMessage> UpdateRoom(JObject RoomObject)
@@ -102,7 +110,7 @@ namespace DrrrAsync
             }
         }
 
-        public struct DrrrUser
+        public class DrrrUser : DrrrAsyncEventArgs
         {
             public string ID;
             public string Name;
@@ -122,7 +130,7 @@ namespace DrrrAsync
             }
         }
 
-        public struct DrrrMessage
+        public class DrrrMessage : DrrrAsyncEventArgs
         {
             public string ID;
             public string Type;
@@ -152,9 +160,9 @@ namespace DrrrAsync
                 DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
                 Timestamp = dtDateTime.AddSeconds(MessageObject["time"].Value<Int64>()).ToLocalTime();
 
-                From = MessageObject.ContainsKey("from") ? new DrrrUser((JObject)MessageObject["from"]) : new DrrrUser();
-                To = MessageObject.ContainsKey("to") ? new DrrrUser((JObject)MessageObject["to"]) : new DrrrUser();
-                Usr = MessageObject.ContainsKey("user") ? new DrrrUser((JObject)MessageObject["user"]) : new DrrrUser();
+                From = MessageObject.ContainsKey("from") ? new DrrrUser((JObject)MessageObject["from"]) : null;
+                To = MessageObject.ContainsKey("to") ? new DrrrUser((JObject)MessageObject["to"]) : null;
+                Usr = MessageObject.ContainsKey("user") ? new DrrrUser((JObject)MessageObject["user"]) : null;
 
                 PostedIn = aRoom;
             }
