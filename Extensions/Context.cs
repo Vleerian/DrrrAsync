@@ -24,10 +24,8 @@ namespace DrrrAsync
                 Room = aRoom;
             }
 
-            public async void RespondAsync(string Message)
-            {
+            public async void RespondAsync(string Message) =>
                 await Client.SendMessage(Message);
-            }
         }
     }
 }

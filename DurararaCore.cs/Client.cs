@@ -12,19 +12,19 @@ namespace DrrrAsync
 {
     public class DrrrClient
     {
-        //User Defined
+        // User Defined
         public string Name { get; private set; }
         public string Icon { get; private set; }
 
-        //Site-Defined
+        // Site-Defined
         public string ID { get; private set; }
         public DrrrUser User { get; private set; }
         public DrrrRoom Room { get; private set; }
 
-        //Client State
+        // Client State
         public bool LoggedIn { get; private set; }
 
-        //Client Extensions
+        // Client Extensions
         public CookieWebClient WC;
 
         public DrrrAsyncEvent On_Login;
@@ -44,18 +44,18 @@ namespace DrrrAsync
         public async Task<bool> Login()
         {
             Utility.Log('c', "Status", $"Logging in with {Name}, {Icon}", Utility.Log_Level.Status);
-            //Validation. If the name and icon aren't set, throw errors.
+            // Validation. If the name and icon aren't set, throw errors.
             if (Name == null)
                 throw new ApplicationException("Name has not been set.");
             if (Icon == null)
                 throw new ApplicationException("Icon has not been set.");
 
-            //Get the index page to parse the token
+            // Get the index page to parse the token
             Uri WebAddress = new Uri("https://drrr.com");
             string IndexBody = await WC.DownloadStringTaskAsync(WebAddress);
             string Token = Regex.Match(IndexBody, @"""token"" data-value=""(\w+)\""").Groups[1].Value;
 
-            //Make a second request to do the actual login action.
+            // Make a second request to do the actual login action.
             byte[] response = await WC.UploadValuesTaskAsync(WebAddress, "POST", new NameValueCollection() {
                 { "name",     Name    },
                 { "icon",     Icon    },
@@ -78,13 +78,11 @@ namespace DrrrAsync
             Name = Profile["name"].Value<string>();
             User = new DrrrUser(Profile);
 
-            List<DrrrRoom> Result = new List<DrrrRoom>();
+            List<DrrrRoom> Rooms = new List<DrrrRoom>();
             foreach (JObject item in Lounge["rooms"])
-            {
-                Result.Add(new DrrrRoom(item));
-            }
+                Rooms.Add(new DrrrRoom(item));
 
-            return Result;
+            return Rooms;
         }
 
         public async Task<DrrrRoom> GetRoom()
@@ -104,19 +102,19 @@ namespace DrrrAsync
         public async Task<DrrrRoom> JoinRoom(string RoomId)
         {
             Utility.Log('c', "Status", $"Joining room: {RoomId}", Utility.Log_Level.Status);
-            //Join the room
+            // Join the room
             Uri WebAddress = new Uri($"http://drrr.com/room/?id={RoomId}");
 
             Utility.Log('c', "Status", $"URL: {WebAddress.AbsoluteUri}", Utility.Log_Level.Debug);
 
             await WC.DownloadStringTaskAsync(WebAddress);
 
-            //Download and parse the room's data
+            // Download and parse the room's data
             WebAddress = new Uri($"https://drrr.com/json.php?fast=1");
             JObject RoomData = JObject.Parse(await WC.DownloadStringTaskAsync(WebAddress));
             Room = new DrrrRoom(RoomData);
 
-            //Run the On_Room_Join event, and return.
+            // Run the On_Room_Join event, and return.
             await On_Room_Join?.InvokeAsync(Room);
             return Room;
         }
@@ -125,11 +123,11 @@ namespace DrrrAsync
         {
             Uri WebAddress = new Uri("https://drrr.com/create_room/?");
             byte[] response = await WC.UploadValuesTaskAsync(WebAddress, "POST", new NameValueCollection() {
-                { "name",aRoom.Name },
-                { "description",aRoom.Description },
-                { "limit",aRoom.Limit.ToString()},
-                { "language", aRoom.Language},
-                { "adult", aRoom.AdultRoom.ToString()},
+                { "name", aRoom.Name },
+                { "description", aRoom.Description },
+                { "limit", aRoom.Limit.ToString() },
+                { "language", aRoom.Language },
+                { "adult", aRoom.AdultRoom.ToString() },
             });
 
             WebAddress = new Uri($"http://drrr.com/room/json.php?fast=1");
@@ -145,7 +143,7 @@ namespace DrrrAsync
             Uri WebAddress = new Uri("https://drrr.com/room/?ajax=1");
             Room = null;
             return await WC.UploadValuesTaskAsync(WebAddress, "POST", new NameValueCollection() {
-                { "leave","leave"}
+                { "leave", "leave" }
             });
         }
 
@@ -153,7 +151,7 @@ namespace DrrrAsync
         {
             Uri WebAddress = new Uri("https://drrr.com/room/?ajax=1");
             return await WC.UploadValuesTaskAsync(WebAddress, "POST", new NameValueCollection() {
-                { "new_host",aUser.ID}
+                { "new_host", aUser.ID }
             });
         }
 
@@ -161,7 +159,7 @@ namespace DrrrAsync
         {
             Uri WebAddress = new Uri("https://drrr.com/room/?ajax=1");
             return await WC.UploadValuesTaskAsync(WebAddress, "POST", new NameValueCollection() {
-                { "ban",aUser.ID}
+                { "ban", aUser.ID }
             });
         }
 
@@ -169,7 +167,7 @@ namespace DrrrAsync
         {
             Uri WebAddress = new Uri("https://drrr.com/room/?ajax=1");
             return await WC.UploadValuesTaskAsync(WebAddress, "POST", new NameValueCollection() {
-                { "kick",aUser.ID}
+                { "kick", aUser.ID }
             });
         }
 
@@ -178,9 +176,9 @@ namespace DrrrAsync
             Uri WebAddress = new Uri("https://drrr.com/room/?ajax=1");
 
             return await WC.UploadValuesTaskAsync(WebAddress, "POST", new NameValueCollection() {
-                { "message",Message},
-                { "url",    Url    },
-                { "to",     ""     }
+                { "message", Message },
+                { "url",     Url     },
+                { "to",      ""      }
             });
         }
     }

@@ -12,35 +12,29 @@ namespace DrrrAsync
             {
                 public string CommandName;
 
-                public Command(string aCommandName)
-                {
+                public Command(string aCommandName) =>
                     CommandName = aCommandName;
-                }
             }
 
             class Description : Attribute
             {
                 public string CommandDescription;
 
-                public Description(string aCommandDescription)
-                {
+                public Description(string aCommandDescription) =>
                     CommandDescription = aCommandDescription;
-                }
             }
 
             class Aliases : Attribute
             {
                 public string[] AliasList;
 
-                public Aliases(params string[] aAlias)
-                {
+                public Aliases(params string[] aAlias) =>
                     AliasList = aAlias;
-                }
             }
 
             class RequiresOwner : Attribute { }
 
-            class RequiresElevated { }
+            class RequiresElevated : Attribute { }
         }
     }
 }
