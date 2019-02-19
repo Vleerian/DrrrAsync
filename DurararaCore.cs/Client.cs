@@ -27,11 +27,11 @@ namespace DrrrAsync
         // Client Extensions
         public CookieWebClient WC;
 
-        public DrrrAsyncEvent On_Login;
-        public DrrrAsyncEvent<DrrrRoom> On_Room_Join;
-        //public event EventHandler<DrrrUser> On_User_Joined;
-        public DrrrAsyncEvent<DrrrMessage> On_Message;
-        public DrrrAsyncEvent<DrrrMessage> On_Direct_Message;
+        public DrrrAsyncEvent On_Login = new DrrrAsyncEvent();
+        public DrrrAsyncEvent<DrrrRoom> On_Room_Join = new DrrrAsyncEvent<DrrrRoom>();
+        //public event EventHandler<DrrrUser> On_User_Joined  = new DrrrAsyncEvent<DrrrRoom>();
+        public DrrrAsyncEvent<DrrrMessage> On_Message = new DrrrAsyncEvent<DrrrMessage>();
+        public DrrrAsyncEvent<DrrrMessage> On_Direct_Message = new DrrrAsyncEvent<DrrrMessage>();
 
         public DrrrClient(string aName, string aIcon)
         {

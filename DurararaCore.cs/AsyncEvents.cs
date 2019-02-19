@@ -23,6 +23,8 @@ namespace DrrrAsync
             // A List<> of EventHandlers registered to this event
             private List<AsyncEventHandler> Handlers;
 
+            public DrrrAsyncEvent() => Handlers = new List<AsyncEventHandler>();
+
             /// <summary>
             /// Invokes the event and all it's handlers
             /// </summary>
@@ -54,6 +56,8 @@ namespace DrrrAsync
         public class DrrrAsyncEvent<T> where T : DrrrAsyncEventArgs
         {
             private List<AsyncEventHandler<T>> Handlers;
+
+            public DrrrAsyncEvent() => Handlers = new List<AsyncEventHandler<T>>();
 
             /// <summary>
             /// Invokes the event and all it's handlers

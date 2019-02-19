@@ -14,10 +14,12 @@ namespace DrrrAsync
 
             foreach (DrrrRoom Room in C.GetLounge().GetAwaiter().GetResult())
             {
-                if (Room.Name == "Abyss Bar 18+")
+                if (Room.Name == "White Snake Bar18+")
                     C.JoinRoom(Room.RoomId).GetAwaiter().GetResult();
             }
-
+            C.SendMessage("Heyylmao").GetAwaiter().GetResult();
+            System.Threading.Thread.Sleep(3000);
+            C.LeaveRoom().GetAwaiter().GetResult();
             Console.ReadKey();
         }
     }
