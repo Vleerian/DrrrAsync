@@ -25,21 +25,11 @@ namespace DrrrAsync
                 if (!Handlers.Any())
                     return;
                 foreach (var handler in Handlers)
-                {
                     await handler().ConfigureAwait(false);
-                }
             }
 
-            public void Register(AsyncEventHandler aTask)
-            {
-                Handlers.Add(aTask);
-            }
-
-            public void Unregister(AsyncEventHandler aTask)
-            {
-                Handlers.Remove(aTask);
-            }
-
+            public void Register(AsyncEventHandler aTask) => Handlers.Add(aTask);
+            public void Unregister(AsyncEventHandler aTask) => Handlers.Remove(aTask);
         }
 
         public class DrrrAsyncEvent<T> where T : DrrrAsyncEventArgs
@@ -51,21 +41,11 @@ namespace DrrrAsync
                 if (!Handlers.Any())
                     return;
                 foreach (var handler in Handlers)
-                {
                     await handler(e).ConfigureAwait(false);
-                }
             }
 
-            public void Register(AsyncEventHandler<T> aTask)
-            {
-                Handlers.Add(aTask);
-            }
-
-            public void Unregister(AsyncEventHandler<T> aTask)
-            {
-                Handlers.Remove(aTask);
-            }
-
+            public void Register(AsyncEventHandler<T> aTask) => Handlers.Add(aTask);
+            public void Unregister(AsyncEventHandler<T> aTask) => Handlers.Remove(aTask);
         }
     }
 }

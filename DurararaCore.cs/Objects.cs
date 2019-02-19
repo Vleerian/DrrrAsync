@@ -18,11 +18,7 @@ namespace DrrrAsync
             public string Update { get; private set; }
 
             public int Limit { get; private set; }
-            public int UserCount {
-                get {
-                    return Users.Count;
-                }
-            }
+            public int UserCount { get => Users.Count; }
 
             public DateTime Opened { get; private set; }
 
@@ -31,11 +27,7 @@ namespace DrrrAsync
             public bool HiddenRoom { get; private set; }
             public bool GameRoom { get; private set; }
             public bool AdultRoom { get; private set; }
-            public bool Full {
-                get {
-                    return Limit <= UserCount;
-                }
-            }
+            public bool Full { get => Limit <= UserCount; }
 
             public List<DrrrUser> Users;
             public List<DrrrMessage> Messages;

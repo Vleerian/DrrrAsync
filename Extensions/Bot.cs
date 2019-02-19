@@ -14,26 +14,24 @@ namespace DrrrAsync
         {
             public class Command
             {
-                dynamic module;
+                public dynamic Module;
                 MethodInfo Method;
                 public string Name { get; private set; }
                 public string Description { get; private set; }
                 
                 public Command(dynamic aModule, MethodInfo Cmd, string aName, string aDescription = "")
                 {
-                    module = aModule;
+                    Module = aModule;
                     Method = Cmd;
                     Name = aName;
                     Description = aDescription;
                 }
 
-                public async Task Call(Context ctx)
-                {
-                    await Method.Invoke(module, new object[] { ctx });
-                }
+                public async Task Call(Context ctx) =>
+                    await Method.Invoke(Module, new object[] { ctx });
             }
 
-            private Dictionary<string, Command> CommandDictionary;
+            private Dictionary<string, Command> Commands;
 
             public DrrrClient Client { get; private set; }
 
@@ -62,10 +60,10 @@ namespace DrrrAsync
             private async Task LookForCommands(DrrrMessage e)
             {
                 string Cmnd = e.Mesg.Split(" ", 1, StringSplitOptions.RemoveEmptyEntries)[0].ToLower();
-                if (CommandDictionary.ContainsKey(Cmnd))
+                if (Commands.ContainsKey(Cmnd))
                 {
                     Context ctx = new Context(Client, e, (e.From != null) ? e.Usr : e.From, e.PostedIn);
-                    CommandDictionary[Cmnd].Call(ctx).Start();
+                    Commands[Cmnd].Call(ctx).Start();
                 }
 
                 await Task.CompletedTask;
