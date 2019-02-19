@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace DrrrAsync
 {
@@ -8,6 +6,9 @@ namespace DrrrAsync
     {
         namespace Attributes
         {
+            /// <summary>
+            /// The attribute the bot framework uses to get the command name, and check if it is, indeed, a command.
+            /// </summary>
             class Command : Attribute
             {
                 public string CommandName;
@@ -16,6 +17,9 @@ namespace DrrrAsync
                     CommandName = aCommandName;
             }
 
+            /// <summary>
+            /// The attribute the bot uses to get the command's documentation/description
+            /// </summary>
             class Description : Attribute
             {
                 public string CommandDescription;
@@ -24,6 +28,9 @@ namespace DrrrAsync
                     CommandDescription = aCommandDescription;
             }
 
+            /// <summary>
+            /// The attribute the bot uses to get the command's aliases.
+            /// </summary>
             class Aliases : Attribute
             {
                 public string[] AliasList;
@@ -32,8 +39,14 @@ namespace DrrrAsync
                     AliasList = aAlias;
             }
 
+            /// <summary>
+            /// Commands with this attribute may only be used by the bot's owner
+            /// </summary>
             class RequiresOwner : Attribute { }
 
+            /// <summary>
+            /// Commands with this attribute may only be used by 'elevated' individuals (Admins/Mods).
+            /// </summary>
             class RequiresElevated : Attribute { }
         }
     }
