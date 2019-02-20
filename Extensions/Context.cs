@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-
+using System.Threading.Tasks;
 using DrrrAsync;
 using DrrrAsync.Objects;
 
@@ -20,8 +20,9 @@ namespace DrrrAsync
 
             public DrrrClient Client { get; private set; }
 
-            public Context(DrrrClient Client, DrrrMessage aMessage, DrrrUser aAuthor, DrrrRoom aRoom)
+            public Context(DrrrClient aClient, DrrrMessage aMessage, DrrrUser aAuthor, DrrrRoom aRoom)
             {
+                Client = aClient;
                 Message = aMessage;
                 Author = aAuthor;
                 Room = aRoom;
@@ -32,7 +33,7 @@ namespace DrrrAsync
             /// </summary>
             /// <param name="Message">The message you want to send</param>
             /// <param name="Direct">Whether or not you want the mssage to be a direct message. Default: false</param>
-            public async void RespondAsync(string Message, bool Direct = false) =>
+            public async Task RespondAsync(string Message, bool Direct = false) =>
                 await Client.SendMessage(Message);
         }
     }

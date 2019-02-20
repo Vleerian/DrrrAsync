@@ -4,64 +4,29 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 
 using DrrrAsync.Objects;
+using DrrrAsync.Logging;
+using DrrrAsync.Events;
 
 namespace DrrrAsync
 {
     namespace Extensions
     {
-        public class Bot
+        public partial class Bot : DrrrClient
         {
-            /// <summary>
-            /// The command class is used for handling bot commands.
-            /// It contains the command's name, description, as well as a
-            /// reference to it's container module, and method.
-            /// </summary>
-            public class Command
-            {
-                public dynamic Module;
-                MethodInfo Method;
-                public string Name { get; private set; }
-                public string Description { get; private set; }
-                
-                /// <summary>
-                /// The Command class constructor. It instantiates all member variables.
-                /// </summary>
-                /// <param name="aModule">The module the command is in</param>
-                /// <param name="Cmd">The method the command is linked to</param>
-                /// <param name="aName">The command's name</param>
-                /// <param name="aDescription">The command's description</param>
-                public Command(dynamic aModule, MethodInfo Cmd, string aName, string aDescription = "")
-                {
-                    Module = aModule;
-                    Method = Cmd;
-                    Name = aName;
-                    Description = aDescription;
-                }
-
-                /// <summary>
-                /// Invokes the command
-                /// </summary>
-                /// <param name="ctx">The context object the command will use</param>
-                /// TODO: Parse ctx.message and pass the command a list of arguments.
-                public async Task Call(Context ctx) =>
-                    await Method.Invoke(Module, new object[] { ctx });
-            }
-
             // A dictionary of {"CommandName":CommandObject} used to invoke executed commands.
             private Dictionary<string, Command> Commands;
 
-            // The client object the bot uses
-            public DrrrClient Client { get; private set; }
+            public bool Running { get; private set; }
 
             /// <summary>
             /// The bot constructor instantiates the client, as well as registering it's command processor as an event.
             /// </summary>
             /// <param name="aName">The name the bot will use on Drrr.com</param>
             /// <param name="aIcon">The icon the bot will use on Drrr.com</param>
-            public Bot(string aName, string aIcon)
+            public Bot() : base()
             {
-                Client = new DrrrClient(aName, aIcon);
-                Client.OnMessage.Register(LookForCommands);
+                OnMessage += LookForCommands;
+                Commands = new Dictionary<string, Command>();
             }
 
             /// <summary>
@@ -70,21 +35,25 @@ namespace DrrrAsync
             /// </summary>
             /// <typeparam name="T">The CommandModule's type</typeparam>
             /// <param name="CommandModule">The command module.</param>
-            public void RegisterCommands<T>(T CommandModule) where T : class
+            public void RegisterCommands<T>() where T : class
             {
                 // Get the command module's type, and iterate through it's methods
-                Type ClassType = CommandModule.GetType();
+                Type ClassType = typeof(T);
                 foreach (MethodInfo Method in ClassType.GetMethods())
                 {
-                    // If it has the Command attribute, add it to the CommandDictionary
-                    Attributes.Command CommandAttribute = Method.GetCustomAttribute<Attributes.Command>();
+                    // If it has the Command attribute, add it to the Command dictionary
+                    Attributes.CommandAttribute CommandAttribute = Method.GetCustomAttribute<Attributes.CommandAttribute>();
                     if(CommandAttribute != null)
                     {
-                        Attributes.Description Desc = Method.GetCustomAttribute<Attributes.Description>();
-                        Command CommandObject = new Command(CommandModule, Method, CommandAttribute.CommandName, Desc!=null?Desc.CommandDescription:"");
+                        Attributes.DescriptionAttribute Desc = Method.GetCustomAttribute<Attributes.DescriptionAttribute>();
 
-                        // TODO: Check for Aliases attribute, and iterate through them.
+                        Command CommandObject = new Command(Activator.CreateInstance<T>(), Method, CommandAttribute.CommandName, Desc!=null?Desc.CommandDescription:"");
+
                         Commands.Add(CommandAttribute.CommandName, CommandObject);
+
+                        //Get the aliases attribute, and add them to the Command dictionary
+                        Attributes.AliasesAttribute Aliases = Method.GetCustomAttribute<Attributes.AliasesAttribute>();
+                        Aliases?.AliasList.ForEach(Alias => Commands.Add(Alias, CommandObject));
                     }
                 }
             }
@@ -93,19 +62,78 @@ namespace DrrrAsync
             /// The bot's command processor runs whenever a DrrrMessage event is thrown, and looks for commands.
             /// </summary>
             /// <param name="e">The DrrrMessage event.</param>
-            private async Task LookForCommands(DrrrMessage e)
+            private async Task LookForCommands(DrrrMessageEventArgs e)
             {
+                DrrrMessage Message = e.DrrrMessage;
                 // Check if the message starts with a command.
                 // TODO: check for a command signal (I.E mesg.startswith(CommandSignal) where CommandSignal = '#')
-                string Cmnd = e.Mesg.Split(" ", 1, StringSplitOptions.RemoveEmptyEntries)[0].ToLower();
+                string Cmnd = Message.Mesg.Split(" ", 1, StringSplitOptions.RemoveEmptyEntries)[0].ToLower();
                 if (Commands.ContainsKey(Cmnd))
                 {
                     // If a command or alias is in the CommandDictionary, execute it.
-                    Context ctx = new Context(Client, e, (e.From != null) ? e.Usr : e.From, e.PostedIn);
-                    Commands[Cmnd].Call(ctx).Start();
+                    Context ctx = new Context(this, Message, (Message.From != null) ? Message.Usr : Message.From, Message.PostedIn);
+                    await Commands[Cmnd].Call(ctx);
                 }
 
                 await Task.CompletedTask;
+            }
+
+            /// <summary>
+            /// The bot's primary loop. It takes a room name, and will attempt to join it.
+            /// </summary>
+            /// <param name="aRoomName">The name of the room you want to join</param>
+            /// <returns>True if the bot started successfully, false otherwise.</returns>
+            public async Task<bool> Connect(string aRoomName)
+            {
+                List<DrrrRoom> Rooms = await GetLounge();
+                DrrrRoom Room = Rooms.Find(lRoom => lRoom.Name == aRoomName);
+                bool Connected = false;
+
+                if (Room == null)
+                    Logger.Error("Failed to connect, room not found.");
+                else if (Room.Full)
+                    Logger.Error("Failed to connect, room is full.");
+                else
+                    Connected = true;
+
+                if (!Connected)
+                    return false;
+                Console.WriteLine("Connecting...");
+
+                return await Connect(Room);
+            }
+
+            public async Task<bool> Connect(DrrrRoom aRoom)
+            {
+                //If the need arises, processing can be done on the resulting DrrrRoom object.
+                await JoinRoom(aRoom.RoomId);
+                Console.WriteLine("Done...");
+
+                if (!Running)
+                {
+                    Running = true;
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                    Task.Run(() => BotMain());
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                }
+
+                return true;
+            }
+
+            private async Task BotMain()
+            {
+
+                Console.WriteLine("Starting loop...");
+
+                while (Running)
+                {
+                    if (Room != null)
+                    {
+                        DrrrRoom Data = await GetRoom();
+
+                        await Task.Delay(500);
+                    }
+                }
             }
         }
     }
