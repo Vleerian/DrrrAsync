@@ -14,26 +14,22 @@ namespace DrrrAsync
         /// </summary>
         public class DrrrRoom : DrrrAsyncEventArgs
         {
-            // String-type properties
             public string Language { get; private set; }
             public string RoomId { get; private set; }
             public string Name { get; private set; }
             public string Description { get; private set; }
             public string Update { get; private set; }
-
-            // Integer-type properties
+            
             public int Limit { get; private set; }
             public int UserCount { get => Users.Count; }
-
-            // Boolean-type properties
+            
             public bool Music { get; private set; }
             public bool StaticRoom { get; private set; }
             public bool HiddenRoom { get; private set; }
             public bool GameRoom { get; private set; }
             public bool AdultRoom { get; private set; }
             public bool Full { get => Limit <= UserCount; }
-
-            // Non-primitive properties
+            
             public DateTime Opened { get; private set; }
             public List<DrrrUser> Users;
             public List<DrrrMessage> Messages;
@@ -57,7 +53,6 @@ namespace DrrrAsync
                 // Parse the room's user limit
                 Limit = RoomObject["limit"].Value<int>();
 
-
                 // Set all the boolean values
                 Music = RoomObject["music"].Value<bool>();
                 StaticRoom = RoomObject["staticRoom"].Value<bool>();
@@ -72,9 +67,7 @@ namespace DrrrAsync
                 // Populate the user list.
                 Users = new List<DrrrUser>();
                 foreach (JObject item in RoomObject["users"])
-                {
                     Users.Add(new DrrrUser(item));
-                }
 
                 // The 'host' field is different depending on if data is retrived from the lounge or room endpoints.
                 if (RoomObject["host"].Type == JTokenType.Object)
@@ -85,12 +78,8 @@ namespace DrrrAsync
                 // Parse messages.
                 Messages = new List<DrrrMessage>();
                 if (RoomObject.ContainsKey("talks"))
-                {
                     foreach (JObject item in RoomObject["talks"])
-                    {
                         Messages.Add(new DrrrMessage(item, this));
-                    }
-                }
             }
 
             /// <summary>
@@ -110,9 +99,7 @@ namespace DrrrAsync
                 {
                     Users = new List<DrrrUser>();
                     foreach (JObject item in RoomObject["users"])
-                    {
                         Users.Add(new DrrrUser(item));
-                    }
                 }
 
                 // Update the host
@@ -130,7 +117,6 @@ namespace DrrrAsync
                         New_Messages.Add(tmp);
                     }
                 }
-
                 return New_Messages;
             }
         }
@@ -167,17 +153,14 @@ namespace DrrrAsync
         /// </summary>
         public class DrrrMessage : DrrrAsyncEventArgs
         {
-            // String-type properties
             public string ID;
             public string Type;
             public string Mesg;
             public string Content;
             public string Url;
-
-            // Boolean-type properties
+            
             public bool Secret;
-
-            // Non-primative properties
+            
             public DrrrRoom PostedIn;
             public DateTime Timestamp;
             public DrrrUser From;
