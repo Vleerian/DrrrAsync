@@ -17,9 +17,9 @@ namespace DrrrAsync
                 if (Room.Name == "White Snake Bar18+") ;
                     await C.JoinRoom(Room.RoomId);
             }
-            C.SendMessage("Heyylmao").GetAwaiter().GetResult();
+            await C.SendMessage("Heyylmao");
             System.Threading.Thread.Sleep(3000);
-            C.LeaveRoom().GetAwaiter().GetResult();
+            await C.LeaveRoom();
             Console.ReadKey();
         }
     }
