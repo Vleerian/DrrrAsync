@@ -9,7 +9,7 @@ namespace DrrrAsync
     {
         static async Task Main(string[] args)
         {
-            DrrrClient C = new DrrrClient("Welne Oren", "kuromu-2x");
+            DrrrClient C = new DrrrClient { Name = "Welne Oren", Icon = "kuromu-2x" };
             await C.Login();
             while (true) ;
             foreach (DrrrRoom Room in await C.GetLounge())

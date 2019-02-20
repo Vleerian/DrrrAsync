@@ -13,19 +13,19 @@ namespace DrrrAsync
 {
     public class DrrrClient
     {
-        private readonly Logger Logger = new Logger { LogLevel = LogLevel.DEBUG, Name = "Client" };
+        private readonly Logger Logger = new Logger { LogLevel = LogLevel.DEBUG, Name = "Client \"DrrrBot\"" };
 
         // User Defined
-        private string name;
+        private string name = "DrrrBot";
         public string Name {
             get => name;
             set
             {
-                Logger.Name = $"Client \"{value}\"";
                 name = value;
+                Logger.Name = $"Client \"{name}\"";
             }
         }
-        public string Icon { get; private set; }
+        public string Icon { get; set; } = "kuromu-2x";
 
         // Site-Defined
         public string ID { get; private set; }
@@ -36,7 +36,7 @@ namespace DrrrAsync
         public bool LoggedIn { get; private set; }
 
         // Client Extensions
-        public CookieWebClient WebClient;
+        public CookieWebClient WebClient = new CookieWebClient();
 
         public DrrrAsyncEvent OnLogin = new DrrrAsyncEvent();
         public DrrrAsyncEvent<DrrrRoom> OnRoomJoin = new DrrrAsyncEvent<DrrrRoom>();
@@ -44,28 +44,11 @@ namespace DrrrAsync
         public DrrrAsyncEvent<DrrrMessage> OnMessage = new DrrrAsyncEvent<DrrrMessage>();
         public DrrrAsyncEvent<DrrrMessage> OnDirectMessage = new DrrrAsyncEvent<DrrrMessage>();
 
-        public DrrrClient(string aName, string aIcon)
-        {
-            WebClient = new CookieWebClient();
-
-            foreach (var level in LogLevel.Levels)
-                Logger.Log("DrrrClient Constructor", level);
-
-            Name = aName;
-            Icon = aIcon;
-        }
-
         /// <summary>
         /// Logs the user in to Drrr.Com using the credentials set in the constructor.
         /// </summary>
         public async Task<bool> Login()
         {
-            // Throw if Name or Icon are not set.
-            if (Name == null)
-                throw new ApplicationException("Name has not been set.");
-            if (Icon == null)
-                throw new ApplicationException("Icon has not been set.");
-
             Logger.Info($"Logging in with {Name}, {Icon}");
 
             // Get the index page to parse the token
