@@ -62,16 +62,15 @@ namespace DrrrAsync
             /// The bot's command processor runs whenever a DrrrMessage event is thrown, and looks for commands.
             /// </summary>
             /// <param name="e">The DrrrMessage event.</param>
-            private async Task LookForCommands(DrrrMessageEventArgs e)
+            private async Task LookForCommands(DrrrMessage message)
             {
-                DrrrMessage Message = e.DrrrMessage;
                 // Check if the message starts with a command.
                 // TODO: check for a command signal (I.E mesg.startswith(CommandSignal) where CommandSignal = '#')
-                string Cmnd = Message.Mesg.Split(" ", 1, StringSplitOptions.RemoveEmptyEntries)[0].ToLower();
+                string Cmnd = message.Mesg.Split(" ", 1, StringSplitOptions.RemoveEmptyEntries)[0].ToLower();
                 if (Commands.ContainsKey(Cmnd))
                 {
                     // If a command or alias is in the CommandDictionary, execute it.
-                    Context ctx = new Context(this, Message, (Message.From != null) ? Message.Usr : Message.From, Message.PostedIn);
+                    Context ctx = new Context(this, message, (message.From != null) ? message.Usr : message.From, message.PostedIn);
                     await Commands[Cmnd].Call(ctx);
                 }
 
