@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
 using DrrrAsync.Objects;
-using DrrrAsync.AsyncEvents;
+using DrrrAsync.Events;
 using DrrrAsync.Logging;
 
 namespace DrrrAsync
@@ -38,11 +38,18 @@ namespace DrrrAsync
         // Client Extensions
         public CookieWebClient WebClient = new CookieWebClient();
 
-        public DrrrAsyncEvent OnLogin = new DrrrAsyncEvent();
+        // Client Events
+        /*public DrrrAsyncEvent OnLogin = new DrrrAsyncEvent();
         public DrrrAsyncEvent<DrrrRoom> OnRoomJoin = new DrrrAsyncEvent<DrrrRoom>();
         //public event EventHandler<DrrrUser> On_User_Joined  = new DrrrAsyncEvent<DrrrRoom>();
         public DrrrAsyncEvent<DrrrMessage> OnMessage = new DrrrAsyncEvent<DrrrMessage>();
-        public DrrrAsyncEvent<DrrrMessage> OnDirectMessage = new DrrrAsyncEvent<DrrrMessage>();
+        public DrrrAsyncEvent<DrrrMessage> OnDirectMessage = new DrrrAsyncEvent<DrrrMessage>();/**/
+
+        public event DrrrEventHandler        OnLogin         = async () => { };
+        public event DrrrRoomEventHandler    OnRoomJoin      = async (_) => { };
+        public event DrrrUserEventHandler    OnUserJoined    = async (_) => { };
+        public event DrrrMessageEventHandler OnMessage       = async (_) => { };
+        public event DrrrMessageEventHandler OnDirectMessage = async (_) => { };
 
         /// <summary>
         /// Logs the user in to Drrr.Com using the credentials set in the constructor.
@@ -65,7 +72,7 @@ namespace DrrrAsync
                 { "language", "en-US" }
             });
             LoggedIn = true;
-            OnLogin?.InvokeAsync();
+            OnLogin.FireEventAsync();
             return true;
         }
 
@@ -106,10 +113,10 @@ namespace DrrrAsync
             // Could this be moved to the DrrrRoom or DrrrMessage constructor in a clean way?
             foreach (DrrrMessage Mesg in Room.UpdateRoom(RoomData))
             {
-                await OnMessage?.InvokeAsync(Mesg);
+                await OnMessage.FireEventAsync(Mesg);
                 // If it's a direct message, fire the OnDirectMessage event
                 if (Mesg.Secret)
-                    await OnDirectMessage?.InvokeAsync(Mesg);
+                    await OnDirectMessage.FireEventAsync(Mesg);
             }
 
             return Room;
@@ -133,7 +140,7 @@ namespace DrrrAsync
             JObject RoomData = JObject.Parse(await WebClient.DownloadStringTaskAsync(WebAddress));
             Room = new DrrrRoom(RoomData);
             
-            await OnRoomJoin?.InvokeAsync(Room);
+            await OnRoomJoin.FireEventAsync(Room);
             return Room;
         }
 
@@ -159,7 +166,7 @@ namespace DrrrAsync
             JObject RoomData = JObject.Parse(await WebClient.DownloadStringTaskAsync(WebAddress));
             Room = new DrrrRoom(RoomData);
             
-            await OnRoomJoin?.InvokeAsync(Room);
+            await OnRoomJoin.FireEventAsync(Room);
             return Room;
         }
 

@@ -1,7 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json.Linq;
 
-using DrrrAsync.AsyncEvents;
+using DrrrAsync.Events;
 
 namespace DrrrAsync.Objects
 {

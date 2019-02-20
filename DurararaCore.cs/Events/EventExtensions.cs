@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace DrrrAsync.AsyncEvents
+namespace DrrrAsync.Events
 {
     public static class EventExtensions
     {
-        public static async void FireEventAsync<T>(this T e, params object[] args) where T : Delegate
+        public static async Task FireEventAsync<T>(this T e, params object[] args) where T : Delegate
         {
             var invokationList = (Func<Task>[])e.GetInvocationList();
             var handlerTasks = new List<Task>();
