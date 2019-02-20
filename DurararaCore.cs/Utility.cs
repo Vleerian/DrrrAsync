@@ -43,37 +43,11 @@ namespace DrrrAsync
             Col(code); Console.Write(text.PadBoth(7));
             Col('w'); Console.Write("] ");
         }
-
-        // Controls what messages are sent to the console.
-        public enum Log_Level
-        {
-            Verbose,    // Send verbose debug-level messages
-            Debug,      // Send basic debug-level messages
-            Status,     // Send status messages only
-            Essential   // Send only essential information
-        }
-
-        // The log-level used program-wide.
-        public static Log_Level Global_Loglevel = Log_Level.Verbose;
-
-        /// <summary>
-        /// Print a log messages to the console. Dependent on Global_Loglevel.
-        /// </summary>
-        /// <param name="status_colour">The color of the message in the status box. (See Utility.Col)</param>
-        /// <param name="status">The message you want in the status box.</param>
-        /// <param name="text">The message you want to send</param>
-        /// <param name="LogLevel">What level of message is this.</param>
-        public static void Log(char status_colour, string status, string text, Log_Level LogLevel)
-        {
-            // If the log level passed into the function is at or higher than the global, print the message.
-            if (LogLevel >= Global_Loglevel)
-            {
-                Status_box(status_colour, status);
-                Console.Write(text + "\n");
-            }
-        }
     }
 
+    /// <summary>
+    /// Holding class for Utility Extensions
+    /// </summary>
     public static class UtilityExtensions
     {
         /// <summary>

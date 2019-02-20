@@ -7,11 +7,14 @@ using Newtonsoft.Json.Linq;
 
 using DrrrAsync.Objects;
 using DrrrAsync.AsyncEvents;
+using DrrrAsync.Logging;
 
 namespace DrrrAsync
 {
     public class DrrrClient
     {
+        private readonly Logger Logger = new Logger { LogLevel = LogLevel.INFO, Name = "DrrrClient" };
+
         // User Defined
         public string Name { get; private set; }
         public string Icon { get; private set; }
@@ -46,7 +49,7 @@ namespace DrrrAsync
         /// </summary>
         public async Task<bool> Login()
         {
-            Utility.Log('c', "Status", $"Logging in with {Name}, {Icon}", Utility.Log_Level.Status);
+            Logger.Info($"Logging in with {Name}, {Icon}");
             // Validation. If the name and icon aren't set, throw errors.
             if (Name == null)
                 throw new ApplicationException("Name has not been set.");
@@ -126,9 +129,9 @@ namespace DrrrAsync
         public async Task<DrrrRoom> JoinRoom(string RoomId)
         {
             // Join the room
-            Utility.Log('c', "Status", $"Joining room: {RoomId}", Utility.Log_Level.Status);
+            Logger.Info($"Joining room: {RoomId}");
             Uri WebAddress = new Uri($"http://drrr.com/room/?id={RoomId}");
-            Utility.Log('c', "Status", $"URL: {WebAddress.AbsoluteUri}", Utility.Log_Level.Verbose);
+            Logger.Debug($"URL: {WebAddress.AbsoluteUri}");
             await WC.DownloadStringTaskAsync(WebAddress);
 
             // Download and parse the room's data
