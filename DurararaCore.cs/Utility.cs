@@ -31,18 +31,6 @@ namespace DrrrAsync
                 default: Console.ForegroundColor = ConsoleColor.White; break;
             }
         }
-
-        /// <summary>
-        /// Generates a colourful status box.
-        /// </summary>
-        /// <param name="code">The color code (see Utility.Col)</param>
-        /// <param name="text">The text you want inside the status box.</param>
-        public static void Status_box(char code, string text)
-        {
-            Col('w'); Console.Write("[");
-            Col(code); Console.Write(text.PadBoth(7));
-            Col('w'); Console.Write("] ");
-        }
     }
 
     /// <summary>
