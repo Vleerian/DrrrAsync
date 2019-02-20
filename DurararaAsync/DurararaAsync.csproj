@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DurararaCore.cs\DurararaCore.csproj" />
+    <ProjectReference Include="..\Extensions\Extensions.csproj" />
   </ItemGroup>
 
 </Project>

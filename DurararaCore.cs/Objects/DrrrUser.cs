@@ -7,7 +7,7 @@ namespace DrrrAsync.Objects
     /// <summary>
     /// A container for information pertaining to a user on Drrr.Com
     /// </summary>
-    public class DrrrUser : DrrrAsyncEventArgs
+    public class DrrrUser
     {
         public string ID;
         public string Name;

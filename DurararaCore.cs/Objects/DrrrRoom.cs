@@ -101,18 +101,22 @@ namespace DrrrAsync.Objects
             }
 
             // Update the host
-            Host = Users.Find(Usr => Usr.ID == RoomObject["host"].Value<string>());
+            if(RoomObject.ContainsKey("host"))
+                Host = Users.Find(Usr => Usr.ID == RoomObject["host"].Value<string>());
 
             // Update the room's message list, adding new messages
             // Populate a temporary list to return new messages only.
             List<DrrrMessage> New_Messages = new List<DrrrMessage>();
-            foreach (JObject item in RoomObject["talks"])
+            if(RoomObject.ContainsKey("talks"))
             {
-                DrrrMessage tmp = new DrrrMessage(item, this);
-                if (!Messages.Any(Mesg=>Mesg.ID == tmp.ID))
+                foreach (JObject item in RoomObject["talks"])
                 {
-                    Messages.Add(tmp);
-                    New_Messages.Add(tmp);
+                    DrrrMessage tmp = new DrrrMessage(item, this);
+                    if (!Messages.Any(Mesg => Mesg.ID == tmp.ID))
+                    {
+                        Messages.Add(tmp);
+                        New_Messages.Add(tmp);
+                    }
                 }
             }
             return New_Messages;

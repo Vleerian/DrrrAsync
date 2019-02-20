@@ -1,25 +1,25 @@
 ﻿using System;
 using System.Threading.Tasks;
-using DrrrAsync.Objects;
 
-namespace DrrrAsync
+using DrrrAsync;
+using DrrrAsync.Objects;
+using DrrrAsync.Extensions;
+
+namespace DurararaAsync
 {
 
     class Program
     {
         static async Task Main(string[] args)
         {
-            DrrrClient C = new DrrrClient { Name = "Welne Oren", Icon = "kuromu-2x" };
-            await C.Login();
-            while (true) ;
-            foreach (DrrrRoom Room in await C.GetLounge())
-            {
-                if (Room.Name == "White Snake Bar18+") ;
-                    await C.JoinRoom(Room.RoomId);
-            }
-            await C.SendMessage("Heyylmao");
-            System.Threading.Thread.Sleep(3000);
-            await C.LeaveRoom();
+            Bot DrrrBot = new Bot { Name = "Welne Oren", Icon = DrrrIcon.Kuromu2x };
+            DrrrBot.RegisterCommands<TestModule>();
+
+            await DrrrBot.Login();
+            await DrrrBot.Connect("WIZARD TOWER");
+
+            await Task.Delay(-1);
+
             Console.ReadKey();
         }
     }
