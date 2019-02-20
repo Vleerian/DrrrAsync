@@ -1,95 +1,61 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+
 using Newtonsoft.Json.Linq;
 
 using DrrrAsync.Objects;
-using DrrrAsync.AsyncEvents;
-using DrrrAsync.Logging;
 
 namespace DrrrAsync
 {
-    public class DrrrClient
+    public partial class DrrrClient
     {
-        private readonly Logger Logger = new Logger { LogLevel = LogLevel.DEBUG, Name = "Client \"DrrrBot\"" };
-
-        // User Defined
-        private string name = "DrrrBot";
-        public string Name {
-            get => name;
-            set
-            {
-                name = value;
-                Logger.Name = $"Client \"{name}\"";
-            }
-        }
-        public string Icon { get; set; } = "kuromu-2x";
-
-        // Site-Defined
-        public string ID { get; private set; }
-        public DrrrUser User { get; private set; }
-        public DrrrRoom Room { get; private set; }
-
-        // Client State
-        public bool LoggedIn { get; private set; }
-
-        // Client Extensions
-        public CookieWebClient WebClient = new CookieWebClient();
-
-        public DrrrAsyncEvent OnLogin = new DrrrAsyncEvent();
-        public DrrrAsyncEvent<DrrrRoom> OnRoomJoin = new DrrrAsyncEvent<DrrrRoom>();
-        //public event EventHandler<DrrrUser> On_User_Joined  = new DrrrAsyncEvent<DrrrRoom>();
-        public DrrrAsyncEvent<DrrrMessage> OnMessage = new DrrrAsyncEvent<DrrrMessage>();
-        public DrrrAsyncEvent<DrrrMessage> OnDirectMessage = new DrrrAsyncEvent<DrrrMessage>();
-
         /// <summary>
-        /// Logs the user in to Drrr.Com using the credentials set in the constructor.
+        /// Creates a room on Drrr.com
         /// </summary>
-        public async Task<bool> Login()
+        /// <param name="aRoom">The DrrrRoom object with information set about the room you want to create.</param>
+        /// <returns>All available data about the created room.</returns>
+        public async Task<DrrrRoom> MakeRoom(DrrrRoom aRoom)
         {
-            Logger.Info($"Logging in with {Name}, {Icon}");
-
-            // Get the index page to parse the token
-            Uri WebAddress = new Uri("https://drrr.com");
-            string IndexBody = await WebClient.DownloadStringTaskAsync(WebAddress);
-            string Token = Regex.Match(IndexBody, @"""token"" data-value=""(\w+)\""").Groups[1].Value;
-
-            // Send a second request to do the actual login.
+            // Send a POST to create the room.
+            Uri WebAddress = new Uri("https://drrr.com/create_room/?");
             byte[] response = await WebClient.UploadValuesTaskAsync(WebAddress, "POST", new NameValueCollection() {
-                { "name",     Name    },
-                { "icon",     Icon    },
-                { "token",    Token   },
-                { "login",    "ENTER" },
-                { "language", "en-US" }
+                { "name", aRoom.Name },
+                { "description", aRoom.Description },
+                { "limit", aRoom.Limit.ToString() },
+                { "language", aRoom.Language },
+                { "adult", aRoom.AdultRoom.ToString() },
             });
-            LoggedIn = true;
-            OnLogin?.InvokeAsync();
-            return true;
+
+            // Retrieve room data
+            WebAddress = new Uri($"http://drrr.com/room/json.php?fast=1");
+            JObject RoomData = JObject.Parse(await WebClient.DownloadStringTaskAsync(WebAddress));
+            Room = new DrrrRoom(RoomData);
+
+            await OnRoomJoin?.InvokeAsync(Room);
+            return Room;
         }
 
         /// <summary>
-        /// Fetches the lounge information from Drrr.com
+        /// Joins a room on Drrr.com
         /// </summary>
-        /// <returns>a List<> of DrrrRoom objects.</returns>
-        public async Task<List<DrrrRoom>> GetLounge()
+        /// <param name="RoomId">The ID of the room, as found in GetLounge</param>
+        /// <returns>A DrrrRoom object containing all the available data for that room.</returns>
+        public async Task<DrrrRoom> JoinRoom(string RoomId)
         {
-            // Retreive the raw text of the lounge's json, and parse it
-            Uri WebAddress = new Uri("http://drrr.com/lounge?api=json");
-            JObject Lounge = JObject.Parse(await WebClient.DownloadStringTaskAsync(WebAddress));
+            // Join the room
+            Logger.Info($"Joining room: {RoomId}");
+            Uri WebAddress = new Uri($"http://drrr.com/room/?id={RoomId}");
+            Logger.Debug($"URL: {WebAddress.AbsoluteUri}");
+            await WebClient.DownloadStringTaskAsync(WebAddress);
 
-            // Update the client's DrrrUser using the profile data provided
-            JObject Profile = Lounge.Value<JObject>("profile");
-            ID = Profile["id"].Value<string>();
-            Name = Profile["name"].Value<string>();
-            User = new DrrrUser(Profile);
+            // Download and parse room data
+            WebAddress = new Uri($"https://drrr.com/json.php?fast=1");
+            JObject RoomData = JObject.Parse(await WebClient.DownloadStringTaskAsync(WebAddress));
+            Room = new DrrrRoom(RoomData);
 
-            // Return a List of visible rooms.
-            List<DrrrRoom> Rooms = new List<DrrrRoom>();
-            foreach (JObject item in Lounge["rooms"])
-                Rooms.Add(new DrrrRoom(item));
-            return Rooms;
+            await OnRoomJoin?.InvokeAsync(Room);
+            return Room;
         }
 
         /// <summary>
@@ -112,54 +78,6 @@ namespace DrrrAsync
                     await OnDirectMessage?.InvokeAsync(Mesg);
             }
 
-            return Room;
-        }
-
-        /// <summary>
-        /// Joins a room on Drrr.com
-        /// </summary>
-        /// <param name="RoomId">The ID of the room, as found in GetLounge</param>
-        /// <returns>A DrrrRoom object containing all the available data for that room.</returns>
-        public async Task<DrrrRoom> JoinRoom(string RoomId)
-        {
-            // Join the room
-            Logger.Info($"Joining room: {RoomId}");
-            Uri WebAddress = new Uri($"http://drrr.com/room/?id={RoomId}");
-            Logger.Debug($"URL: {WebAddress.AbsoluteUri}");
-            await WebClient.DownloadStringTaskAsync(WebAddress);
-
-            // Download and parse room data
-            WebAddress = new Uri($"https://drrr.com/json.php?fast=1");
-            JObject RoomData = JObject.Parse(await WebClient.DownloadStringTaskAsync(WebAddress));
-            Room = new DrrrRoom(RoomData);
-            
-            await OnRoomJoin?.InvokeAsync(Room);
-            return Room;
-        }
-
-        /// <summary>
-        /// Creates a room on Drrr.com
-        /// </summary>
-        /// <param name="aRoom">The DrrrRoom object with information set about the room you want to create.</param>
-        /// <returns>All available data about the created room.</returns>
-        public async Task<DrrrRoom> MakeRoom(DrrrRoom aRoom)
-        {
-            // Send a POST to create the room.
-            Uri WebAddress = new Uri("https://drrr.com/create_room/?");
-            byte[] response = await WebClient.UploadValuesTaskAsync(WebAddress, "POST", new NameValueCollection() {
-                { "name", aRoom.Name },
-                { "description", aRoom.Description },
-                { "limit", aRoom.Limit.ToString() },
-                { "language", aRoom.Language },
-                { "adult", aRoom.AdultRoom.ToString() },
-            });
-
-            // Retrieve room data
-            WebAddress = new Uri($"http://drrr.com/room/json.php?fast=1");
-            JObject RoomData = JObject.Parse(await WebClient.DownloadStringTaskAsync(WebAddress));
-            Room = new DrrrRoom(RoomData);
-            
-            await OnRoomJoin?.InvokeAsync(Room);
             return Room;
         }
 
