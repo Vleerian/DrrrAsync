@@ -13,8 +13,6 @@ namespace DrrrAsync
 {
     public class DrrrClient
     {
-        public DrrrClient() => OnRoomJoin += async (_) => Logger.Debug("Logged in!");
-
         protected readonly Logger Logger = new Logger { LogLevel = LogLevel.DEBUG, Name = "Client \"DrrrBot\"" };
 
         // User Defined
@@ -143,7 +141,7 @@ namespace DrrrAsync
             JObject RoomData = await WebClient.Get_Json($"https://drrr.com/json.php?fast=1");
             Room = new DrrrRoom(RoomData);
             
-            await OnRoomJoin.FireEventAsync(new DrrrRoomEventArgs(Room));
+            await OnRoomJoin.FireEventAsync(Room);
             return Room;
         }
 
