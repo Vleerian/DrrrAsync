@@ -25,7 +25,7 @@ namespace DrrrAsync
                 Logger.Name = $"Client \"{name}\"";
             }
         }
-        public string Icon { get; set; } = "kuromu-2x";
+        public DrrrIcon Icon { get; set; } = DrrrIcon.Kuromu2x;
 
         // Site-Defined
         public string ID { get; private set; }
@@ -59,7 +59,7 @@ namespace DrrrAsync
             // Send a second request to do the actual login.
             byte[] response = await WebClient.UploadValuesTaskAsync(WebAddress, "POST", new NameValueCollection() {
                 { "name",     Name    },
-                { "icon",     Icon    },
+                { "icon",     Icon.ID },
                 { "token",    Token   },
                 { "login",    "ENTER" },
                 { "language", "en-US" }
