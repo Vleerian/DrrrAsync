@@ -12,45 +12,9 @@ namespace DrrrAsync
         public delegate Task AsyncEventHandler();
         public delegate Task AsyncEventHandler<T>(T e) where T : DrrrAsyncEventArgs;
 
-        //A base class for things sent to DrrrAsyncEventHandlers to inherit from
-        public class DrrrAsyncEventArgs
+        public class DrrrAsyncEvent : DrrrAsyncEvent<DrrrAsyncEventArgs>
         {
-            public bool Handled { get; set; }
-        }
-
-        public class DrrrAsyncEvent
-        {
-            // A List<> of EventHandlers registered to this event
-            private List<AsyncEventHandler> Handlers;
-
-            public DrrrAsyncEvent() => Handlers = new List<AsyncEventHandler>();
-
-            /// <summary>
-            /// Invokes the event and all it's handlers
-            /// </summary>
-            public async Task InvokeAsync()
-            {
-                // Return if there are no event handlers
-                if (!Handlers.Any())
-                    return;
-                foreach (var handler in Handlers)
-                {
-                    await handler().ConfigureAwait(false);
-                }
-            }
-
-            /// <summary>
-            /// Registers an event handler to this event.
-            /// </summary>
-            /// <param name="aTask">The EventHandler you want to register</param>
-            public void Register(AsyncEventHandler aTask) => Handlers.Add(aTask);
-
-            /// <summary>
-            /// Unregisters a handler from this event
-            /// </summary>
-            /// <param name="aTask">The EventHandler you want to unregister</param>
-            public void Unregister(AsyncEventHandler aTask) => Handlers.Remove(aTask);
-
+            public Task InvokeAsync() => InvokeAsync(new DrrrAsyncEventArgs());
         }
 
         public class DrrrAsyncEvent<T> where T : DrrrAsyncEventArgs
@@ -72,9 +36,7 @@ namespace DrrrAsync
                 e.Handled = true;
 
                 foreach (var handler in Handlers)
-                {
                     await handler(e).ConfigureAwait(false);
-                }
             }
 
             /// <summary>
@@ -88,7 +50,6 @@ namespace DrrrAsync
             /// </summary>
             /// <param name="aTask">The EventHandler you want to unregister</param>
             public void Unregister(AsyncEventHandler<T> aTask) => Handlers.Remove(aTask);
-
         }
     }
 }
