@@ -12,41 +12,23 @@ namespace DrrrAsync
         {
             switch (col)
             {
-                case 'r':
-                    Console.ForegroundColor = ConsoleColor.Red; break;
-                case 'g':
-                    Console.ForegroundColor = ConsoleColor.Green; break;
-                case 'b':
-                    Console.ForegroundColor = ConsoleColor.Blue; break;
-                case 'c':
-                    Console.ForegroundColor = ConsoleColor.Cyan; break;
-                case 'm':
-                    Console.ForegroundColor = ConsoleColor.Magenta; break;
-                case 'y':
-                    Console.ForegroundColor = ConsoleColor.Yellow; break;
-                case 'k':
-                    Console.ForegroundColor = ConsoleColor.Black; break;
-                case 'w':
-                    Console.ForegroundColor = ConsoleColor.White; break;
-                case 'l':
-                    Console.ForegroundColor = ConsoleColor.Gray; break;
-                case 'R':
-                    Console.ForegroundColor = ConsoleColor.DarkRed; break;
-                case 'G':
-                    Console.ForegroundColor = ConsoleColor.DarkGreen; break;
-                case 'B':
-                    Console.ForegroundColor = ConsoleColor.DarkBlue; break;
-                case 'C':
-                    Console.ForegroundColor = ConsoleColor.DarkCyan; break;
-                case 'M':
-                    Console.ForegroundColor = ConsoleColor.DarkMagenta; break;
-                case 'Y':
-                    Console.ForegroundColor = ConsoleColor.DarkYellow; break;
-                case 'L':
-                    Console.ForegroundColor = ConsoleColor.DarkGray; break;
-                default:
-                    Console.ForegroundColor = ConsoleColor.White; break;
-
+                case 'r': Console.ForegroundColor = ConsoleColor.Red; break;
+                case 'g': Console.ForegroundColor = ConsoleColor.Green; break;
+                case 'b': Console.ForegroundColor = ConsoleColor.Blue; break;
+                case 'c': Console.ForegroundColor = ConsoleColor.Cyan; break;
+                case 'm': Console.ForegroundColor = ConsoleColor.Magenta; break;
+                case 'y': Console.ForegroundColor = ConsoleColor.Yellow; break;
+                case 'k': Console.ForegroundColor = ConsoleColor.Black; break;
+                case 'w': Console.ForegroundColor = ConsoleColor.White; break;
+                case 'l': Console.ForegroundColor = ConsoleColor.Gray; break;
+                case 'R': Console.ForegroundColor = ConsoleColor.DarkRed; break;
+                case 'G': Console.ForegroundColor = ConsoleColor.DarkGreen; break;
+                case 'B': Console.ForegroundColor = ConsoleColor.DarkBlue; break;
+                case 'C': Console.ForegroundColor = ConsoleColor.DarkCyan; break;
+                case 'M': Console.ForegroundColor = ConsoleColor.DarkMagenta; break;
+                case 'Y': Console.ForegroundColor = ConsoleColor.DarkYellow; break;
+                case 'L': Console.ForegroundColor = ConsoleColor.DarkGray; break;
+                default: Console.ForegroundColor = ConsoleColor.White; break;
             }
         }
 
