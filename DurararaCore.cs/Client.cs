@@ -13,10 +13,18 @@ namespace DrrrAsync
 {
     public class DrrrClient
     {
-        private readonly Logger Logger = new Logger { LogLevel = LogLevel.INFO, Name = "DrrrClient" };
+        private readonly Logger Logger = new Logger { LogLevel = LogLevel.INFO, Name = "Client" };
 
         // User Defined
-        public string Name { get; private set; }
+        private string name;
+        public string Name {
+            get => name;
+            set
+            {
+                Logger.Name = $"Client \"{value}\"";
+                name = value;
+            }
+        }
         public string Icon { get; private set; }
 
         // Site-Defined
@@ -28,17 +36,17 @@ namespace DrrrAsync
         public bool LoggedIn { get; private set; }
 
         // Client Extensions
-        public CookieWebClient WC;
+        public CookieWebClient WebClient;
 
-        public DrrrAsyncEvent On_Login = new DrrrAsyncEvent();
-        public DrrrAsyncEvent<DrrrRoom> On_Room_Join = new DrrrAsyncEvent<DrrrRoom>();
+        public DrrrAsyncEvent OnLogin = new DrrrAsyncEvent();
+        public DrrrAsyncEvent<DrrrRoom> OnRoomJoin = new DrrrAsyncEvent<DrrrRoom>();
         //public event EventHandler<DrrrUser> On_User_Joined  = new DrrrAsyncEvent<DrrrRoom>();
-        public DrrrAsyncEvent<DrrrMessage> On_Message = new DrrrAsyncEvent<DrrrMessage>();
-        public DrrrAsyncEvent<DrrrMessage> On_Direct_Message = new DrrrAsyncEvent<DrrrMessage>();
+        public DrrrAsyncEvent<DrrrMessage> OnMessage = new DrrrAsyncEvent<DrrrMessage>();
+        public DrrrAsyncEvent<DrrrMessage> OnDirectMessage = new DrrrAsyncEvent<DrrrMessage>();
 
         public DrrrClient(string aName, string aIcon)
         {
-            WC = new CookieWebClient();
+            WebClient = new CookieWebClient();
 
             Name = aName;
             Icon = aIcon;
@@ -49,20 +57,21 @@ namespace DrrrAsync
         /// </summary>
         public async Task<bool> Login()
         {
-            Logger.Info($"Logging in with {Name}, {Icon}");
-            // Validation. If the name and icon aren't set, throw errors.
+            // Throw if Name or Icon are not set.
             if (Name == null)
                 throw new ApplicationException("Name has not been set.");
             if (Icon == null)
                 throw new ApplicationException("Icon has not been set.");
 
+            Logger.Info($"Logging in with {Name}, {Icon}");
+
             // Get the index page to parse the token
             Uri WebAddress = new Uri("https://drrr.com");
-            string IndexBody = await WC.DownloadStringTaskAsync(WebAddress);
+            string IndexBody = await WebClient.DownloadStringTaskAsync(WebAddress);
             string Token = Regex.Match(IndexBody, @"""token"" data-value=""(\w+)\""").Groups[1].Value;
 
-            // Make a second request to do the actual login action.
-            byte[] response = await WC.UploadValuesTaskAsync(WebAddress, "POST", new NameValueCollection() {
+            // Send a second request to do the actual login.
+            byte[] response = await WebClient.UploadValuesTaskAsync(WebAddress, "POST", new NameValueCollection() {
                 { "name",     Name    },
                 { "icon",     Icon    },
                 { "token",    Token   },
@@ -70,7 +79,7 @@ namespace DrrrAsync
                 { "language", "en-US" }
             });
             LoggedIn = true;
-            On_Login?.InvokeAsync();
+            OnLogin?.InvokeAsync();
             return true;
         }
 
@@ -82,19 +91,18 @@ namespace DrrrAsync
         {
             // Retreive the raw text of the lounge's json, and parse it
             Uri WebAddress = new Uri("http://drrr.com/lounge?api=json");
-            JObject Lounge = JObject.Parse(await WC.DownloadStringTaskAsync(WebAddress));
+            JObject Lounge = JObject.Parse(await WebClient.DownloadStringTaskAsync(WebAddress));
 
-            // Update the client's user instance using the profile data provided
+            // Update the client's DrrrUser using the profile data provided
             JObject Profile = Lounge.Value<JObject>("profile");
             ID = Profile["id"].Value<string>();
             Name = Profile["name"].Value<string>();
             User = new DrrrUser(Profile);
 
-            // Create populate, and return a List<> with the room data.
+            // Return a List of visible rooms.
             List<DrrrRoom> Rooms = new List<DrrrRoom>();
             foreach (JObject item in Lounge["rooms"])
                 Rooms.Add(new DrrrRoom(item));
-
             return Rooms;
         }
 
@@ -106,16 +114,16 @@ namespace DrrrAsync
         {
             // Retrieve the room's data from the update api endpoint
             Uri WebAddress = new Uri($"http://drrr.com/json.php?update={Room.Update}");
-            JObject RoomData = JObject.Parse(await WC.DownloadStringTaskAsync(WebAddress));
+            JObject RoomData = JObject.Parse(await WebClient.DownloadStringTaskAsync(WebAddress));
 
-            // Iterate through the parsed messages and fire an event for each one
+            // Fire an event for each parsed message
             // Could this be moved to the DrrrRoom or DrrrMessage constructor in a clean way?
             foreach (DrrrMessage Mesg in Room.UpdateRoom(RoomData))
             {
-                await On_Message?.InvokeAsync(Mesg);
-                // If it's a direct message, fire the On_Direct_Message event
+                await OnMessage?.InvokeAsync(Mesg);
+                // If it's a direct message, fire the OnDirectMessage event
                 if (Mesg.Secret)
-                    await On_Direct_Message?.InvokeAsync(Mesg);
+                    await OnDirectMessage?.InvokeAsync(Mesg);
             }
 
             return Room;
@@ -132,15 +140,14 @@ namespace DrrrAsync
             Logger.Info($"Joining room: {RoomId}");
             Uri WebAddress = new Uri($"http://drrr.com/room/?id={RoomId}");
             Logger.Debug($"URL: {WebAddress.AbsoluteUri}");
-            await WC.DownloadStringTaskAsync(WebAddress);
+            await WebClient.DownloadStringTaskAsync(WebAddress);
 
-            // Download and parse the room's data
+            // Download and parse room data
             WebAddress = new Uri($"https://drrr.com/json.php?fast=1");
-            JObject RoomData = JObject.Parse(await WC.DownloadStringTaskAsync(WebAddress));
+            JObject RoomData = JObject.Parse(await WebClient.DownloadStringTaskAsync(WebAddress));
             Room = new DrrrRoom(RoomData);
-
-            // Run the On_Room_Join event, and return.
-            await On_Room_Join?.InvokeAsync(Room);
+            
+            await OnRoomJoin?.InvokeAsync(Room);
             return Room;
         }
 
@@ -151,9 +158,9 @@ namespace DrrrAsync
         /// <returns>All available data about the created room.</returns>
         public async Task<DrrrRoom> MakeRoom(DrrrRoom aRoom)
         {
-            // Send a post request to create the room.
+            // Send a POST to create the room.
             Uri WebAddress = new Uri("https://drrr.com/create_room/?");
-            byte[] response = await WC.UploadValuesTaskAsync(WebAddress, "POST", new NameValueCollection() {
+            byte[] response = await WebClient.UploadValuesTaskAsync(WebAddress, "POST", new NameValueCollection() {
                 { "name", aRoom.Name },
                 { "description", aRoom.Description },
                 { "limit", aRoom.Limit.ToString() },
@@ -161,13 +168,12 @@ namespace DrrrAsync
                 { "adult", aRoom.AdultRoom.ToString() },
             });
 
-            // Retrieve the room's data
+            // Retrieve room data
             WebAddress = new Uri($"http://drrr.com/room/json.php?fast=1");
-            JObject RoomData = JObject.Parse(await WC.DownloadStringTaskAsync(WebAddress));
+            JObject RoomData = JObject.Parse(await WebClient.DownloadStringTaskAsync(WebAddress));
             Room = new DrrrRoom(RoomData);
-
-            // Fire an On_Room_Join event
-            await On_Room_Join?.InvokeAsync(Room);
+            
+            await OnRoomJoin?.InvokeAsync(Room);
             return Room;
         }
 
@@ -180,7 +186,7 @@ namespace DrrrAsync
         public async Task<byte[]> LeaveRoom()
         {
             Uri WebAddress = new Uri("https://drrr.com/room/?ajax=1");
-            return await WC.UploadValuesTaskAsync(WebAddress, "POST", new NameValueCollection() {
+            return await WebClient.UploadValuesTaskAsync(WebAddress, "POST", new NameValueCollection() {
                 { "leave", "leave" }
             });
         }
@@ -194,7 +200,7 @@ namespace DrrrAsync
         public async Task<byte[]> GiveHost(DrrrUser aUser)
         {
             Uri WebAddress = new Uri("https://drrr.com/room/?ajax=1");
-            return await WC.UploadValuesTaskAsync(WebAddress, "POST", new NameValueCollection() {
+            return await WebClient.UploadValuesTaskAsync(WebAddress, "POST", new NameValueCollection() {
                 { "new_host", aUser.ID }
             });
         }
@@ -208,7 +214,7 @@ namespace DrrrAsync
         public async Task<byte[]> Ban(DrrrUser aUser)
         {
             Uri WebAddress = new Uri("https://drrr.com/room/?ajax=1");
-            return await WC.UploadValuesTaskAsync(WebAddress, "POST", new NameValueCollection() {
+            return await WebClient.UploadValuesTaskAsync(WebAddress, "POST", new NameValueCollection() {
                 { "ban", aUser.ID }
             });
         }
@@ -222,23 +228,23 @@ namespace DrrrAsync
         public async Task<byte[]> Kick(DrrrUser aUser)
         {
             Uri WebAddress = new Uri("https://drrr.com/room/?ajax=1");
-            return await WC.UploadValuesTaskAsync(WebAddress, "POST", new NameValueCollection() {
+            return await WebClient.UploadValuesTaskAsync(WebAddress, "POST", new NameValueCollection() {
                 { "kick", aUser.ID }
             });
         }
 
         /// <summary>
         /// Sends a message to the room you are currently in.
-        /// NOTE: This method does not check wheter or not you are in a room, and will not shield you from the site's anti-spam measures.
+        /// NOTE: This won't check whether or not you are in a room, and won't protect you from anti-spam measures.
         /// </summary>
         /// <param name="Message">The message you want to send</param>
-        /// <param name="Url">The URL (if any) you want to attatch.</param>
+        /// <param name="Url">The URL (if any) you want to attach.</param>
         /// <returns></returns>
         public async Task<byte[]> SendMessage(string Message, string Url = "")
         {
             Uri WebAddress = new Uri("https://drrr.com/room/?ajax=1");
 
-            return await WC.UploadValuesTaskAsync(WebAddress, "POST", new NameValueCollection() {
+            return await WebClient.UploadValuesTaskAsync(WebAddress, "POST", new NameValueCollection() {
                 { "message", Message },
                 { "url",     Url     },
                 { "to",      ""      }

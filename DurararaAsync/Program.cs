@@ -11,7 +11,7 @@ namespace DrrrAsync
         {
             DrrrClient C = new DrrrClient("Welne Oren", "kuromu-2x");
             await C.Login();
-
+            while (true) ;
             foreach (DrrrRoom Room in await C.GetLounge())
             {
                 if (Room.Name == "White Snake Bar18+") ;
