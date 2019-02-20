@@ -13,7 +13,7 @@ namespace DrrrAsync
 {
     public class DrrrClient
     {
-        private readonly Logger Logger = new Logger { LogLevel = LogLevel.INFO, Name = "Client" };
+        private readonly Logger Logger = new Logger { LogLevel = LogLevel.DEBUG, Name = "Client" };
 
         // User Defined
         private string name;
@@ -47,6 +47,9 @@ namespace DrrrAsync
         public DrrrClient(string aName, string aIcon)
         {
             WebClient = new CookieWebClient();
+
+            foreach (var level in LogLevel.Levels)
+                Logger.Log("DrrrClient Constructor", level);
 
             Name = aName;
             Icon = aIcon;
