@@ -85,8 +85,11 @@ namespace DrrrAsync
             /// <returns>True if the bot started successfully, false otherwise.</returns>
             public async Task<bool> Connect(string aRoomName)
             {
+                Logger.Debug($"Searching for Room {aRoomName}");
                 List<DrrrRoom> Rooms = await GetLounge();
+                Logger.Debug("DBG");
                 DrrrRoom Room = Rooms.Find(lRoom => lRoom.Name == aRoomName);
+                Logger.Debug("DBG");
                 bool Connected = false;
 
                 if (Room == null)

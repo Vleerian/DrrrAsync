@@ -8,7 +8,7 @@ namespace DrrrAsync.Events
     {
         public static async Task FireEventAsync<T>(this T e, params object[] args) where T : Delegate
         {
-            var invokationList = (Func<Task>[])e.GetInvocationList();
+            var invokationList = e.GetInvocationList();
             var handlerTasks = new List<Task>();
 
             foreach (var invokation in invokationList)

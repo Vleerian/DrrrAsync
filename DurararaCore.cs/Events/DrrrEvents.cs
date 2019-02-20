@@ -10,17 +10,20 @@ namespace DrrrAsync.Events
     {
         public readonly DrrrRoom DrrrRoom;
         public DrrrRoomEventArgs(DrrrRoom room) => DrrrRoom = room;
+        public static implicit operator DrrrRoomEventArgs(DrrrRoom room) => new DrrrRoomEventArgs(room);
     }
 
     public class DrrrUserEventArgs : DrrrEventArgs
     {
         public readonly DrrrUser DrrrUser;
         public DrrrUserEventArgs(DrrrUser user) => DrrrUser = user;
+        public static implicit operator DrrrUserEventArgs(DrrrUser user) => new DrrrUserEventArgs(user);
     }
     public class DrrrMessageEventArgs : DrrrEventArgs
     {
         public readonly DrrrMessage DrrrMessage;
         public DrrrMessageEventArgs(DrrrMessage message) => DrrrMessage = message;
+        public static implicit operator DrrrMessageEventArgs(DrrrMessage message) => new DrrrMessageEventArgs(message);
     }
 
     public delegate Task DrrrEventHandler();
