@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace DrrrAsync.Logging
 {
@@ -9,7 +10,20 @@ namespace DrrrAsync.Logging
     {
         public string Name = "Log";
         public bool LogTime = true;
-        public LogLevel LogLevel = LogLevel.DEBUG;
+        public LogLevel LogLevel = globalLogLevel;
+
+        public static LogLevel GlobalLogLevel
+        {
+            set
+            {
+                foreach (var logger in GlobalLoggers)
+                    logger.LogLevel = value;
+                globalLogLevel = value;
+            }
+            get => globalLogLevel;
+        }
+        private static LogLevel globalLogLevel = LogLevel.DEBUG;
+        private static readonly List<Logger> GlobalLoggers = new List<Logger>();
         private static readonly object Lock = new object();
 
         /// <summary>
@@ -37,5 +51,10 @@ namespace DrrrAsync.Logging
         public void Warn<T>(T message) => Log(message, LogLevel.WARN);
         public void Info<T>(T message) => Log(message, LogLevel.INFO);
         public void Debug<T>(T message) => Log(message, LogLevel.DEBUG);
+
+        public Logger() =>
+            GlobalLoggers.Add(this);
+        ~Logger() =>
+            GlobalLoggers.Remove(this);
     }
 }
