@@ -9,45 +9,45 @@ namespace DrrrAsync
             /// <summary>
             /// The attribute the bot framework uses to get the command name, and check if it is, indeed, a command.
             /// </summary>
-            class Command : Attribute
+            class CommandAttribute : Attribute
             {
                 public string CommandName;
 
-                public Command(string aCommandName) =>
+                public CommandAttribute(string aCommandName) =>
                     CommandName = aCommandName;
             }
 
             /// <summary>
             /// The attribute the bot uses to get the command's documentation/description
             /// </summary>
-            class Description : Attribute
+            class AttributeDescription : Attribute
             {
                 public string CommandDescription;
 
-                public Description(string aCommandDescription) =>
+                public AttributeDescription(string aCommandDescription) =>
                     CommandDescription = aCommandDescription;
             }
 
             /// <summary>
             /// The attribute the bot uses to get the command's aliases.
             /// </summary>
-            class Aliases : Attribute
+            class AttributeAliases : Attribute
             {
                 public string[] AliasList;
 
-                public Aliases(params string[] aAlias) =>
+                public AttributeAliases(params string[] aAlias) =>
                     AliasList = aAlias;
             }
 
             /// <summary>
             /// Commands with this attribute may only be used by the bot's owner
             /// </summary>
-            class RequiresOwner : Attribute { }
+            class AttributeRequiresOwner : Attribute { }
 
             /// <summary>
             /// Commands with this attribute may only be used by 'elevated' individuals (Admins/Mods).
             /// </summary>
-            class RequiresElevated : Attribute { }
+            class AttributeRequiresElevated : Attribute { }
         }
     }
 }
