@@ -61,7 +61,7 @@ namespace DrrrAsync
             public Bot(string aName, string aIcon)
             {
                 Client = new DrrrClient(aName, aIcon);
-                Client.On_Message.Register(LookForCommands);
+                Client.OnMessage.Register(LookForCommands);
             }
 
             /// <summary>

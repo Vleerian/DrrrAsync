@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Threading.Tasks;
 using DrrrAsync.Objects;
 
 namespace DrrrAsync
@@ -7,19 +7,19 @@ namespace DrrrAsync
 
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-            DrrrClient C = new DrrrClient("Welne Oren", "kuromu-2x");
-            C.Login().GetAwaiter().GetResult();
-
-            foreach (DrrrRoom Room in C.GetLounge().GetAwaiter().GetResult())
+            DrrrClient C = new DrrrClient { Name = "Welne Oren", Icon = "kuromu-2x" };
+            await C.Login();
+            while (true) ;
+            foreach (DrrrRoom Room in await C.GetLounge())
             {
-                if (Room.Name == "White Snake Bar18+")
-                    C.JoinRoom(Room.RoomId).GetAwaiter().GetResult();
+                if (Room.Name == "White Snake Bar18+") ;
+                    await C.JoinRoom(Room.RoomId);
             }
-            C.SendMessage("Heyylmao").GetAwaiter().GetResult();
+            await C.SendMessage("Heyylmao");
             System.Threading.Thread.Sleep(3000);
-            C.LeaveRoom().GetAwaiter().GetResult();
+            await C.LeaveRoom();
             Console.ReadKey();
         }
     }
