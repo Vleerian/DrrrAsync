@@ -3,14 +3,14 @@ using System.Linq;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 
-using DrrrAsync.AsyncEvents;
+using DrrrAsync.Events;
 
 namespace DrrrAsync.Objects
 {
     /// <summary>
     /// A container for information pertaining to a room on Drrr.com
     /// </summary>
-    public class DrrrRoom : DrrrAsyncEventArgs
+    public class DrrrRoom
     {
         public string Language { get; private set; }
         public string RoomId { get; private set; }

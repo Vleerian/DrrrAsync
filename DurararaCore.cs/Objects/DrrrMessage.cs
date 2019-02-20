@@ -1,14 +1,14 @@
 ﻿using System;
 using Newtonsoft.Json.Linq;
 
-using DrrrAsync.AsyncEvents;
+using DrrrAsync.Events;
 
 namespace DrrrAsync.Objects
 {
     /// <summary>
     /// A container for information pertaining to a message on Drrr.Com
     /// </summary>
-    public class DrrrMessage : DrrrAsyncEventArgs
+    public class DrrrMessage
     {
         public string ID;
         public string Type;
