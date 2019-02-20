@@ -12,15 +12,18 @@ namespace DrrrAsync.Logging
         public bool LogTime = true;
         public LogLevel LogLevel = globalLogLevel;
 
+        /// <summary>
+        /// Sets or Gets the global LogLevel. It is applied to all current and future instances of logger, unless specified otherwise.
+        /// </summary>
         public static LogLevel GlobalLogLevel
         {
+            get => globalLogLevel;
             set
             {
                 foreach (var logger in GlobalLoggers)
                     logger.LogLevel = value;
                 globalLogLevel = value;
             }
-            get => globalLogLevel;
         }
         private static LogLevel globalLogLevel = LogLevel.DEBUG;
         private static readonly List<Logger> GlobalLoggers = new List<Logger>();
