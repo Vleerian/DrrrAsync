@@ -19,7 +19,7 @@ namespace DurararaAsync
             DrrrBot.RegisterCommands<TestModule>();
 
             await DrrrBot.Login();
-            await DrrrBot.Connect("WIZARD TOWER");
+            await DrrrBot.Connect("White Snake Bar18+");
 
             await Task.Delay(-1);
 
