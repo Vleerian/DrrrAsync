@@ -33,6 +33,11 @@ namespace DrrrAsync
                 Commands = new Dictionary<string, Command>();
             }
 
+            public void Shutdown()
+            {
+                Running = false;
+            }
+
             /// <summary>
             /// The register command goes through all the methods in command module, and those with the Command attribute
             /// are added to the CommandDictionary.
@@ -71,7 +76,12 @@ namespace DrrrAsync
                 // Check if the message starts with a command.
                 if (message.Mesg.StartsWith(CommandPrefix))
                 {
-                    string[] Parts = message.Mesg.Split(" ", StringSplitOptions.RemoveEmptyEntries);
+                    string[] Parts;
+                    if (message.Mesg.Contains(" "))
+                        Parts = message.Mesg.Split(" ", StringSplitOptions.RemoveEmptyEntries);
+                    else
+                        Parts = new string[] { message.Mesg };
+
 
                     string Cmnd = Parts[0].ToLower().Substring(1);
                     if (Commands.ContainsKey(Cmnd))
@@ -120,15 +130,21 @@ namespace DrrrAsync
                             }
                         }
 
-                        //Call the command
-                        await Commands[Cmnd].Call(Args.ToArray());
+                        try
+                        {
+                            await Commands[Cmnd].Call(Args.ToArray());
+                        }
+                        catch(Exception err)
+                        {
+                            Logger.Error($"Command [{Cmnd}] errored with message: {err.Message}");
+                        }
                     }
                 }
                 await Task.CompletedTask;
             }
 
             /// <summary>
-            /// The bot's primary loop. It takes a room name, and will attempt to join it.
+            /// Starts the bot's primary loop. It takes a room name, and will attempt to join it.
             /// </summary>
             /// <param name="aRoomName">The name of the room you want to join</param>
             /// <returns>True if the bot started successfully, false otherwise.</returns>
@@ -149,16 +165,19 @@ namespace DrrrAsync
 
                 if (!Connected)
                     return false;
-                Console.WriteLine("Connecting...");
 
                 return await Connect(Room);
             }
 
+            /// <summary>
+            /// Starts the bot's primary loop. It takes a room, and will attempt to join it.
+            /// </summary>
+            /// <param name="aRoomName">The name of the room you want to join</param>
+            /// <returns>True if the bot started successfully, false otherwise.</returns>
             public async Task<bool> Connect(DrrrRoom aRoom)
             {
                 //If the need arises, processing can be done on the resulting DrrrRoom object.
                 await JoinRoom(aRoom.RoomId);
-                Console.WriteLine("Done...");
 
                 if (!Running)
                 {
@@ -171,10 +190,12 @@ namespace DrrrAsync
                 return true;
             }
 
+            /// <summary>
+            /// The bot's primary loop.
+            /// </summary>
             private async Task BotMain()
             {
-
-                Console.WriteLine("Starting loop...");
+                Logger.Info("Starting loop.");
 
                 while (Running)
                 {

@@ -10,6 +10,9 @@ namespace DurararaAsync
 
     class Program
     {
+        //We define random statically because it helps make random numbers slightly more random
+        public static Random rnd = new Random();
+
         static async Task Main(string[] args)
         {
             Bot DrrrBot = new Bot { Name = "Welne Oren", Icon = DrrrIcon.Kuromu2x, CommandPrefix = "#" };

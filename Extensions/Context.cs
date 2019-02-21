@@ -18,9 +18,9 @@ namespace DrrrAsync
             public DrrrUser Author { get; private set; }
             public DrrrRoom Room { get; private set; }
 
-            public DrrrClient Client { get; private set; }
+            public Bot Client { get; private set; }
 
-            public Context(DrrrClient aClient, DrrrMessage aMessage, DrrrUser aAuthor, DrrrRoom aRoom)
+            public Context(Bot aClient, DrrrMessage aMessage, DrrrUser aAuthor, DrrrRoom aRoom)
             {
                 Client = aClient;
                 Message = aMessage;
