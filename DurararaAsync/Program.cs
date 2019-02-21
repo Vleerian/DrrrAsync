@@ -12,7 +12,7 @@ namespace DurararaAsync
     {
         static async Task Main(string[] args)
         {
-            Bot DrrrBot = new Bot { Name = "Welne Oren3", Icon = DrrrIcon.Kuromu2x };
+            Bot DrrrBot = new Bot { Name = "Welne Oren", Icon = DrrrIcon.Kuromu2x, CommandPrefix = "#" };
             DrrrBot.RegisterCommands<TestModule>();
 
             await DrrrBot.Login();

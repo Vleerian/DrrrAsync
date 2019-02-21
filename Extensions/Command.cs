@@ -13,7 +13,7 @@ namespace DrrrAsync
         public class Command
         {
             public dynamic Module;
-            MethodInfo Method;
+            public MethodInfo Method { get; private set;}
             public string Name { get; private set; }
             public string Description { get; private set; }
 
@@ -37,8 +37,10 @@ namespace DrrrAsync
             /// </summary>
             /// <param name="ctx">The context object the command will use</param>
             /// TODO: Parse ctx.message and pass the command a list of arguments.
-            public async Task Call(Context ctx) =>
-                await Method.Invoke(Module, new object[] { ctx });
+            public async Task Call(object[] args)
+            {
+                await Method.Invoke(Module, args);
+            }
         }
     }
 }

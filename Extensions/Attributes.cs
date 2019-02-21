@@ -48,5 +48,7 @@ namespace DrrrAsync.Extensions
         /// Commands with this attribute may only be used by 'elevated' individuals (Admins/Mods).
         /// </summary>
         public class RequiresElevatedAttribute : Attribute { }
+
+        public class RemainingAttribute : Attribute { }
     }
 }

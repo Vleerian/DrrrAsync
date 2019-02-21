@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using DrrrAsync.Objects;
 using DrrrAsync.Logging;
 using DrrrAsync.Events;
+using System.Linq;
+using DrrrAsync.Extensions.Attributes;
 
 namespace DrrrAsync
 {
@@ -17,6 +19,8 @@ namespace DrrrAsync
             private Dictionary<string, Command> Commands;
 
             public bool Running { get; private set; }
+
+            public string CommandPrefix;
 
             /// <summary>
             /// The bot constructor instantiates the client, as well as registering it's command processor as an event.
@@ -65,15 +69,61 @@ namespace DrrrAsync
             private async Task LookForCommands(DrrrMessage message)
             {
                 // Check if the message starts with a command.
-                // TODO: check for a command signal (I.E mesg.startswith(CommandSignal) where CommandSignal = '#')
-                string Cmnd = message.Mesg.Split(" ", 1, StringSplitOptions.RemoveEmptyEntries)[0].ToLower();
-                if (Commands.ContainsKey(Cmnd))
+                if (message.Mesg.StartsWith(CommandPrefix))
                 {
-                    // If a command or alias is in the CommandDictionary, execute it.
-                    Context ctx = new Context(this, message, (message.From != null) ? message.Usr : message.From, message.PostedIn);
-                    await Commands[Cmnd].Call(ctx);
-                }
+                    string[] Parts = message.Mesg.Split(" ", StringSplitOptions.RemoveEmptyEntries);
 
+                    string Cmnd = Parts[0].ToLower().Substring(1);
+                    if (Commands.ContainsKey(Cmnd))
+                    {
+                        // If a command or alias is in the CommandDictionary, execute it.
+                        Context ctx = new Context(this, message, (message.From != null) ? message.Usr : message.From, message.PostedIn);
+
+                        // Get parameter info from the command
+                        ParameterInfo[] Inf = Commands[Cmnd].Method.GetParameters();
+
+                        // Create the arg holder.
+                        List<object> Args = new List<object>();
+                        
+                        bool Done = false;
+                        for (int i = 0; i < Inf.Length; i++)
+                        {
+                            // If the function calls for Context, give it to it.
+                            Type ParamType = Inf[i].ParameterType;
+                            if (ParamType == typeof(Context))
+                                Args.Add(ctx);
+                            else
+                            {
+                                string InstArgs;
+
+                                //If the parameter takes the remaining values, let it be
+                                if (Inf[i].GetCustomAttribute<RemainingAttribute>() != null)
+                                {
+                                    InstArgs = string.Join(" ", Parts.Skip(i));
+                                    Done = true;
+                                }
+                                else
+                                    InstArgs = Parts[i];
+
+                                //Add the arguments to the list, and if that's all, break out of the for.
+                                try
+                                {
+                                    Args.Add(Convert.ChangeType(InstArgs, ParamType));
+                                }
+                                catch (Exception)
+                                {
+                                    Logger.Error("Error with argument conversion.");
+                                    //TODO: OnError event
+                                }
+                                if (Done)
+                                    break;
+                            }
+                        }
+
+                        //Call the command
+                        await Commands[Cmnd].Call(Args.ToArray());
+                    }
+                }
                 await Task.CompletedTask;
             }
 
@@ -92,6 +142,8 @@ namespace DrrrAsync
                     Logger.Error("Failed to connect, room not found.");
                 else if (Room.Full)
                     Logger.Error("Failed to connect, room is full.");
+                else if (Room.Users.Any(User=>User.Name == Name))
+                    Logger.Error("User exists in room");
                 else
                     Connected = true;
 
