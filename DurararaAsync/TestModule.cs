@@ -1,5 +1,6 @@
 ﻿using DrrrAsync.Extensions;
 using DrrrAsync.Extensions.Attributes;
+using DrrrAsync.Objects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,8 +8,38 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace DurararaAsync
+namespace ExampleBot
 {
+    [Group("admin")]
+    class AdminModule
+    {
+        [Command("leave")]
+        [Description("Leave a room")]
+        public async Task Leave(Context ctx)
+        {
+            if (!Program.IsAtagait(ctx.Author))
+                return;
+
+            await (ctx.Client.GiveHost(ctx.Author));
+            string Ret = await ctx.Client.LeaveRoom();
+            if (Ret == "Cannot Leave")
+            {
+                await ctx.RespondAsync("Cannot leave room yet.");
+            }
+            else
+                ctx.Client.Shutdown();
+        }
+
+        [Command("handover"), Aliases("givehost")]
+        [Description("Gives a user host.")]
+        public async Task Handover(Context ctx)
+        {
+            if (!Program.IsAtagait(ctx.Author))
+                return;
+            await (ctx.Client.GiveHost(ctx.Author));
+        }
+    }
+
     class TestModule
     {
         [Command("ping")] // define a command
@@ -17,28 +48,6 @@ namespace DurararaAsync
         public async Task Ping(Context ctx) // this command takes no arguments, only context.
         {
             await ctx.RespondAsync($"Pong.");
-        }
-
-        [Command("leave")]
-        [Description("Leave a room")]
-        public async Task Leave(Context ctx)
-        {
-            try
-            {
-                string Ret = await ctx.Client.LeaveRoom();
-                ctx.Client.Shutdown();
-            }
-            catch(System.Net.WebException e)
-            {
-                if(e.Message.Contains("403"))
-                {
-                    await ctx.RespondAsync("I cannot leave the room yet.");
-                }
-                else
-                {
-                    Console.WriteLine($"Unknown Error leaving room: {e.Message}");
-                }
-            }
         }
 
         [Command("lenny")]
@@ -63,8 +72,8 @@ namespace DurararaAsync
             else
             {
                 string[] Die = Dice.Split("d");
-                int Num = Int32.Parse(Die[0]);
-                int Max = Int32.Parse(Die[1]);
+                int Num = int.Parse(Die[0]);
+                int Max = int.Parse(Die[1]);
                 int[] results = new int[Num];
                 for (int i = 0; i < Num; i++)
                 {

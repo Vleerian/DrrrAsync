@@ -13,7 +13,7 @@ namespace DrrrAsync.Events
 
             object[] New = new object[args.Length + 1];
             New[0] = Sender;
-            Array.Copy(args, New, args.Length);  
+            Array.Copy(args, 0, New, 1, args.Length);  
 
             foreach (var invocation in invocationList)
                 handlerTasks.Add((Task)invocation.DynamicInvoke(New));

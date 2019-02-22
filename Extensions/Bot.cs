@@ -7,6 +7,7 @@ using DrrrAsync.Objects;
 using DrrrAsync.Logging;
 using System.Linq;
 using DrrrAsync.Extensions.Attributes;
+using Extensions;
 
 namespace DrrrAsync.Extensions
 {
@@ -43,26 +44,30 @@ namespace DrrrAsync.Extensions
         public void Register<T>() where T : class
         {
             //Get the group, if any
+            
             var Group = typeof(T).GetCustomAttribute<GroupAttribute>();
             string GroupName = (Group != null)? $"{Group.Name}":"";
 
-            dynamic Instance = Activator.CreateInstance<T>();
+            dynamic instance = Activator.CreateInstance<T>();
             
-            foreach (var Method in typeof(T).GetMethods())
+            foreach (var method in typeof(T).GetMethods())
             {
-                if (Method.GetCustomAttribute<CommandAttribute>() is var attribute)
+                if (method.Has(out CommandAttribute attribute))
                 {
-                    if(attribute != null)
-                    {
-                        var desc = Method.GetCustomAttribute<DescriptionAttribute>();
-                        var command = new Command(Instance, Method, attribute.Name, (desc == null) ? "" : desc.Text, GroupName);
-                        // Add the command and, if available, its Aliases to the List
-                        Commands.Add(attribute.Name, command);
-                        if (Method.GetCustomAttribute<AliasesAttribute>() is var aliases)
-                            if(aliases != null)
-                                foreach (var alias in aliases.Aliases)
-                                    Commands.Add(alias, command);
-                    }
+                    var command = new Command(instance,
+                        method,
+                        attribute.Name,
+                        (method.Has(out DescriptionAttribute desc)) ? desc.Text : "",
+                        GroupName
+                    );
+
+                    // Add the command and, if available, its Aliases to the List
+                    Commands.Add(attribute.Name, command);
+
+                    AliasesAttribute aliases;
+                    if (method.Has(out aliases))
+                        foreach (var alias in aliases.Aliases)
+                            Commands.Add(alias, command);
                 }
             }
         }
@@ -80,42 +85,33 @@ namespace DrrrAsync.Extensions
                     ? message.Text.Split(' ', StringSplitOptions.RemoveEmptyEntries)
                     : new string[] { message.Text };
 
-                string cmd = cmdParams[0].ToLower().Substring(CommandPrefix.Length);
-                cmdParams = cmdParams.Skip(1).ToArray();
+                string cmd = cmdParams.Pop(0).ToLower().Substring(CommandPrefix.Length);
 
                 // If the command is a registered command, alias, or group, find it
-                Command cmdToExecute = Commands.Single(i => i.Key == cmd || i.Value.Group == cmd).Value;
+                Command cmdToExecute = Commands.Single(item => item.Key == cmd || (item.Value.Group == cmd && item.Value.Name == cmdParams[1])).Value;
 
                 //If something was found, execute it
                 if (cmdToExecute != null)
                 {
                     // Do a check for groups
                     if (cmd == cmdToExecute.Group)
-                    {
-                        cmd = cmdParams[0];
-                        cmdParams = cmdParams.Skip(1).ToArray();
-                    }
+                        cmd = cmdParams.Pop(0);
 
                     // Parameter and Arguments List
-                    var parameters = Commands[cmd].Method.GetParameters();
-                    var args = new List<object>();
-
-                    // If a command or alias is in the CommandDictionary, execute it.
-                    Context ctx = new Context(this, message, (message.From == null) ? message.Usr : message.From, message.PostedIn);
+                    var parameters = cmdToExecute.Method.GetParameters();
+                    var args = new List<object>() { new Context(this, message, message.From ?? message.Usr, message.PostedIn) };
 
                     // Iterate through the commands' required Parameters
                     for (int i = 0; i < parameters.Length; i++)
                     {
                         var paramType = parameters[i].ParameterType;
-                        if (paramType == typeof(Context))
-                            args.Add(new Context(this, message, (message.From == null) ? message.Usr : message.From, message.PostedIn));
-                        else
+                        if (paramType != typeof(Context))
                         {
                             //Add the arguments to the list
                             try
                             {
                                 //If the parameter takes the remaining values, let it be
-                                if (paramType.GetCustomAttribute<RemainingAttribute>() != null)
+                                if (paramType.Has<RemainingAttribute>())
                                 {
                                     //Remaining only supports string.
                                     if (paramType != typeof(string))

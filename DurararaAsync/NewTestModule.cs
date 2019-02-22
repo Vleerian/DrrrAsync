@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 using DrrrAsync.Bot;
 
-namespace DurararaAsync
+namespace ExampleBot
 {
     class NewTestModule : Module
     {
