@@ -49,9 +49,8 @@ namespace DrrrAsync.Extensions
                         ? new Command(Instance, Method, attribute.CommandName, desc.Text)
                         : new Command(Instance, Method, attribute.CommandName, "");
 
+                    // Add the command and, if available, its Aliases to the List
                     Commands.Add(attribute.CommandName, command);
-
-                    // Get the aliases attribute, and add them to the Command dictionary
                     if (Method.GetCustomAttribute<AliasesAttribute>() is AliasesAttribute aliases)
                         foreach (var alias in aliases.Aliases)
                             Commands.Add(alias, command);
@@ -143,8 +142,8 @@ namespace DrrrAsync.Extensions
             
             if (!Connected)
                 return false;
-            Console.WriteLine("Connecting...");
 
+            Logger.Info("Connecting...");
             return await Connect(Room);
         }
 
@@ -157,7 +156,7 @@ namespace DrrrAsync.Extensions
         {
             //If the need arises, processing can be done on the resulting DrrrRoom object.
             await JoinRoom(aRoom.RoomId);
-            Console.WriteLine("Done...");
+            Logger.Info("Done...");
 
             if (!Running)
             {
@@ -166,7 +165,6 @@ namespace DrrrAsync.Extensions
                 Task.Run(() => BotMain());
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             }
-
             return true;
         }
 

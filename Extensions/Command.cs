@@ -33,19 +33,10 @@ namespace DrrrAsync.Extensions
         /// <summary>
         /// Invokes the command
         /// </summary>
-        /// <param name="ctx">The context object the command will use</param>
-        /// TODO: Parse ctx.message and pass the command a list of arguments.
+        /// <param name="args">An Array of Parameters for the invokation.</param>
         public async Task Call(object[] args)
         {
             await Method.Invoke(Module, args);
         }
-
-        /// <summary>
-        /// Invokes the command
-        /// </summary>
-        /// <param name="ctx">The context object the command will use</param>
-        /// TODO: Parse ctx.message and pass the command a list of arguments.
-        public async Task Call(Context ctx) =>
-            await Method.Invoke(Module, new object[] { ctx });
     }
 }
