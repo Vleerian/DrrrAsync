@@ -11,10 +11,10 @@ namespace DrrrAsync.Extensions
         /// </summary>
         public class CommandAttribute : Attribute
         {
-            public string CommandName;
+            public string Name;
 
-            public CommandAttribute(string aCommandName) =>
-                CommandName = aCommandName;
+            public CommandAttribute(string name) =>
+                Name = name;
         }
 
         /// <summary>
@@ -33,10 +33,10 @@ namespace DrrrAsync.Extensions
         /// </summary>
         public class AliasesAttribute : Attribute
         {
-            public List<string> Aliases;
+            public string[] Aliases;
 
-            public AliasesAttribute(params string[] aAlias) =>
-                Aliases = aAlias.ToList();
+            public AliasesAttribute(params string[] aliases) =>
+                Aliases = aliases;
         }
 
         /// <summary>

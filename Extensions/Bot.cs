@@ -45,11 +45,11 @@ namespace DrrrAsync.Extensions
                 if (Method.GetCustomAttribute<CommandAttribute>() is var attribute)
                 {
                     var command = Method.GetCustomAttribute<DescriptionAttribute>() is var desc
-                        ? new Command(Instance, Method, attribute.CommandName, desc.Text)
-                        : new Command(Instance, Method, attribute.CommandName, "");
+                        ? new Command(Instance, Method, attribute.Name, desc.Text)
+                        : new Command(Instance, Method, attribute.Name, "");
 
                     // Add the command and, if available, its Aliases to the List
-                    Commands.Add(attribute.CommandName, command);
+                    Commands.Add(attribute.Name, command);
                     if (Method.GetCustomAttribute<AliasesAttribute>() is var aliases)
                         foreach (var alias in aliases.Aliases)
                             Commands.Add(alias, command);
@@ -89,14 +89,9 @@ namespace DrrrAsync.Extensions
                         {
                             try
                             {
-                                if (parameters[i].GetCustomAttribute<RemainderAttribute>() != null)
-                                {
-                                    if (paramType != typeof(string))
-                                        throw new ArgumentException("Remaining only supports string.");
-                                    args.Add(string.Join(" ", cmdParams.Skip(i)));
-                                    break;
-                                }
-                                else args.Add(Convert.ChangeType(cmdParams[i], paramType));
+                                args.Add(i == parameters.Length - 1 && parameters[i].ParameterType == typeof(string)
+                                    ? string.Join(" ", cmdParams.Skip(i))
+                                    : Convert.ChangeType(cmdParams[i], paramType));
                             }
                             catch (Exception)
                             {
