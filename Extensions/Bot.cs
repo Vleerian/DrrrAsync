@@ -5,7 +5,6 @@ using System.Collections.Generic;
 
 using DrrrAsync.Objects;
 using DrrrAsync.Logging;
-using DrrrAsync.Events;
 using System.Linq;
 using DrrrAsync.Extensions.Attributes;
 
@@ -13,7 +12,6 @@ namespace DrrrAsync.Extensions
 {
     public class Bot : DrrrClient
     {
-        // A dictionary of {"CommandName":CommandObject} used to invoke executed commands.
         private Dictionary<string, Command> Commands;
 
         public bool Running { get; private set; }
@@ -31,10 +29,8 @@ namespace DrrrAsync.Extensions
             Commands = new Dictionary<string, Command>();
         }
 
-        public void Shutdown()
-        {
+        public void Shutdown() =>
             Running = false;
-        }
 
         /// <summary>
         /// The register command goes through all the methods in command module, and those with the Command attribute
@@ -45,21 +41,20 @@ namespace DrrrAsync.Extensions
         public void RegisterCommands<T>() where T : class
         {
             dynamic Instance = Activator.CreateInstance<T>();
-            foreach (MethodInfo Method in typeof(T).GetMethods())
+            foreach (var Method in typeof(T).GetMethods())
             {
-                // If it has the Command attribute, add it to the Command dictionary
-                CommandAttribute CommandAttribute = Method.GetCustomAttribute<CommandAttribute>();
-                if (CommandAttribute != null)
+                if (Method.GetCustomAttribute<CommandAttribute>() is CommandAttribute attribute)
                 {
-                    DescriptionAttribute Desc = Method.GetCustomAttribute<DescriptionAttribute>();
+                    var command = Method.GetCustomAttribute<DescriptionAttribute>() is DescriptionAttribute desc
+                        ? new Command(Instance, Method, attribute.CommandName, desc.Text)
+                        : new Command(Instance, Method, attribute.CommandName, "");
 
-                    Command CommandObject = new Command(Instance, Method, CommandAttribute.CommandName, Desc != null ? Desc.CommandDescription : "");
+                    Commands.Add(attribute.CommandName, command);
 
-                    Commands.Add(CommandAttribute.CommandName, CommandObject);
-
-                    //Get the aliases attribute, and add them to the Command dictionary
-                    AliasesAttribute Aliases = Method.GetCustomAttribute<AliasesAttribute>();
-                    Aliases?.AliasList.ForEach(Alias => Commands.Add(Alias, CommandObject));
+                    // Get the aliases attribute, and add them to the Command dictionary
+                    if (Method.GetCustomAttribute<AliasesAttribute>() is AliasesAttribute aliases)
+                        foreach (var alias in aliases.Aliases)
+                            Commands.Add(alias, command);
                 }
             }
         }
@@ -71,68 +66,56 @@ namespace DrrrAsync.Extensions
         private async Task LookForCommands(DrrrMessage message)
         {
             // Check if the message starts with the prefix.
-            if (message.Mesg.StartsWith(CommandPrefix))
+            if (message.Text.StartsWith(CommandPrefix))
             {
-                //Make sure a string is splittable before trying to split it
-                string[] Parts;
-                if (message.Mesg.Contains(" "))
-                    Parts = message.Mesg.Split(" ", StringSplitOptions.RemoveEmptyEntries);
-                else
-                    Parts = new string[] { message.Mesg };
+                string[] cmdParams = message.Text.Contains(' ')
+                    ? message.Text.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                    : new string[] { message.Text };
 
+                string cmd = cmdParams[0].ToLower().Substring(CommandPrefix.Length);
 
-                string Cmnd = Parts[0].ToLower().Substring(1);
-                if (Commands.ContainsKey(Cmnd))
+                // If the command is a registered command or alias, execute it
+                if (Commands.ContainsKey(cmd))
                 {
-                    // If a command or alias is in the CommandDictionary, execute it.
-                    Context ctx = new Context(this, message, (message.From != null) ? message.Usr : message.From, message.PostedIn);
+                    // Parameter and Arguments List
+                    var parameters = Commands[cmd].Method.GetParameters();
+                    var args = new List<object>();
 
-                    // Get parameter info from the command
-                    ParameterInfo[] Inf = Commands[Cmnd].Method.GetParameters();
-
-                    // Create the arg holder.
-                    List<object> Args = new List<object>();
-
-                    for (int i = 0; i < Inf.Length; i++)
+                    // Iterate through the commands' required Parameters
+                    for (int i = 0; i < parameters.Length; i++)
                     {
-                        // If the function calls for Context, give it to it.
-                        Type ParamType = Inf[i].ParameterType;
-                        if (ParamType == typeof(Context))
-                            Args.Add(ctx);
+                        var paramType = parameters[i].ParameterType;
+                        if (paramType == typeof(Context))
+                            args.Add(new Context(this, message, (message.From != null) ? message.Usr : message.From, message.PostedIn));
                         else
                         {
-                            //Add the arguments to the list
                             try
                             {
-                                //If the parameter takes the remaining values, let it be
-                                if (Inf[i].GetCustomAttribute<RemainingAttribute>() != null)
+                                if (parameters[i].GetCustomAttribute<RemainderAttribute>() != null)
                                 {
-                                    //Remaining only supports string.
-                                    if (ParamType != typeof(string))
+                                    if (paramType != typeof(string))
                                         throw new ArgumentException("Remaining only supports string.");
-                                    Args.Add(string.Join(" ", Parts.Skip(i)));
+                                    args.Add(string.Join(" ", cmdParams.Skip(i)));
                                     break;
                                 }
-                                else
-                                    Args.Add(Convert.ChangeType(Parts[i], ParamType));
+                                else args.Add(Convert.ChangeType(cmdParams[i], paramType));
                             }
                             catch (Exception)
                             {
                                 Logger.Error("Error with argument conversion.");
-                                //TODO: Fire OnError event
+                                // TODO: Fire OnError event
                             }
                         }
                     }
-
-                    //Run the command and catch exceptions
+                    // Run the command and catch exceptions
                     try
                     {
-                        await Commands[Cmnd].Call(Args.ToArray());
+                        await Commands[cmd].Call(args.ToArray());
                     }
                     catch (Exception err)
                     {
-                        Logger.Error($"Command [{Cmnd}] errored with message: {err.Message}");
-                        //TODO: OnCommandErrored
+                        Logger.Error($"Command [{cmd}] errored with message: {err.Message}");
+                        // TODO: OnCommandErrored
                     }
                 }
             }
@@ -157,10 +140,7 @@ namespace DrrrAsync.Extensions
                 Logger.Error("User exists in room");
             else
                 Connected = true;
-
-            if (!Connected)
-                return false;
-
+            
             if (!Connected)
                 return false;
             Console.WriteLine("Connecting...");

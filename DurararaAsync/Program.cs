@@ -15,6 +15,7 @@ namespace DurararaAsync
 
         static async Task Main(string[] args)
         {
+            var mod = NewTestModule.Instance;
             Bot DrrrBot = new Bot { Name = "Welne Oren", Icon = DrrrIcon.Kuromu2x, CommandPrefix = "#" };
             DrrrBot.RegisterCommands<TestModule>();
 

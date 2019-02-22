@@ -22,10 +22,10 @@ namespace DrrrAsync.Extensions
         /// </summary>
         public class DescriptionAttribute : Attribute
         {
-            public string CommandDescription;
+            public string Text;
 
-            public DescriptionAttribute(string aCommandDescription) =>
-                CommandDescription = aCommandDescription;
+            public DescriptionAttribute(string text) =>
+                Text = text;
         }
 
         /// <summary>
@@ -33,10 +33,10 @@ namespace DrrrAsync.Extensions
         /// </summary>
         public class AliasesAttribute : Attribute
         {
-            public List<string> AliasList;
+            public List<string> Aliases;
 
             public AliasesAttribute(params string[] aAlias) =>
-                AliasList = aAlias.ToList();
+                Aliases = aAlias.ToList();
         }
 
         /// <summary>
@@ -49,6 +49,6 @@ namespace DrrrAsync.Extensions
         /// </summary>
         public class RequiresElevatedAttribute : Attribute { }
 
-        public class RemainingAttribute : Attribute { }
+        public class RemainderAttribute : Attribute { }
     }
 }

@@ -16,7 +16,7 @@ namespace DrrrAsync.Bot
             // Register Commands and Event Handlers to the Module
             foreach(var MethodInfo in GetType().GetRuntimeMethods())
             {
-                if (MethodInfo.GetCustomAttributes<CommandAttribute>() is CommandAttribute commandAttribute)
+                if (MethodInfo.GetCustomAttribute<CommandAttribute>() is CommandAttribute commandAttribute)
                     Commands.Add(
                         new Command(
                             this, 

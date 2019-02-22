@@ -12,7 +12,7 @@ namespace DrrrAsync.Objects
     {
         public string ID;
         public string Type;
-        public string Mesg;
+        public string Text;
         public string Content;
         public string Url;
 
@@ -34,7 +34,7 @@ namespace DrrrAsync.Objects
             // Set the message's properties
             ID = MessageObject["id"].Value<string>();
             Type = MessageObject["type"].Value<string>();
-            Mesg = MessageObject["message"].Value<string>();
+            Text = MessageObject["message"].Value<string>();
             Content = MessageObject.ContainsKey("content") ? MessageObject["content"].Value<string>() : null;
             Url = MessageObject.ContainsKey("url") ? MessageObject["url"].Value<string>() : null;
 

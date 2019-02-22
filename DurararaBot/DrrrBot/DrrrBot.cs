@@ -8,7 +8,7 @@ namespace DrrrAsync.Bot
 {
     public partial class DrrrBot : DrrrClient
     {
-        public char CommandPrefix = '#';
+        public string CommandPrefix = "#";
         
         public DrrrBot() : base()
         {
