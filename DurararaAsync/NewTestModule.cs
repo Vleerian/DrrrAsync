@@ -14,5 +14,7 @@ namespace DurararaAsync
         {
             await e.Client.SendMessage(DateTime.Now.ToShortTimeString());
         }
+
+        public NewTestModule() : base("TestModule") { }
     }
 }

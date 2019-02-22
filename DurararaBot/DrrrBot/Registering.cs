@@ -18,6 +18,7 @@ namespace DrrrAsync.Bot
                 EventHandlers.Add((d, EventName));
                 GetType().GetEvent(EventName).AddEventHandler(this, d);
             }
+            Logger.Info($"Registered Module: {module.Name}");
         }
 
         public async Task Unregister(Module module)
@@ -28,6 +29,7 @@ namespace DrrrAsync.Bot
                 EventHandlers.Remove(t);
                 GetType().GetEvent(t.EventName).RemoveEventHandler(this, t.d);
             }
+            Logger.Info($"Unregistered Module: {module.Name}");
         }
     }
 }

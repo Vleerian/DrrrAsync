@@ -8,7 +8,7 @@ namespace DrrrAsync.Bot
     {
         public readonly string Name;
         public string Description = "";
-        public string[] Aliases = null;
+        public string[] Aliases = new string[] { };
         public CommandAuthority Authority = CommandAuthority.User;
 
 
