@@ -8,35 +8,38 @@ namespace DrrrAsync.Extensions
     /// It contains the command's name, description, as well as a
     /// reference to it's container module, and method.
     /// </summary>
-    public class Command
+    public partial class Bot
     {
-        public dynamic Module;
-        public MethodInfo Method { get; private set; }
-        public string Name { get; private set; }
-        public string Description { get; private set; }
-
-        /// <summary>
-        /// The Command class constructor. It instantiates all member variables.
-        /// </summary>
-        /// <param name="aModule">The module the command is in</param>
-        /// <param name="Cmd">The method the command is linked to</param>
-        /// <param name="aName">The command's name</param>
-        /// <param name="aDescription">The command's description</param>
-        public Command(dynamic aModule, MethodInfo Cmd, string aName, string aDescription = "")
+        public class Command
         {
-            Module = aModule;
-            Method = Cmd;
-            Name = aName;
-            Description = aDescription;
-        }
+            public dynamic Module;
+            public MethodInfo Method { get; private set; }
+            public string Name { get; private set; }
+            public string Description { get; private set; }
+            public string Group { get; private set; }
 
-        /// <summary>
-        /// Invokes the command
-        /// </summary>
-        /// <param name="args">An Array of Parameters for the invokation.</param>
-        public async Task Call(object[] args)
-        {
-            await Method.Invoke(Module, args);
+            /// <summary>
+            /// The Command class constructor. It instantiates all member variables.
+            /// </summary>
+            /// <param name="aModule">The module the command is in</param>
+            /// <param name="Cmd">The method the command is linked to</param>
+            /// <param name="aName">The command's name</param>
+            /// <param name="aDescription">The command's description</param>
+            public Command(dynamic aModule, MethodInfo Cmd, string aName, string aDescription = "", string aGroup = "")
+            {
+                Module = aModule;
+                Method = Cmd;
+                Name = aName;
+                Description = aDescription;
+                Group = aGroup;
+            }
+
+            /// <summary>
+            /// Invokes the command
+            /// </summary>
+            /// <param name="args">An Array of Parameters for the invokation.</param>
+            public Task Call(object[] args) =>
+                Method.Invoke(Module, args);
         }
     }
 }

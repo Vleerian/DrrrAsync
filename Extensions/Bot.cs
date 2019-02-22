@@ -10,7 +10,7 @@ using DrrrAsync.Extensions.Attributes;
 
 namespace DrrrAsync.Extensions
 {
-    public class Bot : DrrrClient
+    public partial class Bot : DrrrClient
     {
         private Dictionary<string, Command> Commands;
 
@@ -40,9 +40,14 @@ namespace DrrrAsync.Extensions
         /// are added to the CommandDictionary.
         /// </summary>
         /// <typeparam name="T">The CommandModule's type</typeparam>
-        public void RegisterCommands<T>() where T : class
+        public void Register<T>() where T : class
         {
+            //Get the group, if any
+            var Group = typeof(T).GetCustomAttribute<GroupAttribute>();
+            string GroupName = (Group != null)? $"{Group.Name}":"";
+
             dynamic Instance = Activator.CreateInstance<T>();
+            
             foreach (var Method in typeof(T).GetMethods())
             {
                 if (Method.GetCustomAttribute<CommandAttribute>() is var attribute)
@@ -50,8 +55,7 @@ namespace DrrrAsync.Extensions
                     if(attribute != null)
                     {
                         var desc = Method.GetCustomAttribute<DescriptionAttribute>();
-                        var command = new Command(Instance, Method, attribute.Name, (desc == null) ? "" : desc.Text);
-
+                        var command = new Command(Instance, Method, attribute.Name, (desc == null) ? "" : desc.Text, GroupName);
                         // Add the command and, if available, its Aliases to the List
                         Commands.Add(attribute.Name, command);
                         if (Method.GetCustomAttribute<AliasesAttribute>() is var aliases)
@@ -67,7 +71,7 @@ namespace DrrrAsync.Extensions
         /// The bot's command processor runs whenever a DrrrMessage event is thrown, and looks for commands.
         /// </summary>
         /// <param name="e">The DrrrMessage event.</param>
-        private async Task LookForCommands(object sender, DrrrMessage message)
+        public async Task LookForCommands(object sender, DrrrMessage message)
         {
             // Check if the message starts with the prefix.
             if (message.Text.StartsWith(CommandPrefix))
@@ -77,10 +81,21 @@ namespace DrrrAsync.Extensions
                     : new string[] { message.Text };
 
                 string cmd = cmdParams[0].ToLower().Substring(CommandPrefix.Length);
+                cmdParams = cmdParams.Skip(1).ToArray();
 
-                // If the command is a registered command or alias, execute it
-                if (Commands.ContainsKey(cmd))
+                // If the command is a registered command, alias, or group, find it
+                Command cmdToExecute = Commands.Single(i => i.Key == cmd || i.Value.Group == cmd).Value;
+
+                //If something was found, execute it
+                if (cmdToExecute != null)
                 {
+                    // Do a check for groups
+                    if (cmd == cmdToExecute.Group)
+                    {
+                        cmd = cmdParams[0];
+                        cmdParams = cmdParams.Skip(1).ToArray();
+                    }
+
                     // Parameter and Arguments List
                     var parameters = Commands[cmd].Method.GetParameters();
                     var args = new List<object>();
@@ -126,7 +141,6 @@ namespace DrrrAsync.Extensions
                     catch (Exception err)
                     {
                         Logger.Error($"Command [{cmd}] errored with message: {err.Message}");
-                        // TODO: OnCommandErrored
                     }
                 }
             }
