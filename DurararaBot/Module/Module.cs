@@ -22,13 +22,13 @@ namespace DrrrAsync.Bot
             // Register Commands and Event Handlers to the Module
             foreach(var method in GetType().GetRuntimeMethods())
             {
-                if (method.GetCustomAttribute<CommandAttribute>() is var cmdAttr && cmdAttr != null)
+                if (method.Has(out CommandAttribute cmdAttr))
                 {
                     Commands.Add(new Command(this, method.CreateDelegate(this), cmdAttr.Name, cmdAttr.Description, cmdAttr.Authority));
                     foreach (string alias in cmdAttr.Aliases)
                         Commands.Add(new Command(this, method.CreateDelegate(this), alias, cmdAttr.Description, cmdAttr.Authority));
                 }
-                if (method.GetCustomAttribute<EventHandlerAttribute>() is var eventAttribute && eventAttribute != null)
+                if (method.Has(out EventHandlerAttribute eventAttribute))
                     EventHandlers.Add((method.CreateDelegate(this), eventAttribute.EventName));
             }
         }

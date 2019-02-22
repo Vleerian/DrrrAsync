@@ -12,7 +12,7 @@ namespace ExampleBot
         [Command("time")]
         async public Task CommandTime(CommandHandlerArgs e)
         {
-            await e.Client.SendMessage(DateTime.Now.ToShortTimeString());
+            await e.Bot.SendMessage(DateTime.Now.ToShortTimeString());
         }
 
         public NewTestModule() : base("TestModule") { }
