@@ -17,7 +17,7 @@ namespace DurararaAsync
         {
             var mod = NewTestModule.Instance;
             Bot DrrrBot = new Bot { Name = "Welne Oren", Icon = DrrrIcon.Kuromu2x, CommandPrefix = "#" };
-            DrrrBot.RegisterCommands<TestModule>();
+            DrrrBot.Register<TestModule>();
 
             await DrrrBot.Login();
             await DrrrBot.Connect("White Snake Bar18+");

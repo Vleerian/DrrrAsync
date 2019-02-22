@@ -5,18 +5,14 @@ namespace DrrrAsync.Bot
     public struct CommandHandlerArgs
     {
         public readonly string[] Args;
-        public readonly DrrrUser Author;
-        public readonly DrrrRoom Room;
         public readonly DrrrMessage Message;
-        public readonly DrrrClient Client;
+        public readonly DrrrBot Bot;
 
-        public CommandHandlerArgs(string[] args, DrrrUser author, DrrrRoom room, DrrrMessage message, DrrrClient client)
+        public CommandHandlerArgs(string[] args, DrrrUser author, DrrrRoom room, DrrrMessage message, DrrrBot bot)
         {
             Args = args;
-            Author = author;
-            Room = room;
             Message = message;
-            Client = client;
+            Bot = bot;
         }
     }
 }
