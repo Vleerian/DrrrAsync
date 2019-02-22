@@ -6,7 +6,6 @@ namespace DrrrAsync.Extensions
 {
     namespace Attributes
     {
-       
         /// <summary>
         /// The attribute added to a module to 'group' all it's commands
         /// Commands in groups are executed with the group's name leading
