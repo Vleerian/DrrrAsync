@@ -34,7 +34,7 @@ namespace DrrrAsync.Bot
 
         /// <summary>Executes the command.</summary>
         /// <param name="e">The event arguments, passed as a tuple.</param>
-        public async Task Execute(string[] args, DrrrUser author, DrrrRoom room, DrrrMessage message, DrrrBot bot) =>
-            await (Task) Handler.DynamicInvoke(new[] {new CommandHandlerArgs(args, author, room, message, bot)});
+        public async Task Execute(object[] args) =>
+            await (Task) Handler.DynamicInvoke(args);
     }
 }

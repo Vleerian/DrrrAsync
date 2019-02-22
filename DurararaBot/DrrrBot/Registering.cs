@@ -20,8 +20,8 @@ namespace DrrrAsync.Bot
         public void Unregister(Module module)
         {
             foreach (var command in module.Commands) RegisteredCommands.Remove(command.Name);
-            foreach (var t in module.EventHandlers)
-                GetType().GetEvent(t.EventName).RemoveEventHandler(this, t.d);
+            foreach (var (d, EventName) in module.EventHandlers)
+                GetType().GetEvent(EventName).RemoveEventHandler(this, d);
             Logger.Info($"Unregistered Module: {module.Name}");
         }
     }
