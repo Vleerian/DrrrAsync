@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 
@@ -7,23 +6,22 @@ namespace DrrrAsync.Bot
 {
     abstract public class Module
     {
-        private readonly IEnumerable<MethodInfo> Methods;
         public readonly List<Command> Commands = new List<Command>();
-        public readonly List<(string EventName, MethodInfo Method, Module Module)> EventHandlers = new List<(string, MethodInfo, Module)>();
+        public readonly List<(Delegate d, string EventName)> EventHandlers = new List<(Delegate d, string EventName)>();
         
         public Module()
         {
             // Register Commands and Event Handlers to the Module
-            foreach(var MethodInfo in GetType().GetRuntimeMethods())
+            foreach(var method in GetType().GetRuntimeMethods())
             {
-                if (MethodInfo.GetCustomAttribute<CommandAttribute>() is CommandAttribute commandAttribute)
-                    Commands.Add(
-                        new Command(
-                            this, 
-                            (CommandHandler) MethodInfo.CreateDelegate(typeof(CommandHandler), this), 
-                            commandAttribute));
-                if (MethodInfo.GetCustomAttribute<EventHandlerAttribute>() is EventHandlerAttribute eventAttribute)
-                    EventHandlers.Add((eventAttribute.EventName, MethodInfo, this));
+                if (method.GetCustomAttribute<CommandAttribute>() is var cmdAttr)
+                {
+                    Commands.Add(new Command(this, method.CreateDelegate(this), cmdAttr.Name, cmdAttr.Description, cmdAttr.Authority));
+                    foreach (string alias in cmdAttr.Aliases)
+                        Commands.Add(new Command(this, method.CreateDelegate(this), alias, cmdAttr.Description, cmdAttr.Authority));
+                }
+                if (method.GetCustomAttribute<EventHandlerAttribute>() is var eventAttribute)
+                    EventHandlers.Add((method.CreateDelegate(this), eventAttribute.EventName));
             }
         }
     }

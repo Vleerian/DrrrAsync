@@ -37,21 +37,20 @@ namespace DrrrAsync.Extensions
         /// are added to the CommandDictionary.
         /// </summary>
         /// <typeparam name="T">The CommandModule's type</typeparam>
-        /// <param name="CommandModule">The command module.</param>
         public void RegisterCommands<T>() where T : class
         {
             dynamic Instance = Activator.CreateInstance<T>();
             foreach (var Method in typeof(T).GetMethods())
             {
-                if (Method.GetCustomAttribute<CommandAttribute>() is CommandAttribute attribute)
+                if (Method.GetCustomAttribute<CommandAttribute>() is var attribute)
                 {
-                    var command = Method.GetCustomAttribute<DescriptionAttribute>() is DescriptionAttribute desc
+                    var command = Method.GetCustomAttribute<DescriptionAttribute>() is var desc
                         ? new Command(Instance, Method, attribute.CommandName, desc.Text)
                         : new Command(Instance, Method, attribute.CommandName, "");
 
                     // Add the command and, if available, its Aliases to the List
                     Commands.Add(attribute.CommandName, command);
-                    if (Method.GetCustomAttribute<AliasesAttribute>() is AliasesAttribute aliases)
+                    if (Method.GetCustomAttribute<AliasesAttribute>() is var aliases)
                         foreach (var alias in aliases.Aliases)
                             Commands.Add(alias, command);
                 }
@@ -123,12 +122,12 @@ namespace DrrrAsync.Extensions
         /// <summary>
         /// Starts the bot's primary loop. It takes a room name, and will attempt to join it.
         /// </summary>
-        /// <param name="aRoomName">The name of the room you want to join</param>
+        /// <param name="roomName">The name of the room you want to join</param>
         /// <returns>True if the bot started successfully, false otherwise.</returns>
-        public async Task<bool> Connect(string aRoomName)
+        public async Task<bool> Connect(string roomName)
         {
             List<DrrrRoom> Rooms = await GetLounge();
-            DrrrRoom Room = Rooms.Find(lRoom => lRoom.Name == aRoomName);
+            DrrrRoom Room = Rooms.Find(lRoom => lRoom.Name == roomName);
             bool Connected = false;
 
             if (Room == null)
@@ -150,12 +149,12 @@ namespace DrrrAsync.Extensions
         /// <summary>
         /// Starts the bot's primary loop. It takes a room, and will attempt to join it.
         /// </summary>
-        /// <param name="aRoom">The room you want to join</param>
+        /// <param name="room">The room you want to join</param>
         /// <returns>True if the bot started successfully, false otherwise.</returns>
-        public async Task<bool> Connect(DrrrRoom aRoom)
+        public async Task<bool> Connect(DrrrRoom room)
         {
             //If the need arises, processing can be done on the resulting DrrrRoom object.
-            await JoinRoom(aRoom.RoomId);
+            await JoinRoom(room.RoomId);
             Logger.Info("Done...");
 
             if (!Running)

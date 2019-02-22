@@ -1,11 +1,11 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using System.Threading.Tasks;
 
 using DrrrAsync.Objects;
 
 namespace DrrrAsync.Bot
 {
-    public delegate Task CommandHandler(CommandHandlerArgs e);
 
     /// <summary>
     /// The command class is used for handling bot commands.
@@ -14,29 +14,27 @@ namespace DrrrAsync.Bot
     /// </summary>
     public class Command
     {
-        public readonly string Name, Description;
-        public readonly string[] Aliases;
-        private readonly CommandHandler Handler;
+        public readonly string Name;
+        public readonly string Description;
+        private readonly Delegate Handler;
         public Module Module;
         public readonly CommandAuthority Authority;
         
         /// <param name="module">The module the command is in</param>
         /// <param name="Cmd">The method the command is linked to</param>
-        /// <param name="name">The command's name</param>
         /// <param name="description">The command's description</param>
-        public Command(Module module, CommandHandler handler, CommandAttribute attribute)
+        public Command(Module module, Delegate handler, string name, string description, CommandAuthority authority)
         {
             Module = module;
             Handler = handler;
-            Name = attribute.Name;
-            Description = attribute.Description;
-            Aliases = attribute.Aliases;
-            Authority = attribute.Authority;
+            Name = name;
+            Description = description;
+            Authority = authority;
         }
 
         /// <summary>Executes the command.</summary>
         /// <param name="e">The event arguments, passed as a tuple.</param>
         public async Task Execute(string[] args, DrrrUser author, DrrrRoom room, DrrrMessage message, DrrrClient client) =>
-            await Handler(new CommandHandlerArgs(args, author, room, message, client));
+            await (Task) Handler.DynamicInvoke(new[] {new CommandHandlerArgs(args, author, room, message, client)});
     }
 }
