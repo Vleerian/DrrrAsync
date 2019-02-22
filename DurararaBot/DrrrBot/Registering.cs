@@ -10,7 +10,7 @@ namespace DrrrAsync.Bot
         private readonly List<(Delegate d, string EventName)> EventHandlers = new List<(Delegate d, string EventName)>();
         public readonly Dictionary<string, Command> RegisteredCommands = new Dictionary<string, Command>();
 
-        public async Task Register(Module module)
+        public void Register(Module module)
         {
             foreach (var command in module.Commands) RegisteredCommands.Add(command.Name, command);
             foreach (var (d, EventName) in module.EventHandlers)
@@ -21,7 +21,7 @@ namespace DrrrAsync.Bot
             Logger.Info($"Registered Module: {module.Name}");
         }
 
-        public async Task Unregister(Module module)
+        public void Unregister(Module module)
         {
             foreach (var command in module.Commands) RegisteredCommands.Remove(command.Name);
             foreach (var t in module.EventHandlers)

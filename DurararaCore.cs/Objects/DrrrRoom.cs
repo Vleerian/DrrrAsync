@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 
 using DrrrAsync.Events;
+using System.Threading.Tasks;
 
 namespace DrrrAsync.Objects
 {
@@ -78,6 +79,25 @@ namespace DrrrAsync.Objects
             if (RoomObject.ContainsKey("talks"))
                 foreach (JObject item in RoomObject["talks"])
                     Messages.Add(new DrrrMessage(item, this));
+        }
+
+        /// <summary>
+        /// Attempts to get a user.
+        /// </summary>
+        /// <returns>True if the user was retrieved, false otherwise</returns>
+        public bool TryGetUserAsync(string Name, ref DrrrUser RefUser)
+        {
+            RefUser = GetUser(Name);
+            return RefUser != null;
+        }
+
+        /// <summary>
+        /// Gets a user from a room
+        /// </summary>
+        /// <returns>The DrrrUser matching the provided name</returns>
+        public DrrrUser GetUser(string Name)
+        {
+            return Users.Find(N => N.Name == Name);
         }
 
         /// <summary>

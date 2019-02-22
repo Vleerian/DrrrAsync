@@ -49,6 +49,6 @@ namespace DrrrAsync.Extensions
         /// </summary>
         public class RequiresElevatedAttribute : Attribute { }
 
-        public class RemainderAttribute : Attribute { }
+        public class RemainingAttribute : Attribute { }
     }
 }

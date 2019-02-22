@@ -18,6 +18,8 @@ namespace DrrrAsync.Extensions
 
         public string CommandPrefix;
 
+        public Stack<Tuple<string, string, string>> MessageQueue;
+
         /// <summary>
         /// The bot constructor instantiates the client, as well as registering it's command processor as an event.
         /// </summary>
@@ -27,6 +29,7 @@ namespace DrrrAsync.Extensions
         {
             OnMessage += LookForCommands;
             Commands = new Dictionary<string, Command>();
+            MessageQueue = new Stack<Tuple<string, string, string>>();
         }
 
         public void Shutdown() =>
@@ -44,15 +47,18 @@ namespace DrrrAsync.Extensions
             {
                 if (Method.GetCustomAttribute<CommandAttribute>() is var attribute)
                 {
-                    var command = Method.GetCustomAttribute<DescriptionAttribute>() is var desc
-                        ? new Command(Instance, Method, attribute.Name, desc.Text)
-                        : new Command(Instance, Method, attribute.Name, "");
+                    if(attribute != null)
+                    {
+                        var desc = Method.GetCustomAttribute<DescriptionAttribute>();
+                        var command = new Command(Instance, Method, attribute.Name, (desc == null) ? "" : desc.Text);
 
-                    // Add the command and, if available, its Aliases to the List
-                    Commands.Add(attribute.Name, command);
-                    if (Method.GetCustomAttribute<AliasesAttribute>() is var aliases)
-                        foreach (var alias in aliases.Aliases)
-                            Commands.Add(alias, command);
+                        // Add the command and, if available, its Aliases to the List
+                        Commands.Add(attribute.Name, command);
+                        if (Method.GetCustomAttribute<AliasesAttribute>() is var aliases)
+                            if(aliases != null)
+                                foreach (var alias in aliases.Aliases)
+                                    Commands.Add(alias, command);
+                    }
                 }
             }
         }
@@ -61,7 +67,7 @@ namespace DrrrAsync.Extensions
         /// The bot's command processor runs whenever a DrrrMessage event is thrown, and looks for commands.
         /// </summary>
         /// <param name="e">The DrrrMessage event.</param>
-        private async Task LookForCommands(DrrrMessage message)
+        private async Task LookForCommands(object sender, DrrrMessage message)
         {
             // Check if the message starts with the prefix.
             if (message.Text.StartsWith(CommandPrefix))
@@ -79,27 +85,39 @@ namespace DrrrAsync.Extensions
                     var parameters = Commands[cmd].Method.GetParameters();
                     var args = new List<object>();
 
+                    // If a command or alias is in the CommandDictionary, execute it.
+                    Context ctx = new Context(this, message, (message.From == null) ? message.Usr : message.From, message.PostedIn);
+
                     // Iterate through the commands' required Parameters
                     for (int i = 0; i < parameters.Length; i++)
                     {
                         var paramType = parameters[i].ParameterType;
                         if (paramType == typeof(Context))
-                            args.Add(new Context(this, message, (message.From != null) ? message.Usr : message.From, message.PostedIn));
+                            args.Add(new Context(this, message, (message.From == null) ? message.Usr : message.From, message.PostedIn));
                         else
                         {
+                            //Add the arguments to the list
                             try
                             {
-                                args.Add(i == parameters.Length - 1 && parameters[i].ParameterType == typeof(string)
-                                    ? string.Join(" ", cmdParams.Skip(i))
-                                    : Convert.ChangeType(cmdParams[i], paramType));
+                                //If the parameter takes the remaining values, let it be
+                                if (paramType.GetCustomAttribute<RemainingAttribute>() != null)
+                                {
+                                    //Remaining only supports string.
+                                    if (paramType != typeof(string))
+                                        throw new ArgumentException("Remaining only supports string.");
+                                    args.Add(string.Join(" ", cmdParams[i].Skip(i)));
+                                    break;
+                                }
+                                else
+                                    args.Add(Convert.ChangeType(cmdParams[i], paramType));
                             }
                             catch (Exception)
                             {
                                 Logger.Error("Error with argument conversion.");
-                                // TODO: Fire OnError event
                             }
                         }
                     }
+
                     // Run the command and catch exceptions
                     try
                     {
@@ -163,18 +181,68 @@ namespace DrrrAsync.Extensions
         }
 
         /// <summary>
+        /// Queues a message to be sent.
+        /// </summary>
+        /// <param name="Message">The message you want to send</param>
+        /// <param name="Url">An optional URL to send</param>
+        /// <param name="To">An optional user to send it to</param>
+        /// <returns>Will not push anything to the queue if the user isn't in the room, or if you're not in a room.</returns>
+        public new async Task SendMessage(string Message, string Url = "", string To = null)
+        {
+            //Do some checks to make sure a message can actually be sent.
+            if (Room == null)
+                return;
+            else if (To != null && !Room.Users.Any(User => User.Name == To))
+                    return;
+            //Push it to the message queue
+            MessageQueue.Push(new Tuple<string, string, string>(Message, Url, To));
+            await Task.CompletedTask; //Make the warning go away.
+        }
+
+        /// <summary>
+        /// The message loop. This prevents multiple messages from being sent all at once.
+        /// It also prevents the bot from timing out
+        /// </summary>
+        private async Task MessageLoop()
+        {
+            Logger.Debug("Starting message loop.");
+            DateTime LastMessage = DateTime.Now;
+            while (Running)
+            {
+                await Task.Delay(250);
+                if (Room != null && MessageQueue.Count > 0)
+                {
+                    Tuple<string, string, string> Msg = MessageQueue.Pop();
+                    await base.SendMessage(Msg.Item1, Msg.Item2, Msg.Item3);
+                    LastMessage = DateTime.Now;
+                }
+
+                if ((DateTime.Now - LastMessage).TotalSeconds > (10 * 60))
+                {
+                    await base.SendMessage("[HEARTBEAT]", To: User.Name);
+                    LastMessage = DateTime.Now;
+                }
+                    
+            }
+        }
+
+        /// <summary>
         /// The bot's primary loop.
         /// </summary>
         private async Task BotMain()
         {
-            Logger.Info("Starting loop.");
-
+            Logger.Debug("Starting loop.");
+#pragma warning disable CS4014
+            MessageLoop();
+#pragma warning restore CS4014
             while (Running)
             {
                 DrrrRoom Data = await GetRoom();
 
-                await Task.Delay(500);
+                await Task.Delay(250);
             }
+
+            Logger.Info("Loop ended.");
         }
     }
 }

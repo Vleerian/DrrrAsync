@@ -31,12 +31,12 @@ namespace DrrrAsync
         public string ID { get; private set; }
         public DrrrUser User { get; private set; }
         public DrrrRoom Room { get; private set; }
-
+        public DateTime StartedAt { get; private set; }
         // Client State
         public bool LoggedIn { get; private set; }
 
         // Client Extensions
-        public CookieWebClient WebClient = new CookieWebClient();
+        protected CookieWebClient WebClient = new CookieWebClient();
 
         // Client Events
         /*public DrrrAsyncEvent OnLogin = new DrrrAsyncEvent();
@@ -46,11 +46,12 @@ namespace DrrrAsync
         public DrrrAsyncEvent<DrrrMessage> OnDirectMessage = new DrrrAsyncEvent<DrrrMessage>();/**/
 
 #pragma warning disable CS1998
-        public event DrrrEventHandler        OnLogin         = async () => { };
-        public event DrrrRoomEventHandler    OnRoomJoin      = async (_) => { };
-        public event DrrrUserEventHandler    OnUserJoined    = async (_) => { };
-        public event DrrrMessageEventHandler OnMessage       = async (_) => { };
-        public event DrrrMessageEventHandler OnDirectMessage = async (_) => { };
+        public event DrrrEventError          OnError         = async (sender, _) => { };
+        public event DrrrEventHandler        OnLogin         = async (sender) => { };
+        public event DrrrRoomEventHandler    OnRoomJoin      = async (sender, _) => { };
+        public event DrrrUserEventHandler    OnUserJoined    = async (sender, _) => { };
+        public event DrrrMessageEventHandler OnMessage       = async (sender, _) => { };
+        public event DrrrMessageEventHandler OnDirectMessage = async (sender,_) => { };
 #pragma warning restore CS1998
 
         /// <summary>
@@ -63,6 +64,7 @@ namespace DrrrAsync
             // Get the index page to parse the token
             string IndexBody = await WebClient.Get_String("https://drrr.com");
             string Token = Regex.Match(IndexBody, @"""token"" data-value=""(\w+)\""").Groups[1].Value;
+            StartedAt = DateTime.Now.AddSeconds(10);
 
             // Send a second request to do the actual login.
             string response = await WebClient.Post_String("https://drrr.com", new NameValueCollection() {
@@ -75,7 +77,7 @@ namespace DrrrAsync
 
             LoggedIn = true;
 #pragma warning disable CS4014
-            OnLogin.FireEventAsync();
+            OnLogin.FireEventAsync(this);
 #pragma warning restore CS4014
             return true;
         }
@@ -111,10 +113,17 @@ namespace DrrrAsync
             // Retrieve the room's data and fire an event for each parsed message
             foreach (DrrrMessage Mesg in Room.UpdateRoom(await WebClient.Get_Json($"https://drrr.com/json.php?update={Room.Update}")))
             {
-                await OnMessage.FireEventAsync(Mesg);
-                // If it's a direct message, fire the OnDirectMessage event
-                if (Mesg.Secret)
-                    await OnDirectMessage.FireEventAsync(Mesg);
+                try
+                {
+                    await OnMessage.FireEventAsync(this, Mesg);
+                    // If it's a direct message, fire the OnDirectMessage event
+                    if (Mesg.Secret)
+                        await OnDirectMessage.FireEventAsync(this, Mesg);
+                }
+                catch(Exception e)
+                {
+                    await OnError?.FireEventAsync(this, e);
+                }
             }
             return Room;
         }
@@ -136,7 +145,7 @@ namespace DrrrAsync
             JObject RoomData = await WebClient.Get_Json($"https://drrr.com/json.php?fast=1");
             Room = new DrrrRoom(RoomData);
             
-            await OnRoomJoin.FireEventAsync(Room);
+            await OnRoomJoin.FireEventAsync(this, Room);
             return Room;
         }
 
@@ -160,7 +169,7 @@ namespace DrrrAsync
             JObject RoomData = await WebClient.Get_Json("http://drrr.com/room/json.php?fast=1");
             Room = new DrrrRoom(RoomData);
             
-            await OnRoomJoin.FireEventAsync(Room);
+            await OnRoomJoin.FireEventAsync(this, Room);
             return Room;
         }
 
@@ -172,9 +181,11 @@ namespace DrrrAsync
         /// <returns>The raw byte[] data returned from the web request.</returns>
         public Task<string> LeaveRoom()
         {
-            return WebClient.Post_String("https://drrr.com/room/?ajax=1", new NameValueCollection() {
-                { "leave", "leave" }
-            });
+            if((DateTime.Now - StartedAt).TotalSeconds > 40)
+                return WebClient.Post_String("https://drrr.com/room/?ajax=1", new NameValueCollection() {
+                    { "leave", "leave" }
+                });
+            return Task.FromResult("Cannot Leave");
         }
 
         /// <summary>
@@ -223,12 +234,15 @@ namespace DrrrAsync
         /// <param name="message">The message you want to send</param>
         /// <param name="url">The URL (if any) you want to attach.</param>
         /// <returns></returns>
-        public Task<string> SendMessage(string message, string url = "")
+        public Task<string> SendMessage(string Message, string Url = "", string To = "")
         {
+            string Mes = $"Sending message: {Message}    {Url}    {To}";
+            Logger.Debug(Mes);
+
             return WebClient.Post_String("https://drrr.com/room/?ajax=1", new NameValueCollection() {
-                { "message", message },
-                { "url",     url     },
-                { "to",      ""      }
+                { "message", Message },
+                { "url",     Url     },
+                { "to",      To      }
             });
         }
     }
