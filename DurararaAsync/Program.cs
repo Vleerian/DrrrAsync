@@ -20,14 +20,11 @@ namespace ExampleBot
             var mod = NewTestModule.Instance;
             Bot DrrrBot = new Bot { Name = "Welne Oren", Icon = DrrrIcon.Kuromu2x, CommandPrefix = "#" };
             DrrrBot.Register<TestModule>();
-<<<<<<< HEAD
-=======
 
             if (!Directory.Exists("logs"))
                 Directory.CreateDirectory("logs");
 
             DrrrBot.OnMessage += PrintMessages;
->>>>>>> c265570db4b8ca534c2cbbfc6ebfbe1f626779da
 
             await DrrrBot.Login();
             await DrrrBot.Connect("WIZARD TOWERs");
