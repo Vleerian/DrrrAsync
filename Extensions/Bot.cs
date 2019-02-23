@@ -65,8 +65,7 @@ namespace DrrrAsync.Extensions
                     // Add the command and, if available, its Aliases to the List
                     Commands.Add(attribute.Name, command);
 
-                    AliasesAttribute aliases;
-                    if (method.Has(out aliases))
+                    if (method.Has(out AliasesAttribute aliases))
                         foreach (var alias in aliases.Aliases)
                             Commands.Add(alias, command);
                 }

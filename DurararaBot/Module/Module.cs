@@ -24,9 +24,9 @@ namespace DrrrAsync.Bot
             {
                 if (method.Has(out CommandAttribute cmdAttr))
                 {
-                    Commands.Add(new Command(this, method.CreateDelegate(this), cmdAttr.Name, cmdAttr.Description, cmdAttr.Authority));
+                    Commands.Add(new Command(this, method.CreateDelegate(this), cmdAttr.Name, cmdAttr.Description, cmdAttr.Authority, cmdAttr.StringSeperator, cmdAttr.ParseStrings));
                     foreach (string alias in cmdAttr.Aliases)
-                        Commands.Add(new Command(this, method.CreateDelegate(this), alias, cmdAttr.Description, cmdAttr.Authority));
+                        Commands.Add(new Command(this, method.CreateDelegate(this), alias, cmdAttr.Description, cmdAttr.Authority, cmdAttr.StringSeperator, cmdAttr.ParseStrings));
                 }
                 if (method.Has(out EventHandlerAttribute eventAttribute))
                     EventHandlers.Add((method.CreateDelegate(this), eventAttribute.EventName));

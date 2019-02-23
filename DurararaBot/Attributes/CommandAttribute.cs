@@ -11,6 +11,8 @@ namespace DrrrAsync.Bot
         public string[] Aliases = new string[] { };
         public CommandAuthority Authority = CommandAuthority.User;
 
+        public string StringSeperator = "\"";
+        public bool ParseStrings = true;
 
         public CommandAttribute(string name) =>
             Name = name;

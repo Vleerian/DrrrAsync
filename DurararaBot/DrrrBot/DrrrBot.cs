@@ -19,10 +19,11 @@ namespace DrrrAsync.Bot
             var cmdParams = message.Text.Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList();
             var cmd = cmdParams.Pop(0).ToLower().Substring(CommandPrefix.Length);
 
-            if(Commands.TryGetValue(cmd, out Command command))
-            {
-                
-            }
+            // TODO: Also check for command authority
+            if (!Commands.TryGetValue(cmd, out Command command))
+                return;
+
+            await command.Execute(sender, string.Join(' ', cmdParams), message);
         }
 
         public DrrrBot() : base()
