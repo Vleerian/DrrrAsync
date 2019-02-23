@@ -4,9 +4,9 @@ using System.Reflection;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace DrrrAsync.Bot
+namespace DrrrAsync
 {
-    public static class Extensions
+    public static class Helpers
     {
         /// <summary>
         /// Creates a dynamically typed delegate from just the 

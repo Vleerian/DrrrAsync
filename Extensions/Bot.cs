@@ -7,7 +7,6 @@ using DrrrAsync.Objects;
 using DrrrAsync.Logging;
 using System.Linq;
 using DrrrAsync.Extensions.Attributes;
-using DrrrAsync.Bot;
 
 namespace DrrrAsync.Extensions
 {
