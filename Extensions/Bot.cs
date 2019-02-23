@@ -7,7 +7,7 @@ using DrrrAsync.Objects;
 using DrrrAsync.Logging;
 using System.Linq;
 using DrrrAsync.Extensions.Attributes;
-using Extensions;
+using DrrrAsync.Bot;
 
 namespace DrrrAsync.Extensions
 {
@@ -52,7 +52,7 @@ namespace DrrrAsync.Extensions
             
             foreach (var method in typeof(T).GetMethods())
             {
-                if (method.Has(out CommandAttribute attribute))
+                if (method.Has(out DrrrAsync.Bot.CommandAttribute attribute))
                 {
                     var command = new Command(instance,
                         method,
