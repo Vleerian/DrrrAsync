@@ -37,7 +37,7 @@ namespace ExampleBot
         private async static Task PrintMessages(object Sender, DrrrMessage Message)
         {
             string Timestamp = $"<{Message.Timestamp.ToShortTimeString()}> ";
-            DrrrUser Author = (Message.From == null) ? Message.Usr : Message.From;
+            DrrrUser Author = Message.From ?? Message.Usr;
 
             string Mes;
 
@@ -49,10 +49,10 @@ namespace ExampleBot
                 case "music": Mes = $"{Author.Name} shared music."; break;
                 case "kick":
                 case "ban":
-                    Mes = $"{Message.Type.ToUpper()}ED - {Author.Name}"; break;
+                    Mes = $"{Message.Type.ID.ToUpper()}ED - {Author.Name}"; break;
                 case "join":
                 case "leave":
-                    Mes = $"{Message.Type.ToUpper()} - {Author.Name}"; break;
+                    Mes = $"{Message.Type.ID.ToUpper()} - {Author.Name}"; break;
                 case "room-profile":
                     Mes = "Room Updated."; break;
                 default:

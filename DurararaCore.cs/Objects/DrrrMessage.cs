@@ -11,13 +11,13 @@ namespace DrrrAsync.Objects
     public class DrrrMessage
     {
         public string ID;
-        public string Type;
         public string Text;
         public string Content;
         public string Url;
 
         public bool Secret;
 
+        public DrrrMessageType Type;
         public DrrrRoom PostedIn;
         public DateTime Timestamp;
         public DrrrUser From;
@@ -33,7 +33,6 @@ namespace DrrrAsync.Objects
         {
             // Set the message's properties
             ID = MessageObject["id"].Value<string>();
-            Type = MessageObject["type"].Value<string>();
             Text = MessageObject["message"].Value<string>();
             Content = MessageObject.ContainsKey("content") ? MessageObject["content"].Value<string>() : null;
             Url = MessageObject.ContainsKey("url") ? MessageObject["url"].Value<string>() : null;
@@ -45,6 +44,7 @@ namespace DrrrAsync.Objects
             DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
             Timestamp = dtDateTime.AddSeconds(MessageObject["time"].Value<Int64>()).ToLocalTime();
 
+            Type = DrrrMessageType.Types[MessageObject["type"].Value<string>()];
             From = MessageObject.ContainsKey("from") ? new DrrrUser((JObject)MessageObject["from"]) : null;
             To = MessageObject.ContainsKey("to") ? new DrrrUser((JObject)MessageObject["to"]) : null;
             Usr = MessageObject.ContainsKey("user") ? new DrrrUser((JObject)MessageObject["user"]) : null;
