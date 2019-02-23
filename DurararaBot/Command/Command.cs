@@ -20,9 +20,6 @@ namespace DrrrAsync.Bot
         public Module Module;
         public readonly CommandAuthority Authority;
         
-        /// <param name="module">The module the command is in</param>
-        /// <param name="Cmd">The method the command is linked to</param>
-        /// <param name="description">The command's description</param>
         public Command(Module module, Delegate handler, string name, string description, CommandAuthority authority)
         {
             Module = module;
