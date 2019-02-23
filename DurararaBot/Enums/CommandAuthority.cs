@@ -2,6 +2,7 @@
 {
     public enum CommandAuthority
     {
+        Owner,
         Administrator,
         Moderator,
         Host,

@@ -22,7 +22,8 @@ namespace DrrrAsync.Extensions
         public Stack<Tuple<string, string, string>> MessageQueue;
 
         /// <summary>
-        /// The bot constructor instantiates the client, as well as registering it's command processor as an event.
+        /// The bot constructor instantiates the client, as well 
+        /// as registering it's command processor as an event.
         /// </summary>
         /// <param name="aName">The name the bot will use on Drrr.com</param>
         /// <param name="aIcon">The icon the bot will use on Drrr.com</param>
@@ -37,8 +38,8 @@ namespace DrrrAsync.Extensions
             Running = false;
 
         /// <summary>
-        /// The register command goes through all the methods in command module, and those with the Command attribute
-        /// are added to the CommandDictionary.
+        /// The register command goes through all the methods in command module, and 
+        /// those with the Command attribute are added to the CommandDictionary.
         /// </summary>
         /// <typeparam name="T">The CommandModule's type</typeparam>
         public void Register<T>() where T : class
@@ -73,7 +74,8 @@ namespace DrrrAsync.Extensions
         }
 
         /// <summary>
-        /// The bot's command processor runs whenever a DrrrMessage event is thrown, and looks for commands.
+        /// The bot's command processor runs whenever a DrrrMessage 
+        /// event occurs, and looks for commands.
         /// </summary>
         /// <param name="e">The DrrrMessage event.</param>
         public async Task LookForCommands(object sender, DrrrMessage message)

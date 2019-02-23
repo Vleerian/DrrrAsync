@@ -7,7 +7,7 @@ namespace DrrrAsync.Bot
 {
     public partial class DrrrBot : DrrrClient
     {
-        public readonly Dictionary<string, Command> RegisteredCommands = new Dictionary<string, Command>();
+        public readonly Dictionary<string, Command> Commands= new Dictionary<string, Command>();
 
         public void Register(Module module)
         {
