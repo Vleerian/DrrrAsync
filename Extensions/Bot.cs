@@ -81,14 +81,14 @@ namespace DrrrAsync.Extensions
             // Check if the message starts with the prefix.
             if (message.Text.StartsWith(CommandPrefix))
             {
-                string[] cmdParams = message.Text.Contains(' ')
-                    ? message.Text.Split(' ', StringSplitOptions.RemoveEmptyEntries)
-                    : new string[] { message.Text };
+                List<string> cmdParams = message.Text.Contains(' ')
+                    ? message.Text.Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList()
+                    : new List<string>() { message.Text };
 
                 string cmd = cmdParams.Pop(0).ToLower().Substring(CommandPrefix.Length);
 
                 // If the command is a registered command, alias, or group, find it
-                Command cmdToExecute = Commands.Single(item => item.Key == cmd || (item.Value.Group == cmd && item.Value.Name == cmdParams[1])).Value;
+                Command cmdToExecute = Commands.Single(item => item.Key == cmd || (item.Value.Group == cmd && item.Value.Name == cmdParams[0])).Value;
 
                 //If something was found, execute it
                 if (cmdToExecute != null)

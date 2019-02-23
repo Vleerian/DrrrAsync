@@ -87,7 +87,7 @@ namespace Extensions
         public static T Pop<T>(this List<T> source, int index = -1)
         {
             T item = source[index];
-            source.RemoveAt(index > 0 ? index : source.Count - 1);
+            source.RemoveAt(index > -1 ? index : source.Count - 1);
 
             return item;
         }
