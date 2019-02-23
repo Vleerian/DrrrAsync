@@ -53,7 +53,7 @@ namespace DrrrAsync.Extensions
             
             foreach (var method in typeof(T).GetMethods())
             {
-                if (method.Has(out DrrrAsync.Bot.CommandAttribute attribute))
+                if (method.Has(out Attributes.CommandAttribute attribute))
                 {
                     var command = new Command(instance,
                         method,

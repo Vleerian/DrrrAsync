@@ -44,7 +44,11 @@ namespace DrrrAsync.Objects
             Timestamp = dtDateTime.AddSeconds(MessageObject["time"].Value<Int64>()).ToLocalTime();
 
             Type = DrrrMessageType.Types[MessageObject["type"].Value<string>()];
-            Author = new DrrrUser((JObject)MessageObject["from"] ?? (JObject)MessageObject["user"]);
+
+            Author = null;
+            if(MessageObject.ContainsKey("from") || MessageObject.ContainsKey("user"))
+                Author = new DrrrUser((JObject)MessageObject["from"] ?? (JObject)MessageObject["user"]);
+
             Target = MessageObject.ContainsKey("to") ? new DrrrUser((JObject)MessageObject["to"]) : null;
         }
 
