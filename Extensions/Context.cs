@@ -12,21 +12,30 @@ namespace DrrrAsync
         /// <summary>
         /// The Context object is used to make writing bots easier by providing relevant information using it's properties.
         /// </summary>
-        public class Context
+        public class Context : DrrrMessage
         {
-            public DrrrMessage Message { get; private set; }
-            public DrrrUser Author { get; private set; }
-            public DrrrRoom Room { get; private set; }
+            
 
             public Bot Client { get; private set; }
 
-            public Context(Bot aClient, DrrrMessage aMessage, DrrrUser aAuthor, DrrrRoom aRoom)
+            public Context(Bot aClient, DrrrMessage aMessage)
             {
+                ID = aMessage.ID;
+                Text = aMessage.Text;
+                Content = aMessage.Content;
+                Url = aMessage.Url;
+
+                Secret = aMessage.Secret;
+
+                Type = aMessage.Type;
+                Room = aMessage.Room;
+                Timestamp = aMessage.Timestamp;
+                Author = aMessage.Author;
+                Target = aMessage.Target;
+
                 Client = aClient;
-                Message = aMessage;
-                Author = aAuthor;
-                Room = aRoom;
             }
+
 
             /// <summary>
             /// RespondAsync wraps SendMessage and SendDirectMessage helping keep bot code more readable.

@@ -37,22 +37,21 @@ namespace ExampleBot
         private async static Task PrintMessages(object Sender, DrrrMessage Message)
         {
             string Timestamp = $"<{Message.Timestamp.ToShortTimeString()}> ";
-            DrrrUser Author = Message.From ?? Message.Usr;
 
             string Mes;
 
             switch (Message.Type)
             {
-                case "message": Mes = $"{Author.Name}: {Message.Text}"; break;
-                case "me": Mes = Message.Text.Replace("{1}", Author.Name).Replace("{2", Message.Content); break;
-                case "roll": Mes = Author.Name + " Rolled " + Message.To.Name; break;
-                case "music": Mes = $"{Author.Name} shared music."; break;
+                case "message": Mes = $"{Message.Author.Name}: {Message.Text}"; break;
+                case "me": Mes = Message.Text.Replace("{1}", Message.Author.Name).Replace("{2", Message.Content); break;
+                case "roll": Mes = Message.Author.Name + " Rolled " + Message.Target.Name; break;
+                case "music": Mes = $"{Message.Author.Name} shared music."; break;
                 case "kick":
                 case "ban":
-                    Mes = $"{Message.Type.ID.ToUpper()}ED - {Author.Name}"; break;
+                    Mes = $"{Message.Type.ID.ToUpper()}ED - {Message.Author.Name}"; break;
                 case "join":
                 case "leave":
-                    Mes = $"{Message.Type.ID.ToUpper()} - {Author.Name}"; break;
+                    Mes = $"{Message.Type.ID.ToUpper()} - {Message.Author.Name}"; break;
                 case "room-profile":
                     Mes = "Room Updated."; break;
                 default:
@@ -61,7 +60,7 @@ namespace ExampleBot
 
             Console.WriteLine($"{Timestamp} -- {Mes}");
 
-            await File.AppendAllTextAsync($"./logs/{Message.PostedIn.Name}.log", $"{Timestamp} -- {Mes}");
+            await File.AppendAllTextAsync($"./logs/{Message.Room.Name}.log", $"{Timestamp} -- {Mes}");
         }
     }
 }

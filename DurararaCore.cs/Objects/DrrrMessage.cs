@@ -18,11 +18,10 @@ namespace DrrrAsync.Objects
         public bool Secret;
 
         public DrrrMessageType Type;
-        public DrrrRoom PostedIn;
+        public DrrrRoom Room;
         public DateTime Timestamp;
-        public DrrrUser From;
-        public DrrrUser To;
-        public DrrrUser Usr;
+        public DrrrUser Author;
+        public DrrrUser Target;
 
         /// <summary>
         /// The DrrrMessage constructor populates itself using a JObject parsed using data from Drrr.com.
@@ -39,15 +38,16 @@ namespace DrrrAsync.Objects
 
             Secret = MessageObject.ContainsKey("secret");
 
-            PostedIn = aRoom;
+            Room = aRoom;
 
             DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
             Timestamp = dtDateTime.AddSeconds(MessageObject["time"].Value<Int64>()).ToLocalTime();
 
             Type = DrrrMessageType.Types[MessageObject["type"].Value<string>()];
-            From = MessageObject.ContainsKey("from") ? new DrrrUser((JObject)MessageObject["from"]) : null;
-            To = MessageObject.ContainsKey("to") ? new DrrrUser((JObject)MessageObject["to"]) : null;
-            Usr = MessageObject.ContainsKey("user") ? new DrrrUser((JObject)MessageObject["user"]) : null;
+            Author = new DrrrUser((JObject)MessageObject["from"] ?? (JObject)MessageObject["user"]);
+            Target = MessageObject.ContainsKey("to") ? new DrrrUser((JObject)MessageObject["to"]) : null;
         }
+
+        protected DrrrMessage() { }
     }
 }
