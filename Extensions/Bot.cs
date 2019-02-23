@@ -99,7 +99,7 @@ namespace DrrrAsync.Extensions
 
                     // Parameter and Arguments List
                     var parameters = cmdToExecute.Method.GetParameters();
-                    var args = new List<object>() { new Context(this, message, message.From ?? message.Usr, message.PostedIn) };
+                    var args = new List<object>() { new Context(this, message) };
 
                     // Iterate through the commands' required Parameters
                     for (int i = 0; i < parameters.Length; i++)

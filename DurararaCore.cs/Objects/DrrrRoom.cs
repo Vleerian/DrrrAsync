@@ -78,7 +78,8 @@ namespace DrrrAsync.Objects
             Messages = new List<DrrrMessage>();
             if (RoomObject.ContainsKey("talks"))
                 foreach (JObject item in RoomObject["talks"])
-                    Messages.Add(new DrrrMessage(item, this));
+                    if(item.Value<string>("type") != "room - profile")
+                        Messages.Add(new DrrrMessage(item, this));
         }
 
         /// <summary>

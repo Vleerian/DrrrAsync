@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DurararaBot\DrrrBot.csproj" />
     <ProjectReference Include="..\DurararaCore.cs\DrrrClient.csproj" />
   </ItemGroup>
 
