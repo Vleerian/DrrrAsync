@@ -1,13 +1,12 @@
 ﻿using System;
 using Newtonsoft.Json.Linq;
 
-using DrrrAsync.Events;
-
-namespace DrrrAsync.Objects
+namespace DrrrBot.Objects
 {
     /// <summary>
     /// A container for information pertaining to a message on Drrr.Com
     /// </summary>
+    [Serializable]
     public class DrrrMessage
     {
         public string ID;

@@ -1,12 +1,12 @@
 ﻿using Newtonsoft.Json.Linq;
+using System;
 
-using DrrrAsync.Events;
-
-namespace DrrrAsync.Objects
+namespace DrrrBot.Objects
 {
     /// <summary>
     /// A container for information pertaining to a user on Drrr.Com
     /// </summary>
+    [Serializable]
     public class DrrrUser
     {
         public string ID;
@@ -15,7 +15,7 @@ namespace DrrrAsync.Objects
         public string Icon;
         public string Device;
         public string LoggedIn;
-
+        public bool Admin;
         /// <summary>
         /// The DrrrUser constructor populates itself using a JObject parsed using data from Drrr.com.
         /// </summary>
@@ -28,6 +28,7 @@ namespace DrrrAsync.Objects
             Tripcode = UserObject.ContainsKey("tripcode") ? UserObject["tripcode"].Value<string>() : null;
             Device = UserObject.ContainsKey("device") ? UserObject["device"].Value<string>() : null;
             LoggedIn = UserObject.ContainsKey("loginedAt") ? UserObject["loginedAt"].Value<string>() : null;
+            Admin = UserObject.ContainsKey("admin") ? UserObject["admin"].Value<bool>() : false;
         }
     }
 }

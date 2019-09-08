@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-using DrrrAsync.Events;
 using System.Threading.Tasks;
 
-namespace DrrrAsync.Objects
+namespace DrrrBot.Objects
 {
     /// <summary>
     /// A container for information pertaining to a room on Drrr.com
     /// </summary>
+    [Serializable]
     public class DrrrRoom
     {
         public string Language { get; private set; }
@@ -78,7 +79,7 @@ namespace DrrrAsync.Objects
             Messages = new List<DrrrMessage>();
             if (RoomObject.ContainsKey("talks"))
                 foreach (JObject item in RoomObject["talks"])
-                    if(item.Value<string>("type") != "room - profile")
+                    if(item.Value<string>("type") != "room-profile")
                         Messages.Add(new DrrrMessage(item, this));
         }
 
@@ -86,7 +87,7 @@ namespace DrrrAsync.Objects
         /// Attempts to get a user.
         /// </summary>
         /// <returns>True if the user was retrieved, false otherwise</returns>
-        public bool TryGetUserAsync(string Name, ref DrrrUser RefUser)
+        public bool TryGetUser(string Name, out DrrrUser RefUser)
         {
             RefUser = GetUser(Name);
             return RefUser != null;
@@ -132,15 +133,20 @@ namespace DrrrAsync.Objects
             {
                 foreach (JObject item in RoomObject["talks"])
                 {
-                    DrrrMessage tmp = new DrrrMessage(item, this);
-                    if (!Messages.Any(Mesg => Mesg.ID == tmp.ID))
+                    if (item.Value<string>("type") != "room-profile")
                     {
-                        Messages.Add(tmp);
-                        New_Messages.Add(tmp);
+                        DrrrMessage tmp = new DrrrMessage(item, this);
+                        if (!Messages.Any(Mesg => Mesg.ID == tmp.ID))
+                        {
+                            Messages.Add(tmp);
+                            New_Messages.Add(tmp);
+                        }
                     }
                 }
             }
             return New_Messages;
         }
+
+        protected DrrrRoom() { }
     }
 }
