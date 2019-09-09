@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 
 using DrrrBot.Objects;
 using System.Drawing;
+using DrrrBot.Helpers;
 
 namespace DrrrBot.Core
 {
@@ -37,6 +38,7 @@ namespace DrrrBot.Core
 
         // Client Extensions
         protected HttpClientE WebClient = new HttpClientE();
+        public ILogger Logger;
 
         // Events
         public DrrrAsyncEvent On_Login;
@@ -60,6 +62,8 @@ namespace DrrrBot.Core
             On_Leave = new DrrrAsyncEvent<AsyncMessageEvent>();
             On_Me = new DrrrAsyncEvent<AsyncMessageEvent>();
             On_Post = new DrrrAsyncEvent<AsyncMessageEvent>();
+
+            Logger = new DefaultLogger();
         }
 
         /// <summary>
@@ -130,7 +134,7 @@ namespace DrrrBot.Core
         public async Task JoinRoom(string roomId)
         {
             // Join the room
-            Helpers.Utilities.Log(Color.Cyan, "INFO", $"Joining room {roomId}");
+            Logger.Log(LogEventType.Information, $"Joining room {roomId}");
             await WebClient.Get_String($"http://drrr.com/room/?id={roomId}");
         }
 

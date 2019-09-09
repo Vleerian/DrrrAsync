@@ -1,5 +1,6 @@
 ﻿using DrrrBot;
 using DrrrBot.Core;
+using DrrrBot.Helpers;
 using DrrrBot.Objects;
 using System;
 using System.Threading.Tasks;
@@ -18,7 +19,7 @@ public class Test
             Client.Name = "test";
             Client.Icon = DrrrIcon.Kuromu2x;
         }
-        catch(Exception e)
+        catch (Exception)
         {
             return false;
         }
@@ -32,7 +33,7 @@ public class Test
             await Client.Login();
             return true;
         }
-        catch (Exception e)
+        catch (Exception)
         {
             return false;
         }
@@ -46,7 +47,7 @@ public class Test
             await Client.GetLounge();
             return true;
         }
-        catch (Exception e)
+        catch (Exception)
         {
             return false;
         }
@@ -63,9 +64,10 @@ public class Test
                 Limit = 20,
                 Language = "en-US"
             });
+            ((DefaultLogger)Client.Logger).logLevel = LogEventType.Debug;
             return true;
         }
-        catch (Exception e)
+        catch (Exception)
         {
             return false;
         }
@@ -80,7 +82,7 @@ public class Test
             await Client.GetRoomUpdate();
             return true;
         }
-        catch (Exception e)
+        catch (Exception)
         {
             return false;
         }
@@ -93,7 +95,7 @@ public class Test
             await Client.SendMessage("Test.");
             return true;
         }
-        catch (Exception e)
+        catch (Exception)
         {
             return false;
         }
@@ -106,7 +108,7 @@ public class Test
             await Client.LeaveRoom();
             return true;
         }
-        catch (Exception e)
+        catch (Exception)
         {
             return false;
         }
@@ -115,14 +117,14 @@ public class Test
     bool RunTest(string test, Func<bool> Test)
     {
         bool result = Test();
-        Console.WriteLine($"{test}: {(result ? "PASSED" : "FAILED")}");
+        Client.Logger.Log(LogEventType.Information, $"{test}: {(result ? "PASSED" : "FAILED")}");
         return result;
     }
 
     async Task<bool> RunTest(string test, Task<bool> Test)
     {
         bool result = await Test;
-        Console.WriteLine($"{test}: {(result ? "PASSED" : "FAILED")}");
+        Client.Logger.Log(LogEventType.Information, $"{test}: {(result ? "PASSED" : "FAILED")}");
         return result;
     }
 
@@ -130,24 +132,24 @@ public class Test
     {
         if (!RunTest("Init", Initialize))
         {
-            Console.WriteLine("Could not initialize cleint. Stopping tests.");
+            Client.Logger.Log(LogEventType.Error, "Could not initialize cleint. Stopping tests.");
             return;
         }
         if(!await RunTest("Login", LoginTest())){
-            Console.WriteLine("Could not login to drrr.com. Stopping tests.");
+            Client.Logger.Log(LogEventType.Error, "Could not login to drrr.com. Stopping tests.");
             return;
         }
         await RunTest("Lounge", LoungeTest());
 
         if(!await RunTest("Room", CreateRoom()))
         {
-            Console.WriteLine("Could not create room. Stopping tests.");
+            Client.Logger.Log(LogEventType.Error, "Could not create room. Stopping tests.");
             return;
         }
         await RunTest("Update", GetRoom());
         await RunTest("Send", SendMessage());
 
-        Console.WriteLine("Waiting 40s to leave...");
+        Client.Logger.Log(LogEventType.Information, "Waiting 40s to leave...");
         await Task.Delay(40000);
         await RunTest("Leave", Leave());
         Console.ReadKey();

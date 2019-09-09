@@ -18,7 +18,7 @@ using Newtonsoft.Json;
 
 namespace DrrrBot.Core
 {
-    public class Bot : DrrrClient
+    public partial class Bot : DrrrClient
     {
         private Dictionary<string, Command> Commands;
         private Queue<DrrrMessageConfig> MessageQueue;
@@ -154,123 +154,6 @@ namespace DrrrBot.Core
             await Task.CompletedTask;
         }
 
-        /// <summary>
-        /// The function that runs when a command is executed
-        /// </summary>
-        /// <param name="Sender">The object which sent the event - usually Bot</param>
-        /// <param name="e">The command message</param>
-        /// <returns></returns>
-        public async Task ProcCommands(object Sender, AsyncMessageEvent e)
-        {
-            var Message = e.Message;
-            //It has to be a message, and it has to start with the command signal
-            if (Message.Text.StartsWith(Config.CommandSignal))
-            {
-                //Parse the message to get the command to execute, as well as any parameters to pass.
-                List<string> CommandParams = Message.Text.Contains(" ") ?
-                    Message.Text.Split(new char[] { ' ' }, options: StringSplitOptions.RemoveEmptyEntries).ToList() :
-                    new List<string>() { Message.Text };
-                string Command = CommandParams
-                                    .Pop(0).ToLower()
-                                    .Substring(Config.CommandSignal.Length);
-
-                Utilities.Log(Color.Aqua, "CMND", $"{Message.Author.Name} executing {Command}...");
-
-                //Check for the command or aliases.
-                if (Commands.ContainsKey(Command))
-                {
-                    //The command exists. Do preliminary permissions check
-                    if(!CheckPerms(Message.Author, Commands[Command].Permission))
-                    {
-                        Utilities.Log(Color.Coral, "DENIED", "Insufficient permissions.");
-                        return;
-                    }
-                    //Now that they've been cleared to run the command, work the arguments into an array, and execute it
-                    try
-                    {
-                        var args = new List<object>() { new Context(this, Message), CommandParams.ToArray() };
-                        await Commands[Command].Call(args.ToArray());
-                    }
-                    catch(Exception err)
-                    {
-                        Utilities.Log(Color.DarkOrange, "CMND ERR", err.Message);
-                    }
-                    return;
-                }
-                //Log if the command doesn't exist
-                Utilities.Log(Color.Orange, "CMND", $"Command does not exist.");
-            }
-        }
-
-        /// <summary>
-        /// Prints messages onto the terminal
-        /// </summary>
-        /// <param name="Sender">The object which sent the event - usually Bot</param>
-        /// <param name="e">The message</param>
-        /// <returns></returns>
-        public async Task PrintMessage(object Sender, AsyncMessageEvent e)
-        {
-            var Message = e.Message;
-            StyleSheet MessageStyle = new StyleSheet(Color.White);
-            MessageStyle.AddStyle("(?<=<).+?(?=#|>)", Color.Green);
-            MessageStyle.AddStyle("(?<=#).*(?=>)", Color.Blue);
-            MessageStyle.AddStyle("BANED|KICKED", Color.Red);
-            MessageStyle.AddStyle("JOIN|LEAVE", Color.Orange);
-            MessageStyle.AddStyle("DIRECT", Color.Magenta);
-            MessageStyle.AddStyle("MUSIC", Color.Cyan);
-
-            string Timestamp = $"[{DateTime.Now.ToString("dd'/'MM'/'yyyy HH:mm:ss")}]";
-
-            string AuthorBit = "";
-            if (Message.Author != null)
-                AuthorBit = Message.Author.Tripcode != null ? $"<{Message.Author.Name}#{Message.Author.Tripcode}>" : $"<{Message.Author.Name}>";
-            string TargetBit = "";
-            if (Message.Target != null)
-                TargetBit = Message.Target.Tripcode != null ? $"<{Message.Target.Name}#{Message.Target.Tripcode}>" : $"<{Message.Target.Name}>";
-
-            string Mesg;
-            switch (Message.Type)
-            {
-                case "message":
-                    Mesg = $"{Timestamp}{(Message.Secret ? " DIRECT " : " ")}{AuthorBit}: {Message.Text}";
-                    Mesg += $" ({Message.Url})" ?? "";
-                    break;
-                case "me":
-                    Mesg = $"{Timestamp} {AuthorBit}: {Message.Author.Name}{Message.Content}";
-                    break;
-                case "roll":
-                    Mesg = $"{Timestamp} {AuthorBit} Rolled {TargetBit}";
-                    break;
-                case "music":
-                    Mesg = $"{Timestamp} MUSIC - {AuthorBit} shared a song.";
-                    break;
-                case "kick":
-                case "ban":
-                    Mesg = $"{Timestamp} {Message.Type.ID.ToUpper()}ED - {TargetBit}";
-                    break;
-                case "join":
-                case "leave":
-                    Mesg = $"{Timestamp} {Message.Type.ID.ToUpper()} - {AuthorBit}";
-                    break;
-                case "room-profile":
-                    Mesg = $"{Timestamp} Room updated.";
-                    break;
-                case "new-host":
-                    Mesg = $"{Timestamp} HANDOVER - {AuthorBit}";
-                    break;
-                default:
-                    Mesg = $"[{Message.Type}] {Message.Text}";
-                    break;
-            }
-
-            Console.WriteLineStyled(Mesg, MessageStyle);
-
-            if (!Directory.Exists("./Logs"))
-                Directory.CreateDirectory("./Logs");
-            File.AppendAllText($"./Logs/{base.Room.Name}_Log.txt", $"{Mesg}\n");
-            await Task.CompletedTask;
-        }
-
         private async Task MessageLoop()
         {
             DateTime LastSent = DateTime.Now;
@@ -290,7 +173,7 @@ namespace DrrrBot.Core
                             Message.Username = User.ID;
                         else
                         {
-                            Utilities.Log(Color.Red, "ERR", "User is not in room.");
+                            Logger.Log(LogEventType.Error, "User is not in room.");
                             continue;
                         }
                     }
@@ -303,108 +186,28 @@ namespace DrrrBot.Core
             }
         }
 
-        public async Task Reconnect()
-        {
-            Utilities.Log(Color.Cyan, "INFO", "Attempting to reconnect.");
-
-            Utilities.Log(Color.Cyan, "INFO", "Shutting down all loops...");
-            running = false;
-
-            Utilities.Log(Color.Yellow, "NETWORK", "Retrieving roomlist.");
-            var roomList = await GetLounge();
-            Utilities.Log(Color.Green, "OK", "Roomlist retrieved.");
-
-            Utilities.Log(Color.Cyan, "INFO", "Searching for target room...");
-            DrrrRoom Found = roomList.Find(Room => Room.Name == Config.Room.Name);
-            if (Found == null || Found.Users.Find(User => User.Name == "Welne Zodiv") == null)
-            {
-                Utilities.Log(Color.Orange, "NOTICE", "Reconnect impossible. Attempting rejoin.");
-                await Run();
-                return;
-            }
-            Utilities.Log(Color.Green, "SUCCESS", "Reconnect possible.");
-
-            //Print the room's history, if joining the room
-            var JoinMessages = await GetRoom();
-            foreach (var Message in JoinMessages.Messages)
-                await PrintMessage(this, new AsyncMessageEvent(Message));
-
-            running = true;
-
-#pragma warning disable CS4014 // This is starting the message loop, and we don't particularly care if it runs away.
-            MessageLoop();
-#pragma warning restore CS4014
-
-            while (Running)
-            {
-                //I do it this way so that if you press Q during the delay, you get a quicker
-                for (int i = 0; i < 50; i++)
-                {
-                    if (Console.KeyAvailable && Console.ReadKey().Key == ConsoleKey.Q)
-                    {
-                        Utilities.Log(Color.Cyan, "INFO", "Shutdown requested from terminal.");
-                        Shutdown();
-                    }
-                    await Task.Delay(10);
-                }
-                if (!Running)
-                    break;
-
-                foreach (var Message in await GetRoomUpdate())
-                {
-                    if (Message.Secret)
-                        await On_Direct_Message?.InvokeAsync(this, new AsyncMessageEvent(Message));
-                    await On_Message?.InvokeAsync(this, new AsyncMessageEvent(Message));
-                }
-            }
-
-            Console.SetCursorPosition(0, Console.CursorTop);
-            Utilities.Log(Color.Orange, "CLEANUP", "Leaving room...");
-            foreach (var User in Room.Users)
-            {
-                if (User.Tripcode != null && Config.Permissions.ContainsKey(User.Tripcode))
-                    await GiveHost(User);
-            }
-            if (await LeaveRoom() == "Cannot leave.")
-            {
-                Utilities.Log(Color.Yellow, "WARNING", "Cannot leave room. Waiting 40s and trying again.");
-                await Task.Delay(40000);
-                if (await LeaveRoom() == "Cannot leave.")
-                    Utilities.Log(Color.Yellow, "WARNING", "Cannot leave room. Proceeding with cleanup anyway.");
-                else
-                    Utilities.Log(Color.Green, "OK", "Room left.");
-
-            }
-            else
-                Utilities.Log(Color.Green, "OK", "Room left.");
-
-            Utilities.Log(Color.Cyan, "INFO", "Exited.");
-            Console.ReadKey();
-        }
-
         public async Task Run()
         {
             Name = Config.Name;
-            Utilities.Log(Color.Yellow, "NETWORK", "Logging in.");
+            Logger.Log(LogEventType.Information, "Logging in.");
             await Login();
-            Utilities.Log(Color.Green, "OK", "Logged in.");
 
-            Utilities.Log(Color.Yellow, "NETWORK", "Retrieving roomlist.");
+            Logger.Log(LogEventType.Debug, "Retrieving roomlist.");
             var roomList = await GetLounge();
-            Utilities.Log(Color.Green, "OK", "Roomlist retrieved.");
 
-            Utilities.Log(Color.Cyan, "INFO", "Searching for target room...");
+            Logger.Log(LogEventType.Debug, "Searching for target room...");
             DrrrRoom Found = roomList.Find(Room => Room.Name == Config.Room.Name);
             try
             {
                 if (Found == null)
                 {
-                    Utilities.Log(Color.Orange, "NOTICE", "Room, not found.");
                     if(Config.Room.Description != null)
                     {
-                        Utilities.Log(Color.Yellow, "NETWORK", "Creating room.");
+                        Logger.Log(LogEventType.Information, "Creating room.");
                         await MakeRoom(Config.Room);
                     }
+                    else
+                        throw new Exception("Room does not exist.");
                 }
                 else if (Found.UserCount >= Found.Limit)
                     throw new Exception("Room full.");
@@ -413,7 +216,7 @@ namespace DrrrBot.Core
             }
             catch (Exception e)
             {
-                Utilities.Log(Color.Red, "ERROR", e.Message);
+                Logger.Log(LogEventType.Fatal, "Error encountered while joining room.", e);
                 Console.ReadKey();
                 return;
             }
@@ -422,12 +225,8 @@ namespace DrrrBot.Core
             On_Message.Register(ProcCommands);
             On_Direct_Message.Register(ProcCommands);
 
-            Utilities.Log(Color.Green, "OK", "Room exists.");
-            if (Found != null)
-            {
-                Utilities.Log(Color.Cyan, "INFO", $"{Found.Name} - {Found.UserCount}/{Found.Limit}");
-                await JoinRoom(Found.RoomId);
-            }
+            Logger.Log(LogEventType.Information, "Room exists. Joining now.");
+            await JoinRoom(Found.RoomId);
 
             //Print the room's history, if joining the room
             var JoinMessages = await GetRoom();
@@ -447,7 +246,7 @@ namespace DrrrBot.Core
                 {
                     if (Console.KeyAvailable && Console.ReadKey().Key == ConsoleKey.Q)
                     {
-                        Utilities.Log(Color.Cyan, "INFO", "Shutdown requested from terminal.");
+                        Logger.Log(LogEventType.Information, "Shutdown requested from terminal.");
                         Shutdown();
                     }
                     await Task.Delay(10);
@@ -472,7 +271,7 @@ namespace DrrrBot.Core
             }
 
             Console.SetCursorPosition(0, Console.CursorTop);
-            Utilities.Log(Color.Orange, "CLEANUP", "Leaving room...");
+            Logger.Log(LogEventType.Information, "Leaving room...");
 
             try
             {
@@ -486,22 +285,18 @@ namespace DrrrBot.Core
             {
                 Console.WriteLine($"{e} --- {e.Message}");
                 Console.WriteLine(e.StackTrace);
-                Utilities.Log(Color.Red, "ERROR", "Could not handover host. Attempting to continue shutdown.");
+                Logger.Log(LogEventType.Error, "Could not handover host. Attempting to continue shutdown.");
             }
             
             if (await LeaveRoom() == "Cannot leave.")
             {
-                Utilities.Log(Color.Yellow, "WARNING", "Cannot leave room. Waiting 40s and trying again.");
+                Logger.Log(LogEventType.Warning, "Cannot leave room. Waiting 40s and trying again.");
                 await Task.Delay(40000);
                 if (await LeaveRoom() == "Cannot leave.")
-                    Utilities.Log(Color.Yellow, "ERROR", "Failed to leave room. Proceeding with shutdown anyway.");
-                else
-                    Utilities.Log(Color.Green, "OK", "Room left.");
+                    Logger.Log(LogEventType.Error, "Failed to leave room. Proceeding with shutdown anyway.");
             }
-            else
-                Utilities.Log(Color.Green, "OK", "Room left.");
 
-            Utilities.Log(Color.Cyan, "INFO", "Exited.");
+            Logger.Log(LogEventType.Information, "Exited.");
         }
 
         public void Shutdown()
