@@ -62,6 +62,10 @@ namespace DrrrBot.Core
             On_Post = new DrrrAsyncEvent<AsyncMessageEvent>();
         }
 
+        /// <summary>
+        /// Creates a session on Drrr.com
+        /// </summary>
+        /// <returns>True if success, throws an exception otherwise</returns>
         public async Task<bool> Login()
         {
             // Get the index page to parse the token
@@ -80,6 +84,10 @@ namespace DrrrBot.Core
             return true;
         }
 
+        /// <summary>
+        /// Retrieves the Lounge on drrr.com
+        /// </summary>
+        /// <returns>A List of DrrrRoom objects</returns>
         public async Task<List<DrrrRoom>> GetLounge()
         {
             // Retreive lounge's json
@@ -98,15 +106,27 @@ namespace DrrrBot.Core
             return Rooms;
         }
 
+        /// <summary>
+        /// Gets data from the current room on Drrr.com
+        /// </summary>
+        /// <returns>A DrrrRoom object</returns>
         public async Task<DrrrRoom> GetRoom()
         {
             Room = new DrrrRoom(await WebClient.Get_Json($"https://drrr.com/json.php?fast=1"));
             return Room;
         }
 
+        /// <summary>
+        /// Gets the newest data only for the current room
+        /// </summary>
+        /// <returns>A List of DrrrMessage objects</returns>
         public async Task<List<DrrrMessage>> GetRoomUpdate() =>
             Room.UpdateRoom(await WebClient.Get_Json($"https://drrr.com/json.php?update={Room.Update}"));
 
+        /// <summary>
+        /// Joins a room on Drrr.com
+        /// </summary>
+        /// <param name="roomId">The ID of the room being joined</param>
         public async Task JoinRoom(string roomId)
         {
             // Join the room
@@ -114,6 +134,10 @@ namespace DrrrBot.Core
             await WebClient.Get_String($"http://drrr.com/room/?id={roomId}");
         }
 
+        /// <summary>
+        /// Creates a room on drrr.com
+        /// </summary>
+        /// <param name="Config">How the room will be configured</param>
         public async Task MakeRoom(DrrrRoomConfig Config)
         {
             // Send a POST to create the room.
@@ -128,6 +152,10 @@ namespace DrrrBot.Core
             });
         }
 
+        /// <summary>
+        /// Leaves the current room
+        /// </summary>
+        /// <returns>Whatever the site returns</returns>
         public async Task<string> LeaveRoom()
         {
             if ((DateTime.Now - StartedAt).TotalSeconds > 40)
@@ -137,6 +165,11 @@ namespace DrrrBot.Core
             return "Cannot Leave";
         }
 
+        /// <summary>
+        /// Gives host to another user
+        /// </summary>
+        /// <param name="user">The user you want to give host</param>
+        /// <returns>Whatever the site returns</returns>
         public async Task<string> GiveHost(DrrrUser user)
         {
             return await WebClient.Post_String("https://drrr.com/room/?ajax=1", new Dictionary<string, string>() {
@@ -144,6 +177,11 @@ namespace DrrrBot.Core
             });
         }
 
+        /// <summary>
+        /// Bans a user (NOT PERMANENT, CAN BE EASILY CIRCUMVENTED)
+        /// </summary>
+        /// <param name="user">The user you want to ban</param>
+        /// <returns>Whatever the site returns</returns>
         public async Task<string> Ban(DrrrUser user)
         {
             return await WebClient.Post_String("https://drrr.com/room/?ajax=1", new Dictionary<string, string>() {
@@ -151,6 +189,11 @@ namespace DrrrBot.Core
             });
         }
 
+        /// <summary>
+        /// Reports a bans a user (IP Ban)
+        /// </summary>
+        /// <param name="user">The user you want to ban</param>
+        /// <returns>Whatever the site returns</returns>
         public async Task<string> Report_And_Ban(DrrrUser user)
         {
             return await WebClient.Post_String("https://drrr.com/room/?ajax=1", new Dictionary<string, string>() {
@@ -158,6 +201,11 @@ namespace DrrrBot.Core
             });
         }
 
+        /// <summary>
+        /// Kicks a user from the room
+        /// </summary>
+        /// <param name="user">The user you want to kick</param>
+        /// <returns>Whatever the site returns</returns>
         public async Task<string> Kick(DrrrUser user)
         {
             return await WebClient.Post_String("https://drrr.com/room/?ajax=1", new Dictionary<string, string>() {
@@ -165,6 +213,13 @@ namespace DrrrBot.Core
             });
         }
 
+        /// <summary>
+        /// Sends a message to the room
+        /// </summary>
+        /// <param name="Message">The message being sent</param>
+        /// <param name="Url">Optional: URL to attach</param>
+        /// <param name="To">Optional: UserID of a user you want to DM</param>
+        /// <returns>Whatever the site returns</returns>
         public virtual async Task<string> SendMessage(string Message, string Url = "", string To = "")
         {
             return await WebClient.Post_String("https://drrr.com/room/?ajax=1", new Dictionary<string, string>() {
@@ -174,6 +229,11 @@ namespace DrrrBot.Core
             });
         }
 
+        /// <summary>
+        /// Sets the room's title
+        /// </summary>
+        /// <param name="Title">The new room title</param>
+        /// <returns>Whatever the site returns</returns>
         public async Task<string> SetRoomTitle(string Title)
         {
             return await WebClient.Post_String("https://drrr.com/room/?ajax=1", new Dictionary<string, string>() {
@@ -181,6 +241,11 @@ namespace DrrrBot.Core
             });
         }
 
+        /// <summary>
+        /// Sets the room's description
+        /// </summary>
+        /// <param name="Description">The new description</param>
+        /// <returns>Whatever the site returns</returns>
         public async Task<string> SetRoomDescription(string Description)
         {
             return await WebClient.Post_String("https://drrr.com/room/?ajax=1", new Dictionary<string, string>() {
@@ -188,6 +253,12 @@ namespace DrrrBot.Core
             });
         }
 
+        /// <summary>
+        /// Plays music in a room
+        /// </summary>
+        /// <param name="Name">The 'song name' displayed by the site</param>
+        /// <param name="Url">The URL of the song</param>
+        /// <returns>Whatever the site returns</returns>
         public async Task<string> PlayMusic(string Name, string Url)
         {
             return await WebClient.Post_String("https://drrr.com/room/?ajax=1", new Dictionary<string, string>() {

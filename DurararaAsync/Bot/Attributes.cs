@@ -50,6 +50,4 @@ namespace DrrrBot.Core
         public AliasesAttribute(params string[] aliases) =>
             Aliases = aliases;
     }
-
-    public class RemainingAttribute : Attribute { }
 }

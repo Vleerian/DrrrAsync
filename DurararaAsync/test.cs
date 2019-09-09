@@ -60,7 +60,8 @@ public class Test
             {
                 Name = "DrrrAsync Test",
                 Description = "Welcome!",
-                Limit = 20
+                Limit = 20,
+                Language = "en-US"
             });
             return true;
         }

@@ -17,22 +17,8 @@ namespace DrrrBot
     {
         static void Main(string[] args)
         {
-            Run().Wait();
-        }
-
-        static async Task Run()
-        {
-            DrrrBotConfig Config;
-            var json = "";
-            using (var fs = File.OpenRead("./config.json"))
-            using (var sr = new StreamReader(fs, new UTF8Encoding(false)))
-                json = sr.ReadToEnd();
-            Config = JsonConvert.DeserializeObject<DrrrBotConfig>(json);
-            var drrrBot = Bot.Create(Config);
-
-            await drrrBot.Register<ExampleModule>();
-
-            await drrrBot.Run();
+            var Tests = new Test();
+            Tests.RunTests().Wait();
         }
     }
 }

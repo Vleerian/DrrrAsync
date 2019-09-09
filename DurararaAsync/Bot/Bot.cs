@@ -41,15 +41,6 @@ namespace DrrrBot.Core
             MessageQueue = new Queue<DrrrMessageConfig>();
         }
 
-        public async Task ReloadCongfig(string ConfigPath)
-        {
-            var json = "";
-            using (var fs = File.OpenRead(ConfigPath))
-            using (var sr = new StreamReader(fs, new UTF8Encoding(false)))
-                json = await sr.ReadToEndAsync();
-            Config = JsonConvert.DeserializeObject<DrrrBotConfig>(json);
-        }
-
         /// <summary>
         /// Uses a DrrrBotConfig object to create a bot.
         /// </summary>

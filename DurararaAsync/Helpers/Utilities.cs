@@ -9,16 +9,18 @@ using Console = Colorful.Console;
 
 namespace DrrrBot.Helpers
 {
+    /// <summary>
+    /// A container for frequently used functions.
+    /// </summary>
     class Utilities
     {
+        /// <summary>
+        /// Outputs pleasing-looking timestamped log messages, with a status message
+        /// </summary>
+        /// <param name="col">System.Drawing.Color of the status</param>
+        /// <param name="status">The status type of the message</param>
+        /// <param name="text">The message itself</param>
         public static void Log(Color col, string status, string text) =>
             Console.WriteLineFormatted($"[{DateTime.Now.ToString("dd'/'MM'/'yyyy HH:mm:ss")}] <{{0}}> {text}", col, Color.White, status.Center(9));
-
-        public static string SnipText(ref string Text, int Position)
-        {
-            string ReturnText = Text.Substring(0, Position);
-            Text = Text.Substring(Position);
-            return ReturnText;
-        }
     }
 }

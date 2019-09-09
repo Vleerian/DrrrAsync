@@ -10,88 +10,33 @@ using System.Threading.Tasks;
 
 namespace DrrrBot.Helpers
 {
-    public sealed class Whitelist
-    {
-        private static Whitelist instance;
-        public static Whitelist Instance {
-            get
-            {
-                if (instance == null)
-                    instance = new Whitelist();
-                return instance;
-            }
-        }
-
-        public int Count
-        {
-            get =>
-                whiteList.Count;
-        }
-
-        private List<string> whiteList;
-
-        public void Add(string Tripcode)
-        {
-            whiteList.Add(Tripcode);
-            using (StreamWriter w = new StreamWriter("whitelist.txt", false, Encoding.ASCII))
-            {
-                foreach (string Item in whiteList)
-                    w.WriteLine(Item);
-            }
-        }
-
-        public void Remove(string Tripcode)
-        {
-            if (whiteList.Contains(Tripcode))
-                whiteList.Remove(Tripcode);
-        }
-
-        public bool Contains(string value) =>
-            whiteList.Contains(value);
-
-        private Whitelist() => Load();
-
-        public void Load()
-        {
-            whiteList = new List<string>();
-            string WhitelistRaw = File.ReadAllText("whitelist.txt");
-            WhitelistRaw.Split("\n", StringSplitOptions.RemoveEmptyEntries)
-                .ForEach(E => whiteList.Add(E.Trim()));
-        }
-    }
-
+    /// <summary>
+    /// Common extension methods
+    /// </summary>
     public static class Helpers
     {
+        /// <summary>
+        /// An Async version of ForEach. Iterates through an IEnumerable, executing a function on each item.
+        /// </summary>
+        /// <typeparam name="T">The Type stored in the IEnumerable</typeparam>
+        /// <param name="Enumerable">The IEnumerable being iterated over</param>
+        /// <param name="func">The function being executed on each item</param>
         public static async Task ForEachAsync<T>(this IEnumerable<T> Enumerable, Func<T, Task> func)
         {
             foreach (var item in Enumerable)
                 await func(item);
         }
 
+        /// <summary>
+        /// Iterates through an IEnumerable, executing a function on each item.
+        /// </summary>
+        /// <typeparam name="T">The Type stored in the IEnumerable</typeparam>
+        /// <param name="Enumerable">The IEnumerable being iterated over</param>
+        /// <param name="func">The function being executed on each item</param>
         public static void ForEach<T>(this IEnumerable<T> Enumerable, Action<T> Action)
         {
             foreach (var item in Enumerable)
                 Action(item);
-        }
-        /// <summary>
-        /// Creates a dynamically typed delegate from just the 
-        /// method info provided on the specified target.
-        /// </summary>
-        /// <param name="methodInfo">The method to create a delegate for</param>
-        /// <param name="target">The target to create the delegate for, if non-static.</param>
-        public static Delegate CreateDelegate(this MethodInfo methodInfo, object target = null)
-        {
-            var getType = methodInfo.ReturnType == typeof(void)
-                ? (Func<Type[], Type>)Expression.GetActionType
-                : (Func<Type[], Type>)Expression.GetFuncType;
-
-            var types = methodInfo.GetParameters().Select(p => p.ParameterType);
-            if (getType == Expression.GetFuncType)
-                types = types.Concat(new[] { methodInfo.ReturnType });
-
-            if (methodInfo.IsStatic)
-                return Delegate.CreateDelegate(getType(types.ToArray()), methodInfo);
-            else return Delegate.CreateDelegate(getType(types.ToArray()), target, methodInfo.Name);
         }
 
 
@@ -138,25 +83,6 @@ namespace DrrrBot.Helpers
         }
 
         /// <summary>
-        /// Removes an item from the array, and returns the removed item
-        /// </summary>
-        /// <param name="index">The index of the item you want removed. Default: last item</param>
-        /// <returns>The removed item</returns>
-        public static T Pop<T>(this T[] source, int index = -1)
-        {
-            T[] dest = new T[source.Length - 1];
-            if (index > 0)
-                Array.Copy(source, 0, dest, 0, index);
-
-            if (index < source.Length - 1)
-                Array.Copy(source, index + 1, dest, index, source.Length - index - 1);
-
-            T item = source[index];
-            source = dest;
-            return item;
-        }
-
-        /// <summary>
         /// Removes an item from the list, and returns the removed item
         /// </summary>
         /// <param name="index">The index of the item you want removed. Default: last item</param>
@@ -169,25 +95,19 @@ namespace DrrrBot.Helpers
             return item;
         }
 
-        public static T At<T>(this List<T> source, int index)
+        /// <summary>
+        /// Centers a string using padding on both sides
+        /// </summary>
+        /// <param name="source">The string being padded</param>
+        /// <param name="length">The total string length, including padding</param>
+        /// <param name="padchar">The character to pad with</param>
+        /// <returns>The padded string</returns>
+        public static string Center(this string source, int length, char padchar = ' ')
         {
-            if (source.Count > index)
-                return source[index];
-            return default;
-        }
+            int spaces = length - source.Length;
+            int padLeft = spaces / 2 + source.Length;
+            return source.PadLeft(padLeft, padchar).PadRight(length, padchar);
 
-        public static byte[] ReadAll(this Stream aStream)
-        {
-            using (var memstream = new MemoryStream())
-            {
-                var buffer = new byte[250 * 500];
-                var bytesRead = default(int);
-                while ((bytesRead = aStream.Read(buffer, 0, buffer.Length)) > 0)
-                    memstream.Write(buffer, 0, bytesRead);
-                return memstream.ToArray();
-            }
         }
-
-        public static T GetRandom<T>(this List<T> aList) => aList[ServiceHandler.Instance.RNG.Next(aList.Count)];
     }
 }
