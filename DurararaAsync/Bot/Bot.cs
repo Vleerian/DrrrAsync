@@ -193,8 +193,13 @@ namespace DrrrAsyncBot.Core
                 }
                 else if (Found.UserCount >= Found.Limit)
                     throw new Exception("Room full.");
-                else if (Found.Users.Find(User => User.Name == "Welne Zodiv") != null)
+                else if (Found.Users.Find(User => User.Name == Name) != null)
                     throw new Exception("User exists in room.");
+                else
+                {
+                    Logger.Log(LogEventType.Information, "Room exists. Joining now.");
+                    await JoinRoom(Found.RoomId);
+                }
             }
             catch (Exception e)
             {
@@ -206,9 +211,6 @@ namespace DrrrAsyncBot.Core
             On_Post.Register(PrintMessage);
             On_Message.Register(ProcCommands);
             On_Direct_Message.Register(ProcCommands);
-
-            Logger.Log(LogEventType.Information, "Room exists. Joining now.");
-            await JoinRoom(Found.RoomId);
 
             //Print the room's history, if joining the room
             var JoinMessages = await GetRoom();
