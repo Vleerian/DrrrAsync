@@ -1,4 +1,4 @@
-﻿using DrrrBot.Core;
+﻿using DrrrAsyncBot.Core;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,7 +8,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DrrrBot.Helpers
+namespace DrrrAsyncBot.Helpers
 {
     /// <summary>
     /// Common extension methods

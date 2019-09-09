@@ -8,7 +8,7 @@ using Newtonsoft.Json.Linq;
 using System.Threading;
 using System.Collections.Generic;
 
-namespace DrrrBot.Core
+namespace DrrrAsyncBot.Core
 {
     /// <summary>
     /// A subclass of WebClient that saves cookies.

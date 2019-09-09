@@ -9,19 +9,22 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-using DrrrBot.Helpers;
-using DrrrBot.Objects;
-using DrrrBot.Permission;
+using DrrrAsyncBot.Helpers;
+using DrrrAsyncBot.Objects;
+using DrrrAsyncBot.Permission;
 
 using Console = Colorful.Console;
 using Newtonsoft.Json;
+using DrrrAsyncBot.BotExtensions;
 
-namespace DrrrBot.Core
+namespace DrrrAsyncBot.Core
 {
     public partial class Bot : DrrrClient
     {
         private Dictionary<string, Command> Commands;
         private Queue<DrrrMessageConfig> MessageQueue;
+        public List<ICommandProcessor> commandProcessors;
+        
 
         private bool running;
         public bool Running
@@ -39,6 +42,9 @@ namespace DrrrBot.Core
             Config = config;
             Commands = new Dictionary<string, Command>();
             MessageQueue = new Queue<DrrrMessageConfig>();
+            commandProcessors = new List<ICommandProcessor>() {
+                new PermissionsProcessor()
+            };
         }
 
         /// <summary>
@@ -58,30 +64,6 @@ namespace DrrrBot.Core
                 throw new Exception("No Icon.");
 
             return new Bot(Config);
-        }
-
-        /// <summary>
-        /// Check if a user is permitted to execute a command
-        /// </summary>
-        /// <param name="user">The user you want to check</param>
-        /// <param name="aPermission">The permisison level you want them to check against</param>
-        /// <returns>True if they pass, false if they don't.</returns>
-        public bool CheckPerms(DrrrUser user, PermLevel aPermission)
-        {
-            //Don't bother permission checking if anyone should be able to run it
-            if (aPermission == 0)
-                return true;
-
-            //Make sure the user CAN have permissions, and that they actually do
-            if (user.Tripcode == null || !Config.Permissions.ContainsKey(user.Tripcode))
-                return false;
-            PermLevel User_Permission = Config.Permissions[user.Tripcode];
-
-            //Lower permission level = less permission. Therefore, if you permission lever is greater or equal to
-            //the command's permission level, you are allowed to execute it.
-            if (User_Permission >= aPermission)
-                return true;
-            return false;
         }
 
         /// <summary>

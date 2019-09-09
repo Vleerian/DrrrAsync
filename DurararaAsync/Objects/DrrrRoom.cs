@@ -6,7 +6,7 @@ using Newtonsoft.Json.Linq;
 
 using System.Threading.Tasks;
 
-namespace DrrrBot.Objects
+namespace DrrrAsyncBot.Objects
 {
     /// <summary>
     /// A container for information pertaining to a room on Drrr.com

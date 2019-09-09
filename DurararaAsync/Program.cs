@@ -1,17 +1,17 @@
 ﻿using System;
 
-using DrrrBot.Objects;
-using DrrrBot.Core;
+using DrrrAsyncBot.Objects;
+using DrrrAsyncBot.Core;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.IO;
 using System.Text;
-using DrrrBot.Permission;
-using DrrrBot.Helpers;
+using DrrrAsyncBot.Permission;
+using DrrrAsyncBot.Helpers;
 using System.Drawing;
 using System.Linq;
 
-namespace DrrrBot
+namespace DrrrAsyncBot
 {
     class Program
     {

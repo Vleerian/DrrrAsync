@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
 
-namespace DrrrBot.Objects
+namespace DrrrAsyncBot.Objects
 {
     /// <summary>
     /// A container for information pertaining to a user on Drrr.Com

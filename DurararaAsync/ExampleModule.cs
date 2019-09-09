@@ -3,14 +3,12 @@ using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 
-using DrrrBot.Core;
-using DrrrBot.Helpers;
+using DrrrAsyncBot.Core;
+using DrrrAsyncBot.Helpers;
 
-using Discord;
-using Discord.Webhook;
 using System;
 
-namespace DrrrBot
+namespace DrrrAsyncBot
 {
     class ExampleModule
     {

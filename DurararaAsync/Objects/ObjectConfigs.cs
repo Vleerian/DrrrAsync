@@ -1,9 +1,9 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
 
-using DrrrBot.Permission;
+using DrrrAsyncBot.Permission;
 
-namespace DrrrBot.Objects
+namespace DrrrAsyncBot.Objects
 {
     public class DrrrBotConfig
     {

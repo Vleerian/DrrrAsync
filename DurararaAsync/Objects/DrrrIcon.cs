@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DrrrBot.Objects
+namespace DrrrAsyncBot.Objects
 {
     [Serializable]
     public sealed class DrrrIcon

@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-using DrrrBot.Objects;
+using DrrrAsyncBot.Objects;
 
-namespace DrrrBot.Core
+namespace DrrrAsyncBot.Core
 {
     public class DrrrAsyncEventArgs
     {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace DrrrBot.Objects
+namespace DrrrAsyncBot.Objects
 {
     [Serializable]
     public sealed class DrrrMessageType

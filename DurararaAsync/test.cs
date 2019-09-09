@@ -1,7 +1,7 @@
-﻿using DrrrBot;
-using DrrrBot.Core;
-using DrrrBot.Helpers;
-using DrrrBot.Objects;
+﻿using DrrrAsyncBot;
+using DrrrAsyncBot.Core;
+using DrrrAsyncBot.Helpers;
+using DrrrAsyncBot.Objects;
 using System;
 using System.Threading.Tasks;
 using Console = Colorful.Console;

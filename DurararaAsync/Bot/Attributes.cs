@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DrrrBot.Core
+namespace DrrrAsyncBot.Core
 {
     /// <summary>
     /// The attribute added to a module to 'group' all it's commands

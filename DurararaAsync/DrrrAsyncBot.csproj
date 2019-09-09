@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="config.json" />
     <None Remove="start.bat" />
     <None Remove="start.sh" />
   </ItemGroup>
@@ -22,19 +21,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="config.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Colorful.Console" Version="1.2.9" />
-    <PackageReference Include="Discord.Net.Webhook" Version="2.1.1" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Core\HttpClientE.cs">
+    <Compile Update="Helpers\HttpClientE.cs">
       <SubType>Component</SubType>
     </Compile>
   </ItemGroup>

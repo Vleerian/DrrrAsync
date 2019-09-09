@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
-using DrrrBot.Helpers;
+using DrrrAsyncBot.Helpers;
 
 using Console = Colorful.Console;
 
-namespace DrrrBot.Helpers
+namespace DrrrAsyncBot.Helpers
 {
     public enum LogEventType
     {

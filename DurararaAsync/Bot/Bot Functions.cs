@@ -6,14 +6,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Colorful;
-
-using DrrrBot.Helpers;
-using DrrrBot.Objects;
-using DrrrBot.Permission;
+using DrrrAsyncBot.BotExtensions;
+using DrrrAsyncBot.Helpers;
+using DrrrAsyncBot.Objects;
+using DrrrAsyncBot.Permission;
 
 using Console = Colorful.Console;
 
-namespace DrrrBot.Core
+namespace DrrrAsyncBot.Core
 {
     public partial class Bot
     {
@@ -42,17 +42,26 @@ namespace DrrrBot.Core
                 //Check for the command or aliases.
                 if (Commands.ContainsKey(Command))
                 {
-                    //The command exists. Do preliminary permissions check
-                    if (!CheckPerms(Message.Author, Commands[Command].Permission))
+                    var commandEvent = new CommandEvent()
                     {
-                        Logger.Log(LogEventType.Information, "Insufficient permissions.");
-                        return;
-                    }
-                    //Now that they've been cleared to run the command, work the arguments into an array, and execute it
+                        Context = new Context(this, Message),
+                        CommandName = Command,
+                        Command = Commands[Command],
+                        Args = CommandParams.ToArray(),
+                        Execute = true
+                    };
+
+                    //Run preprocessors
+                    commandProcessors.ForEach(C => C.Preprocess(ref commandEvent));
+
+                    //Execute the command
                     try
                     {
-                        var args = new List<object>() { new Context(this, Message), CommandParams.ToArray() };
-                        await Commands[Command].Call(args.ToArray());
+                        if(commandEvent.Execute)
+                        {
+                            await Commands[commandEvent.CommandName].Call(new object[] { commandEvent.Context, commandEvent.Args });
+                            commandProcessors.ForEach(C => C.Postproceess(commandEvent));
+                        }
                     }
                     catch (Exception err)
                     {

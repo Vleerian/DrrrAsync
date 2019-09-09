@@ -1,9 +1,9 @@
 ﻿using System.Reflection;
 using System.Threading.Tasks;
 
-using DrrrBot.Permission;
+using DrrrAsyncBot.Permission;
 
-namespace DrrrBot.Core
+namespace DrrrAsyncBot.Core
 {
     public class Command
     {

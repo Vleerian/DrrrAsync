@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using DrrrBot.Objects;
+using DrrrAsyncBot.Objects;
 
-namespace DrrrBot.Core
+namespace DrrrAsyncBot.Core
 {
     public class Context : DrrrMessage
     {

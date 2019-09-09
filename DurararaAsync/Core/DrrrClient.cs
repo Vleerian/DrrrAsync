@@ -8,11 +8,11 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-using DrrrBot.Objects;
+using DrrrAsyncBot.Objects;
 using System.Drawing;
-using DrrrBot.Helpers;
+using DrrrAsyncBot.Helpers;
 
-namespace DrrrBot.Core
+namespace DrrrAsyncBot.Core
 {
     public class DrrrClient
     {

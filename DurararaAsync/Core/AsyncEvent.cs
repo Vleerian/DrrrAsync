@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DrrrBot.Core
+namespace DrrrAsyncBot.Core
 {
     public delegate Task AsyncEventHandler(object Sender);
     public delegate Task AsyncEventHandler<T>(object Sender, T e) where T : DrrrAsyncEventArgs;
