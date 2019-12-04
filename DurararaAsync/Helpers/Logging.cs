@@ -31,7 +31,7 @@ namespace DrrrAsyncBot.Helpers
             if (logEventType < logLevel)
                 return;
 
-            Color statusColor;
+            Color statusColor = Color.White;
             switch (logEventType)
             {
                 case LogEventType.Fatal:
