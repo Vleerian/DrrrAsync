@@ -72,9 +72,9 @@ namespace DrrrAsyncBot.Core
         /// <returns>True if success, throws an exception otherwise</returns>
         public async Task<bool> Login()
         {
-            // Get the index page to parse the token
-            string IndexBody = await WebClient.Get_String("https://drrr.com");
-            string Token = Regex.Match(IndexBody, @"""token"" data-value=""(\w+)\""").Groups[1].Value;
+            // Call the index API to get the token
+            JObject APICall = await WebClient.Get_Json("https://drrr.com/?api=json");
+            string Token = APICall.Value<string>("token");
 
             // Send a second request to do the actual login.
             string response = await WebClient.Post_String("https://drrr.com", new Dictionary<string, string>() {

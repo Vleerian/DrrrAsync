@@ -45,6 +45,9 @@ namespace DrrrAsyncBot.Core
             commandProcessors = new List<ICommandProcessor>() {
                 new PermissionsProcessor()
             };
+
+            //Set the default user agent to bot
+            WebClient.DefaultRequestHeaders.Add("User-Agent", "Bot");
         }
 
         /// <summary>
