@@ -37,7 +37,7 @@ namespace DrrrAsyncBot.Core
 
         public DrrrBotConfig Config { get; private set; }
 
-        private Bot(DrrrBotConfig config)
+        private Bot(DrrrBotConfig config) : base (config.ProxyURI, config.ProxyPort)
         {
             Config = config;
             Commands = new Dictionary<string, Command>();

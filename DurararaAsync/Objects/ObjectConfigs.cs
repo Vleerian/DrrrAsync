@@ -18,6 +18,11 @@ namespace DrrrAsyncBot.Objects
         [JsonProperty("permissions")]
         public Dictionary<string, PermLevel> Permissions;
 
+        [JsonProperty("proxy_uri")]
+        public string ProxyURI;
+        [JsonProperty("proxy_port")]
+        public int ProxyPort;
+
         public bool Ready
         {
             get

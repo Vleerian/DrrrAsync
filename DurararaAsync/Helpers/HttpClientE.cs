@@ -16,7 +16,7 @@ namespace DrrrAsyncBot.Core
     public class HttpClientE : HttpClient
     {
         private readonly SemaphoreSlim Lock = new SemaphoreSlim(1, 1);
-        public readonly CookieContainer m_container { get; private set; }
+        public readonly CookieContainer m_container;
         public readonly WebProxy Proxy;
 
         public HttpClientE() : base() { }
