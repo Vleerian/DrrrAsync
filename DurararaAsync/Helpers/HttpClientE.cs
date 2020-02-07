@@ -15,8 +15,36 @@ namespace DrrrAsyncBot.Core
     /// </summary>
     public class HttpClientE : HttpClient
     {
-        public CookieContainer m_container { get; private set; }
         private readonly SemaphoreSlim Lock = new SemaphoreSlim(1, 1);
+        public readonly CookieContainer m_container { get; private set; }
+        public readonly WebProxy Proxy;
+
+        public HttpClientE() : base() { }
+        public HttpClientE(HttpMessageHandler handler) : base(handler) { }
+        public HttpClientE(HttpMessageHandler handler, bool disposeHandler) : base(handler, disposeHandler) { }
+
+        public static HttpClientHandler GetProxyHandler(string ProxyURI)
+        {
+            var proxy = new WebProxy(ProxyURI, false);
+            return new HttpClientHandler() {
+                Proxy = proxy
+            };
+        }
+
+        public static HttpClientHandler GetProxyHandler(string ProxyURI, int Port)
+        {
+            var proxy = new WebProxy(ProxyURI, Port);
+            return new HttpClientHandler()
+            {
+                Proxy = proxy
+            };
+        }
+
+        public static HttpClientE GetProxyClient(string ProxyURI) =>
+            new HttpClientE(GetProxyHandler(ProxyURI), false);
+
+        public static HttpClientE GetProxyClient(string ProxyURI, int Port) =>
+            new HttpClientE(GetProxyHandler(ProxyURI, Port), false);
 
         /// <summary>
         /// Post_String wraps UploadValuesTaskAsync to make it look nice in source

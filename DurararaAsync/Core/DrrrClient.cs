@@ -37,7 +37,7 @@ namespace DrrrAsyncBot.Core
         public bool LoggedIn { get; private set; }
 
         // Client Extensions
-        protected HttpClientE WebClient = new HttpClientE();
+        protected HttpClientE WebClient;
         public ILogger Logger;
 
         // Events
@@ -51,7 +51,7 @@ namespace DrrrAsyncBot.Core
         public DrrrAsyncEvent<AsyncMessageEvent> On_Me;
         public DrrrAsyncEvent<AsyncMessageEvent> On_Post;
 
-        public DrrrClient()
+        public DrrrClient(string ProxyURI = null, int ProxyPort = 0)
         {
             On_Login = new DrrrAsyncEvent();
             On_Join = new DrrrAsyncEvent<AsyncMessageEvent>();
@@ -64,6 +64,9 @@ namespace DrrrAsyncBot.Core
             On_Post = new DrrrAsyncEvent<AsyncMessageEvent>();
 
             Logger = new DefaultLogger();
+
+            WebClient = (ProxyURI != null) ? HttpClientE.GetProxyClient(ProxyURI, ProxyPort) : new HttpClientE();
+            WebClient.Timeout = new TimeSpan(0, 0, 10);
         }
 
         /// <summary>
