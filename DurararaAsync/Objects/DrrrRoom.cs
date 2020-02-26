@@ -69,11 +69,16 @@ namespace DrrrAsyncBot.Objects
             foreach (JObject item in RoomObject["users"])
                 Users.Add(new DrrrUser(item));
 
-            // The 'host' field is different depending on if data is retrived from the lounge or room endpoints.
-            if (RoomObject["host"].Type == JTokenType.Object)
-                Host = new DrrrUser((JObject)RoomObject["host"]);
+            if (!GameRoom)
+            {
+                // The 'host' field is different depending on if data is retrived from the lounge or room endpoints.
+                if (RoomObject["host"].Type == JTokenType.Object)
+                    Host = new DrrrUser((JObject)RoomObject["host"]);
+                else
+                    Host = Users.Find(Usr => Usr.ID == RoomObject["host"].Value<string>());
+            }
             else
-                Host = Users.Find(Usr => Usr.ID == RoomObject["host"].Value<string>());
+                Host = null;
 
             // Parse messages.
             Messages = new List<DrrrMessage>();
