@@ -42,6 +42,8 @@ namespace DrrrAsyncBot.Core
 
         // Events
         public DrrrAsyncEvent On_Login;
+        public DrrrAsyncEvent On_Update;
+        public DrrrAsyncEvent On_Ready;
         public DrrrAsyncEvent<AsyncMessageEvent> On_Join;
         public DrrrAsyncEvent<AsyncMessageEvent> On_Message;
         public DrrrAsyncEvent<AsyncMessageEvent> On_Direct_Message;
@@ -54,6 +56,8 @@ namespace DrrrAsyncBot.Core
         public DrrrClient(string ProxyURI = null, int ProxyPort = 0)
         {
             On_Login = new DrrrAsyncEvent();
+            On_Update = new DrrrAsyncEvent();
+            On_Ready = new DrrrAsyncEvent();
             On_Join = new DrrrAsyncEvent<AsyncMessageEvent>();
             On_Message = new DrrrAsyncEvent<AsyncMessageEvent>();
             On_Direct_Message = new DrrrAsyncEvent<AsyncMessageEvent>();
@@ -67,6 +71,28 @@ namespace DrrrAsyncBot.Core
 
             WebClient = (ProxyURI != null) ? HttpClientE.GetProxyClient(ProxyURI, ProxyPort) : new HttpClientE();
             WebClient.Timeout = new TimeSpan(0, 0, 10);
+            WebClient.DefaultRequestHeaders.Add("User-Agent", "Bot");
+        }
+
+        public DrrrClient()
+        {
+            On_Login = new DrrrAsyncEvent();
+            On_Update = new DrrrAsyncEvent();
+            On_Ready = new DrrrAsyncEvent();
+            On_Join = new DrrrAsyncEvent<AsyncMessageEvent>();
+            On_Message = new DrrrAsyncEvent<AsyncMessageEvent>();
+            On_Direct_Message = new DrrrAsyncEvent<AsyncMessageEvent>();
+            On_Kick = new DrrrAsyncEvent<AsyncMessageEvent>();
+            On_Ban = new DrrrAsyncEvent<AsyncMessageEvent>();
+            On_Leave = new DrrrAsyncEvent<AsyncMessageEvent>();
+            On_Me = new DrrrAsyncEvent<AsyncMessageEvent>();
+            On_Post = new DrrrAsyncEvent<AsyncMessageEvent>();
+
+            Logger = new DefaultLogger();
+            WebClient = new HttpClientE();
+            WebClient.Timeout = new TimeSpan(0, 0, 10);
+            WebClient.DefaultRequestHeaders.Add("User-Agent", "Bot");
+
         }
 
         /// <summary>
@@ -235,6 +261,20 @@ namespace DrrrAsyncBot.Core
                 { "to",      To      }
             });
         }
+
+        /// <summary>
+        /// Gets the current user's profile
+        /// </summary>
+        /// <returns>A json object of the current user</returns>
+        public async Task<JObject> Get_Profile() =>
+            await WebClient.Get_Json("https://drrr.com/profile?api=json");
+
+        /// <summary>
+        /// Gets the raw JOBject for the current room
+        /// </summary>
+        /// <returns>The raw room JOBject</returns>
+        public async Task<JObject> Get_Room_Raw() =>
+            await WebClient.Get_Json("https://drrr.com/room/?api=json");
 
         /// <summary>
         /// Sets the room's title

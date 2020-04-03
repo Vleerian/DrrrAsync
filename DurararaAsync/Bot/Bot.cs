@@ -16,6 +16,7 @@ using DrrrAsyncBot.Permission;
 using Console = Colorful.Console;
 using Newtonsoft.Json;
 using DrrrAsyncBot.BotExtensions;
+using Newtonsoft.Json.Linq;
 
 namespace DrrrAsyncBot.Core
 {
@@ -171,7 +172,7 @@ namespace DrrrAsyncBot.Core
             }
         }
 
-        public async Task Run()
+        public async Task Setup()
         {
             Name = Config.Name;
             Logger.Log(LogEventType.Information, "Logging in.");
@@ -186,7 +187,7 @@ namespace DrrrAsyncBot.Core
             {
                 if (Found == null)
                 {
-                    if(Config.Room.Description != null)
+                    if (Config.Room.Description != null)
                     {
                         Logger.Log(LogEventType.Information, "Creating room.");
                         await MakeRoom(Config.Room);
@@ -207,7 +208,7 @@ namespace DrrrAsyncBot.Core
             catch (Exception e)
             {
                 Logger.Log(LogEventType.Fatal, "Error encountered while joining room.", e);
-                Console.ReadKey();
+                //Console.ReadKey();
                 return;
             }
 
@@ -225,65 +226,99 @@ namespace DrrrAsyncBot.Core
 #pragma warning disable CS4014 // This is starting the message loop, and we don't particularly care if it runs away.
             MessageLoop();
 #pragma warning restore CS4014
+        }
+
+        public async Task ProcessUpdate()
+        {
+            foreach (var Message in await GetRoomUpdate())
+            {
+                if (Message.Type == DrrrMessageType.Message)
+                {
+                    if (Message.Secret)
+                        await On_Direct_Message?.InvokeAsync(this, new AsyncMessageEvent(Message));
+                    else
+                        await On_Message?.InvokeAsync(this, new AsyncMessageEvent(Message));
+                }
+                if (Message.Type == DrrrMessageType.Join)
+                    await On_Join?.InvokeAsync(this, new AsyncMessageEvent(Message));
+
+                await On_Post?.InvokeAsync(this, new AsyncMessageEvent(Message));
+            }
+        }
+
+        public async Task<bool> Reconnect()
+        {
+            int Attempts = 0;
+            do
+            {
+                Logger.Log(LogEventType.Information, $"Attempting reconnect in 10 seconds. Attempt {++Attempts}");
+                await Task.Delay(10000);
+                JObject Profile = null;
+                try
+                {
+                    Profile = await Get_Profile();
+                }
+                catch (Exception e)
+                {
+                    Logger.Log(LogEventType.Error, "Error getting profile.", e);
+                    continue;
+                }
+
+                if (Profile.ContainsKey("message"))
+                {
+                    Logger.Log(LogEventType.Debug, $"User is logged in. Checking if room is valid.");
+
+                    JObject Room;
+                    try
+                    { Room = await Get_Room_Raw(); }
+                    catch (Exception e)
+                    {
+                        Logger.Log(LogEventType.Error, "Error getting room. Reconnect failed.", e);
+                        return false;
+                    }
+                    if (Room.ContainsKey("message"))
+                    {
+                        Logger.Log(LogEventType.Warning, $"User is no longer in room.");
+                        return false;
+                    }
+
+                }
+                Logger.Log(LogEventType.Information, "Reconnect successful.");
+                return true;
+            }
+            while (Attempts < 5);
+            Logger.Log(LogEventType.Fatal, "Maximum reconnect attempts exceeded.");
+            return false;
+        }
+
+        public async Task Run()
+        {
+            //Run setup to login and join the room
+            await Setup();
+
+            if (!Running)
+            {
+                Logger.Log(LogEventType.Fatal, "Setup failed. Exiting.");
+                return;
+            }
 
             while (Running)
             {
                 //I do it this way so that if you press Q during the delay, you get an instant response
-                for (int i = 0; i < 50; i++)
+                await Task.Delay(500);
+                try
                 {
-                    if (Console.KeyAvailable && Console.ReadKey().Key == ConsoleKey.Q)
-                    {
-                        Logger.Log(LogEventType.Information, "Shutdown requested from terminal.");
-                        Shutdown();
-                    }
-                    await Task.Delay(10);
+                    await ProcessUpdate();
                 }
-                if (!Running)
-                    break;
-
-                foreach (var Message in await GetRoomUpdate())
+                catch (Exception e)
                 {
-                    if(Message.Type == DrrrMessageType.Message)
-                    {
-                        if (Message.Secret)
-                            await On_Direct_Message?.InvokeAsync(this, new AsyncMessageEvent(Message));
-                        else
-                            await On_Message?.InvokeAsync(this, new AsyncMessageEvent(Message));
-                    }
-                    if (Message.Type == DrrrMessageType.Join)
-                        await On_Join?.InvokeAsync(this, new AsyncMessageEvent(Message));
-
-                    await On_Post?.InvokeAsync(this, new AsyncMessageEvent(Message));
+                    Logger.Log(LogEventType.Error, "Error encountered.", e);
+                    if (await Reconnect())
+                        continue;
+                    Logger.Log(LogEventType.Fatal, "Reconnect failed.");
+                    Shutdown();
                 }
             }
-
-            Console.SetCursorPosition(0, Console.CursorTop);
-            Logger.Log(LogEventType.Information, "Leaving room...");
-
-            try
-            {
-                foreach (var User in Room.Users)
-                {
-                    if (User.Tripcode != null && Config.Permissions.ContainsKey(User.Tripcode))
-                        await GiveHost(User);
-                }
-            }
-            catch(Exception e)
-            {
-                Console.WriteLine($"{e} --- {e.Message}");
-                Console.WriteLine(e.StackTrace);
-                Logger.Log(LogEventType.Error, "Could not handover host. Attempting to continue shutdown.");
-            }
-            
-            if (await LeaveRoom() == "Cannot leave.")
-            {
-                Logger.Log(LogEventType.Warning, "Cannot leave room. Waiting 40s and trying again.");
-                await Task.Delay(40000);
-                if (await LeaveRoom() == "Cannot leave.")
-                    Logger.Log(LogEventType.Error, "Failed to leave room. Proceeding with shutdown anyway.");
-            }
-
-            Logger.Log(LogEventType.Information, "Exited.");
         }
 
         public void Shutdown()
