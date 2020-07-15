@@ -26,9 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Helpers\HttpClientE.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Update="Helpers\HttpClientE.cs" />
   </ItemGroup>
 
 </Project>
