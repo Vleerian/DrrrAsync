@@ -22,8 +22,10 @@ namespace DrrrAsyncBot.Core
 {
     public partial class Bot : DrrrClient
     {
-        private Dictionary<string, Command> Commands;
         private Queue<DrrrMessageConfig> MessageQueue;
+        private CancellationTokenSource ShutdownToken;
+
+        private Dictionary<string, Command> Commands;
         public List<ICommandProcessor> commandProcessors;
         
 
@@ -41,6 +43,7 @@ namespace DrrrAsyncBot.Core
         private Bot(DrrrBotConfig config) : base (config.ProxyURI, config.ProxyPort)
         {
             Config = config;
+            ShutdownToken = new CancellationTokenSource();
             Commands = new Dictionary<string, Command>();
             MessageQueue = new Queue<DrrrMessageConfig>();
             commandProcessors = new List<ICommandProcessor>() {
@@ -140,13 +143,13 @@ namespace DrrrAsyncBot.Core
             await Task.CompletedTask;
         }
 
-        private async Task MessageLoop()
+        private async void MessageLoop(CancellationToken cancellationToken)
         {
             DateTime LastSent = DateTime.Now;
-            while (Running)
+            while (!cancellationToken.IsCancellationRequested)
             {
                 await Task.Delay(800);
-                if (!Running)
+                if (cancellationToken.IsCancellationRequested)
                     break;
 
                 if (MessageQueue.Count > 0)
@@ -172,17 +175,13 @@ namespace DrrrAsyncBot.Core
             }
         }
 
-        public async Task Setup()
+        public async new Task<bool> JoinRoom(string RoomName)
         {
-            Name = Config.Name;
-            Logger.Log(LogEventType.Information, "Logging in.");
-            await Login();
-
             Logger.Log(LogEventType.Debug, "Retrieving roomlist.");
             var roomList = await GetLounge();
 
             Logger.Log(LogEventType.Debug, "Searching for target room...");
-            DrrrRoom Found = roomList.Find(Room => Room.Name == Config.Room.Name);
+            DrrrRoom Found = roomList.Find(Room => Room.Name == RoomName);
             try
             {
                 if (Found == null)
@@ -191,41 +190,26 @@ namespace DrrrAsyncBot.Core
                     {
                         Logger.Log(LogEventType.Information, "Creating room.");
                         await MakeRoom(Config.Room);
+                        return true;
                     }
-                    else
-                        throw new Exception("Room does not exist.");
+                    Logger.Log(LogEventType.Information, "Room does not exist.");
                 }
                 else if (Found.UserCount >= Found.Limit)
-                    throw new Exception("Room full.");
+                    Logger.Log(LogEventType.Information, "Room is full.");
                 else if (Found.Users.Find(User => User.Name == Name) != null)
-                    throw new Exception("User exists in room.");
+                    Logger.Log(LogEventType.Information, "User exists in room.");
                 else
                 {
-                    Logger.Log(LogEventType.Information, "Room exists. Joining now.");
-                    await JoinRoom(Found.RoomId);
+                    Logger.Log(LogEventType.Information, "Joining room...");
+                    await base.JoinRoom(Found.RoomId);
+                    return true;
                 }
             }
             catch (Exception e)
             {
                 Logger.Log(LogEventType.Fatal, "Error encountered while joining room.", e);
-                //Console.ReadKey();
-                return;
             }
-
-            On_Post.Register(PrintMessage);
-            On_Message.Register(ProcCommands);
-            On_Direct_Message.Register(ProcCommands);
-
-            //Print the room's history, if joining the room
-            var JoinMessages = await GetRoom();
-            foreach (var Message in JoinMessages.Messages)
-                await PrintMessage(this, new AsyncMessageEvent(Message));
-
-            running = true;
-
-#pragma warning disable CS4014 // This is starting the message loop, and we don't particularly care if it runs away.
-            MessageLoop();
-#pragma warning restore CS4014
+            return false;
         }
 
         public async Task ProcessUpdate()
@@ -291,20 +275,43 @@ namespace DrrrAsyncBot.Core
             return false;
         }
 
-        public async Task Run()
+        public async Task Setup()
+        {
+            Name = Config.Name;
+            Logger.Log(LogEventType.Information, "Logging in.");
+            await Login();
+
+            if(!await JoinRoom(Config.Room.Name))
+                throw new ApplicationException("Unable to join room.");
+
+            On_Post.Register(PrintMessage);
+            On_Message.Register(ProcCommands);
+            On_Direct_Message.Register(ProcCommands);
+        }
+
+        public async void ConsoleShutdown()
+        {
+            await Task.Factory.StartNew(() => {
+                while (Console.ReadKey().Key != ConsoleKey.Q);
+                ShutdownToken.Cancel();
+            });
+        }
+
+        public async Task MainAsync(CancellationToken cancellationToken)
         {
             //Run setup to login and join the room
             await Setup();
 
-            if (!Running)
-            {
-                Logger.Log(LogEventType.Fatal, "Setup failed. Exiting.");
-                return;
-            }
+            //Print the room's history, if joining the room
+            var JoinMessages = await GetRoom();
+            foreach (var Message in JoinMessages.Messages)
+                await PrintMessage(this, new AsyncMessageEvent(Message));
 
-            while (Running)
+            MessageLoop(cancellationToken);
+            ConsoleShutdown();
+
+            while (!cancellationToken.IsCancellationRequested)
             {
-                //I do it this way so that if you press Q during the delay, you get an instant response
                 await Task.Delay(500);
                 try
                 {
@@ -313,17 +320,14 @@ namespace DrrrAsyncBot.Core
                 catch (Exception e)
                 {
                     Logger.Log(LogEventType.Error, "Error encountered.", e);
-                    if (await Reconnect())
-                        continue;
+                    if(await Reconnect()) continue;
                     Logger.Log(LogEventType.Fatal, "Reconnect failed.");
-                    Shutdown();
                 }
             }
         }
 
-        public void Shutdown()
-        {
-            running = false;
-        }
+        // Wraps your async main and provides services
+        public void Run() =>
+            MainAsync(ShutdownToken.Token).GetAwaiter().GetResult();
     }
 }
