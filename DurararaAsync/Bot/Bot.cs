@@ -27,16 +27,6 @@ namespace DrrrAsyncBot.Core
 
         private Dictionary<string, Command> Commands;
         public List<ICommandProcessor> commandProcessors;
-        
-
-        private bool running;
-        public bool Running
-        {
-            get
-            {
-                return running;
-            }
-        }
 
         public DrrrBotConfig Config { get; private set; }
 
@@ -231,10 +221,13 @@ namespace DrrrAsyncBot.Core
         }
 
         public async Task<bool> Reconnect()
-        {
+        {    
             int Attempts = 0;
             do
             {
+                if(ShutdownToken.Token.IsCancellationRequested)
+                    return true;
+                
                 Logger.Log(LogEventType.Information, $"Attempting reconnect in 10 seconds. Attempt {++Attempts}");
                 await Task.Delay(10000);
                 JObject Profile = null;
@@ -325,6 +318,9 @@ namespace DrrrAsyncBot.Core
                 }
             }
         }
+
+        public void Shutdown() =>
+            ShutdownToken.Cancel();
 
         // Wraps your async main and provides services
         public void Run() =>
