@@ -135,13 +135,14 @@ namespace DrrrAsyncBot.Core
 
         private async void MessageLoop(CancellationToken cancellationToken)
         {
+            await Task.Delay(500);
             DateTime LastSent = DateTime.Now;
+            Logger.Log(LogEventType.Information, "Messageloop started.");
             while (!cancellationToken.IsCancellationRequested)
             {
-                await Task.Delay(800);
+                await Task.Delay(250);
                 if (cancellationToken.IsCancellationRequested)
                     break;
-
                 if (MessageQueue.Count > 0)
                 {
                     var Message = MessageQueue.Dequeue();
@@ -163,6 +164,7 @@ namespace DrrrAsyncBot.Core
                 if ((DateTime.Now - LastSent).TotalMinutes >= 15)
                     await SendMessage("[HEARTBEAT]", Name);
             }
+            Logger.Log(LogEventType.Information, "Messageloop exited.");
         }
 
         public async new Task<bool> JoinRoom(string RoomName)
@@ -280,29 +282,21 @@ namespace DrrrAsyncBot.Core
             On_Post.Register(PrintMessage);
             On_Message.Register(ProcCommands);
             On_Direct_Message.Register(ProcCommands);
-        }
-
-        public async void ConsoleShutdown()
-        {
-            await Task.Factory.StartNew(() => {
-                while (Console.ReadKey().Key != ConsoleKey.Q);
-                ShutdownToken.Cancel();
-            });
-        }
-
-        public async Task MainAsync(CancellationToken cancellationToken)
-        {
-            //Run setup to login and join the room
-            await Setup();
 
             //Print the room's history, if joining the room
             var JoinMessages = await GetRoom();
             foreach (var Message in JoinMessages.Messages)
                 await PrintMessage(this, new AsyncMessageEvent(Message));
+        }
 
+        public async Task MainAsync(CancellationToken cancellationToken)
+        {
+            //Set up
+            await Setup();
+            
             MessageLoop(cancellationToken);
-            ConsoleShutdown();
 
+            Logger.Log(LogEventType.Information, "Update processor started.");
             while (!cancellationToken.IsCancellationRequested)
             {
                 await Task.Delay(500);
@@ -312,18 +306,27 @@ namespace DrrrAsyncBot.Core
                 }
                 catch (Exception e)
                 {
-                    Logger.Log(LogEventType.Error, "Error encountered.", e);
+                    Logger.Log(LogEventType.Fatal, "Error encountered.", e);
                     if(await Reconnect()) continue;
                     Logger.Log(LogEventType.Fatal, "Reconnect failed.");
                 }
             }
+
+            await base.LeaveRoom();
         }
 
         public void Shutdown() =>
             ShutdownToken.Cancel();
 
         // Wraps your async main and provides services
-        public void Run() =>
+        public void Run()
+        {
+            var cancellationToken = ShutdownToken.Token;
+
+            //Launch the main function
             MainAsync(ShutdownToken.Token).GetAwaiter().GetResult();
+
+            Shutdown();
+        }
     }
 }

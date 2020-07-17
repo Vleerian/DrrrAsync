@@ -7,20 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="start.bat" />
-    <None Remove="start.sh" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="start.bat">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="start.sh">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Colorful.Console" Version="1.2.9" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.6" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
