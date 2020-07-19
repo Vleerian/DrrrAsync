@@ -155,7 +155,7 @@ namespace DrrrAsyncBot.Core
         public async Task JoinRoom(string roomId)
         {
             // Join the room
-            Logger.Log(LogEventType.Information, $"Joining room {roomId}");
+            Logger.Info($"Joining room {roomId}");
             await WebClient.Get_String($"http://drrr.com/room/?id={roomId}");
         }
 

@@ -136,7 +136,7 @@ namespace DrrrAsyncBot.Core
         {
             await Task.Delay(500);
             DateTime LastSent = DateTime.Now;
-            Logger.Log(LogEventType.Information, "Messageloop started.");
+            Logger.Info("Messageloop started.");
             while (!cancellationToken.IsCancellationRequested)
             {
                 await Task.Delay(250);
@@ -152,7 +152,7 @@ namespace DrrrAsyncBot.Core
                             Message.Username = User.ID;
                         else
                         {
-                            Logger.Log(LogEventType.Error, "User is not in room.");
+                            Logger.Error("User is not in room.");
                             continue;
                         }
                     }
@@ -163,15 +163,15 @@ namespace DrrrAsyncBot.Core
                 if ((DateTime.Now - LastSent).TotalMinutes >= 15)
                     await SendMessage("[HEARTBEAT]", Name);
             }
-            Logger.Log(LogEventType.Information, "Messageloop exited.");
+            Logger.Info("Messageloop exited.");
         }
 
         public async new Task<bool> JoinRoom(string RoomName)
         {
-            Logger.Log(LogEventType.Debug, "Retrieving roomlist.");
+            Logger.Debug("Retrieving roomlist.");
             var roomList = await GetLounge();
 
-            Logger.Log(LogEventType.Debug, "Searching for target room...");
+            Logger.Debug("Searching for target room...");
             DrrrRoom Found = roomList.Find(Room => Room.Name == RoomName);
             try
             {
@@ -179,26 +179,26 @@ namespace DrrrAsyncBot.Core
                 {
                     if (Config.Room.Description != null)
                     {
-                        Logger.Log(LogEventType.Information, "Creating room.");
+                        Logger.Info("Creating room.");
                         await MakeRoom(Config.Room);
                         return true;
                     }
-                    Logger.Log(LogEventType.Information, "Room does not exist.");
+                    Logger.Info("Room does not exist.");
                 }
                 else if (Found.UserCount >= Found.Limit)
-                    Logger.Log(LogEventType.Information, "Room is full.");
+                    Logger.Warn("Room is full.");
                 else if (Found.Users.Find(User => User.Name == Name) != null)
-                    Logger.Log(LogEventType.Information, "User exists in room.");
+                    Logger.Error("User exists in room.");
                 else
                 {
-                    Logger.Log(LogEventType.Information, "Joining room...");
+                    Logger.Info("Joining room...");
                     await base.JoinRoom(Found.RoomId);
                     return true;
                 }
             }
             catch (Exception e)
             {
-                Logger.Log(LogEventType.Fatal, "Error encountered while joining room.", e);
+                Logger.Fatal("Error encountered while joining room.", e);
             }
             return false;
         }
@@ -224,7 +224,7 @@ namespace DrrrAsyncBot.Core
         public async Task<bool> Reconnect()
         {    
             int Attempts = 0;
-            Logger.Log(LogEventType.Warning, $"RECONNECT ROUTINE ACTIVE");
+            Logger.Warn($"RECONNECT ROUTINE ACTIVE");
             ShutdownToken.Cancel();
             await Task.Delay(2000);
             do
@@ -232,7 +232,7 @@ namespace DrrrAsyncBot.Core
                 if(ShutdownToken.Token.IsCancellationRequested)
                     return true;
                 
-                Logger.Log(LogEventType.Information, $"Attempting reconnect in 10 seconds. Attempt {++Attempts}");
+                Logger.Info($"Attempting reconnect in 10 seconds. Attempt {++Attempts}");
                 await Task.Delay(10000);
                 JObject Profile = null;
                 try
@@ -241,42 +241,42 @@ namespace DrrrAsyncBot.Core
                 }
                 catch (Exception e)
                 {
-                    Logger.Log(LogEventType.Error, "Error getting profile.", e);
+                    Logger.Error("Error getting profile.", e);
                     continue;
                 }
 
                 if (Profile.ContainsKey("message"))
                 {
-                    Logger.Log(LogEventType.Debug, $"User is logged in. Checking if room is valid.");
+                    Logger.Debug($"User is logged in. Checking if room is valid.");
 
                     JObject Room;
                     try
                     { Room = await Get_Room_Raw(); }
                     catch (Exception e)
                     {
-                        Logger.Log(LogEventType.Error, "Error getting room. Reconnect failed.", e);
+                        Logger.Error("Error getting room. Reconnect failed.", e);
                         return false;
                     }
                     if (Room.ContainsKey("message"))
                     {
-                        Logger.Log(LogEventType.Warning, $"User is no longer in room.");
+                        Logger.Warn($"User is no longer in room.");
                         return false;
                     }
 
                 }
-                Logger.Log(LogEventType.Information, "Reconnect successful.");
+                Logger.Done("Reconnect successful.");
                 MessageLoop(ShutdownToken.Token);
                 return true;
             }
             while (Attempts < 5);
-            Logger.Log(LogEventType.Fatal, "Maximum reconnect attempts exceeded.");
+            Logger.Fatal("Maximum reconnect attempts exceeded.");
             return false;
         }
 
         public async Task Setup()
         {
             Name = Config.Name;
-            Logger.Log(LogEventType.Information, "Logging in.");
+            Logger.Info("Logging in.");
             await Login();
 
             if(!await JoinRoom(Config.Room.Name))
@@ -299,13 +299,13 @@ namespace DrrrAsyncBot.Core
             
             MessageLoop(cancellationToken);
 
-            Logger.Log(LogEventType.Information, "Update processor started.");
+            Logger.Info("Update processor started.");
             while (!cancellationToken.IsCancellationRequested)
             {
                 await Task.Delay(500);
                 await ProcessUpdate();
             }
-            Logger.Log(LogEventType.Information, "Update processor exited.");
+            Logger.Info("Update processor exited.");
             await Task.Delay(500);
         }
 
@@ -314,13 +314,13 @@ namespace DrrrAsyncBot.Core
             var cancellationToken = ShutdownToken.Token;
             MessageLoop(ShutdownToken.Token);
 
-            Logger.Log(LogEventType.Information, "Update processor started.");
+            Logger.Info("Update processor started.");
             while (!ShutdownToken.Token.IsCancellationRequested)
             {
                 await Task.Delay(500);
                 await ProcessUpdate();
             }
-            Logger.Log(LogEventType.Information, "Update processor exited.");
+            Logger.Info("Update processor exited.");
             await Task.Delay(500);
         }
 

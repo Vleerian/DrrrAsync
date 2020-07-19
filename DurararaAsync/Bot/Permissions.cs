@@ -62,7 +62,7 @@ namespace DrrrAsyncBot.Permission
             Bot client = command.Context.Client;
             if(!client.CheckPerms(command.Context.Author, command.Command.Permission))
             {
-                Logger.Log(Helpers.LogEventType.Information, "Insufficient permissions.");
+                Logger.Info("Insufficient permissions.");
                 command.Execute = false;
             }
         }
