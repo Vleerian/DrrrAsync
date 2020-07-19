@@ -135,7 +135,6 @@ namespace DrrrAsyncBot.Core
         private async void MessageLoop(CancellationToken cancellationToken)
         {
             await Task.Delay(500);
-            DateTime LastSent = DateTime.Now;
             Logger.Info("Messageloop started.");
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -327,7 +326,7 @@ namespace DrrrAsyncBot.Core
         public void Shutdown() =>
             ShutdownToken.Cancel();
 
-        // Wraps your async main and provides services
+        // Wraps main
         public void Run()
         {
             var cancellationToken = ShutdownToken.Token;
