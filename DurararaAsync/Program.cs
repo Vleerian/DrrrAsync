@@ -17,8 +17,6 @@ namespace DrrrAsyncBot
     {
         static void Main(string[] args)
         {
-            var Tests = new Test();
-            Tests.RunTests().Wait();
         }
     }
 }

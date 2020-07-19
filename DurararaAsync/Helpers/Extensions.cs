@@ -1,15 +1,32 @@
-﻿using DrrrAsyncBot.Core;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Linq.Expressions;
+﻿using System;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+
+using log4net;
 
 namespace DrrrAsyncBot.Helpers
 {
+    public static class logExtensions
+    {
+        public static readonly log4net.Core.Level doneLevel = new log4net.Core.Level(40000, "Done");
+
+        public static void Done (this ILog log, string message) =>
+            log.Logger.Log(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType,
+                doneLevel, message, null);
+
+        public static void Done (this ILog log, string message, Exception exception) =>
+            log.Logger.Log(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType,
+                doneLevel, message, exception);
+
+        public static void DoneFormat (this ILog log, string message, params object[] args)
+        {
+            string formattedMessage = string.Format(message, args);
+            log.Logger.Log(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType,
+                doneLevel, formattedMessage, null);
+        }
+    }
+
     /// <summary>
     /// Common extension methods
     /// </summary>

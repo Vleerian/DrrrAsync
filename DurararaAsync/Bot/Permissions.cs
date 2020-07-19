@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using DrrrAsyncBot.BotExtensions;
 using DrrrAsyncBot.Permission;
+using DrrrAsyncBot.Helpers;
 
 namespace DrrrAsyncBot.Core
 {
@@ -61,7 +62,7 @@ namespace DrrrAsyncBot.Permission
             Bot client = command.Context.Client;
             if(!client.CheckPerms(command.Context.Author, command.Command.Permission))
             {
-                client.Logger.Log(Helpers.LogEventType.Information, "Insufficient permissions.");
+                Logger.Info("Insufficient permissions.");
                 command.Execute = false;
             }
         }

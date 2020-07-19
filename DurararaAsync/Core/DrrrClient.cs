@@ -1,15 +1,10 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
-using System.Net.Http;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 using DrrrAsyncBot.Objects;
-using System.Drawing;
 using DrrrAsyncBot.Helpers;
 
 namespace DrrrAsyncBot.Core
@@ -35,10 +30,10 @@ namespace DrrrAsyncBot.Core
         public DateTime StartedAt { get; private set; }
         // Client State
         public bool LoggedIn { get; private set; }
+        protected CancellationTokenSource ShutdownToken;
 
         // Client Extensions
         protected HttpClientE WebClient;
-        public ILogger Logger;
 
         // Events
         public DrrrAsyncEvent On_Login;
@@ -67,8 +62,6 @@ namespace DrrrAsyncBot.Core
             On_Me = new DrrrAsyncEvent<AsyncMessageEvent>();
             On_Post = new DrrrAsyncEvent<AsyncMessageEvent>();
 
-            Logger = new DefaultLogger();
-
             WebClient = (ProxyURI != null) ? HttpClientE.GetProxyClient(ProxyURI, ProxyPort) : new HttpClientE();
             WebClient.Timeout = new TimeSpan(0, 0, 10);
             WebClient.DefaultRequestHeaders.Add("User-Agent", "Bot");
@@ -88,7 +81,6 @@ namespace DrrrAsyncBot.Core
             On_Me = new DrrrAsyncEvent<AsyncMessageEvent>();
             On_Post = new DrrrAsyncEvent<AsyncMessageEvent>();
 
-            Logger = new DefaultLogger();
             WebClient = new HttpClientE();
             WebClient.Timeout = new TimeSpan(0, 0, 10);
             WebClient.DefaultRequestHeaders.Add("User-Agent", "Bot");
@@ -163,7 +155,7 @@ namespace DrrrAsyncBot.Core
         public async Task JoinRoom(string roomId)
         {
             // Join the room
-            Logger.Log(LogEventType.Information, $"Joining room {roomId}");
+            Logger.Info($"Joining room {roomId}");
             await WebClient.Get_String($"http://drrr.com/room/?id={roomId}");
         }
 

@@ -37,7 +37,7 @@ namespace DrrrAsyncBot.Core
                                     .Pop(0).ToLower()
                                     .Substring(Config.CommandSignal.Length);
 
-                Logger.Log(LogEventType.Information, $"{Message.Author.Name} executing {Command}...");
+                Logger.Info($"{Message.Author.Name} executing {Command}...");
 
                 //Check for the command or aliases.
                 if (Commands.ContainsKey(Command))
@@ -65,12 +65,12 @@ namespace DrrrAsyncBot.Core
                     }
                     catch (Exception err)
                     {
-                        Logger.Log(LogEventType.Error, "Command error.", err);
+                        Logger.Error("Command error.", err);
                     }
                     return;
                 }
                 //Log if the command doesn't exist
-                Logger.Log(LogEventType.Information, "Command does not exist.");
+                Logger.Info("Command does not exist.");
             }
         }
 
@@ -129,6 +129,9 @@ namespace DrrrAsyncBot.Core
                     break;
                 case "new-host":
                     Mesg = $"{Timestamp} HANDOVER - {AuthorBit}";
+                    break;
+                case "system":
+                    Mesg = $"{Timestamp} <   SYSTEM    > - {Message.Text}";
                     break;
                 default:
                     Mesg = $"[{Message.Type}] {Message.Text}";
