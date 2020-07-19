@@ -130,6 +130,9 @@ namespace DrrrAsyncBot.Core
                 case "new-host":
                     Mesg = $"{Timestamp} HANDOVER - {AuthorBit}";
                     break;
+                case "system":
+                    Mesg = $"{Timestamp} <   SYSTEM    > - {Message.Text}";
+                    break;
                 default:
                     Mesg = $"[{Message.Type}] {Message.Text}";
                     break;

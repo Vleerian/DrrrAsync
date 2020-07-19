@@ -23,7 +23,6 @@ namespace DrrrAsyncBot.Core
     public partial class Bot : DrrrClient
     {
         private Queue<DrrrMessageConfig> MessageQueue;
-        private CancellationTokenSource ShutdownToken;
 
         private Dictionary<string, Command> Commands;
         public List<ICommandProcessor> commandProcessors;
@@ -225,6 +224,9 @@ namespace DrrrAsyncBot.Core
         public async Task<bool> Reconnect()
         {    
             int Attempts = 0;
+            Logger.Log(LogEventType.Warning, $"RECONNECT ROUTINE ACTIVE");
+            ShutdownToken.Cancel();
+            await Task.Delay(2000);
             do
             {
                 if(ShutdownToken.Token.IsCancellationRequested)
@@ -263,6 +265,7 @@ namespace DrrrAsyncBot.Core
 
                 }
                 Logger.Log(LogEventType.Information, "Reconnect successful.");
+                MessageLoop(ShutdownToken.Token);
                 return true;
             }
             while (Attempts < 5);
@@ -300,19 +303,25 @@ namespace DrrrAsyncBot.Core
             while (!cancellationToken.IsCancellationRequested)
             {
                 await Task.Delay(500);
-                try
-                {
-                    await ProcessUpdate();
-                }
-                catch (Exception e)
-                {
-                    Logger.Log(LogEventType.Fatal, "Error encountered.", e);
-                    if(await Reconnect()) continue;
-                    Logger.Log(LogEventType.Fatal, "Reconnect failed.");
-                }
+                await ProcessUpdate();
             }
+            Logger.Log(LogEventType.Information, "Update processor exited.");
+            await Task.Delay(500);
+        }
 
-            await base.LeaveRoom();
+        public async Task Resume()
+        {
+            var cancellationToken = ShutdownToken.Token;
+            MessageLoop(ShutdownToken.Token);
+
+            Logger.Log(LogEventType.Information, "Update processor started.");
+            while (!ShutdownToken.Token.IsCancellationRequested)
+            {
+                await Task.Delay(500);
+                await ProcessUpdate();
+            }
+            Logger.Log(LogEventType.Information, "Update processor exited.");
+            await Task.Delay(500);
         }
 
         public void Shutdown() =>

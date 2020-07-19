@@ -1,15 +1,10 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
-using System.Net.Http;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 using DrrrAsyncBot.Objects;
-using System.Drawing;
 using DrrrAsyncBot.Helpers;
 
 namespace DrrrAsyncBot.Core
@@ -35,6 +30,7 @@ namespace DrrrAsyncBot.Core
         public DateTime StartedAt { get; private set; }
         // Client State
         public bool LoggedIn { get; private set; }
+        protected CancellationTokenSource ShutdownToken;
 
         // Client Extensions
         protected HttpClientE WebClient;
