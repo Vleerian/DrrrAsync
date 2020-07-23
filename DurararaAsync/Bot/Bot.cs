@@ -1,10 +1,6 @@
-﻿using Colorful;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,7 +9,6 @@ using DrrrAsyncBot.Helpers;
 using DrrrAsyncBot.Objects;
 using DrrrAsyncBot.Permission;
 
-using Console = Colorful.Console;
 using Newtonsoft.Json;
 using DrrrAsyncBot.BotExtensions;
 using Newtonsoft.Json.Linq;
@@ -60,6 +55,16 @@ namespace DrrrAsyncBot.Core
                 throw new Exception("No Icon.");
 
             return new Bot(Config);
+        }
+
+        public async void ReloadConfig(string FileName)
+        {
+            var json = "";
+            using (var fs = File.OpenRead(FileName))
+            using (var sr = new StreamReader(fs, new UTF8Encoding(false)))
+                json = await sr.ReadToEndAsync();
+            Config = JsonConvert.DeserializeObject<DrrrBotConfig>(json);
+
         }
 
         /// <summary>

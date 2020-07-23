@@ -145,8 +145,13 @@ namespace DrrrAsyncBot.Core
         /// Gets the newest data only for the current room
         /// </summary>
         /// <returns>A List of DrrrMessage objects</returns>
-        public async Task<List<DrrrMessage>> GetRoomUpdate() =>
-            Room.UpdateRoom(await WebClient.Get_Json($"https://drrr.com/json.php?update={Room.Update}"));
+        public async Task<List<DrrrMessage>> GetRoomUpdate()
+        {
+            var response = await WebClient.Get_Json($"https://drrr.com/json.php?update={Room.Update}");
+            if(response != null)
+                return Room.UpdateRoom(response);
+            return new List<DrrrMessage>();
+        }
 
         /// <summary>
         /// Joins a room on Drrr.com
@@ -171,9 +176,9 @@ namespace DrrrAsyncBot.Core
                 { "description", Config.Description },
                 { "limit", Config.Limit.ToString() },
                 { "language", Config.Language },
-                { "adult", Config.Adult.ToString() },
+                { "adult", Config.Adult?"true":"false" },
                 { "submit", "Create Room" },
-                { "music", Config.Music.ToString() }
+                { "music", Config.Music?"true":"false" }
             });
         }
 
@@ -259,7 +264,7 @@ namespace DrrrAsyncBot.Core
         /// </summary>
         /// <returns>A json object of the current user</returns>
         public async Task<JObject> Get_Profile() =>
-            await WebClient.Get_Json("https://drrr.com/profile?api=json");
+            await WebClient.Get_Json("https://drrr.com/profile/?api=json");
 
         /// <summary>
         /// Gets the raw JOBject for the current room
@@ -302,8 +307,8 @@ namespace DrrrAsyncBot.Core
         {
             return await WebClient.Post_String("https://drrr.com/room/?ajax=1", new Dictionary<string, string>() {
                 { "music", "music" },
-                { "name", "Name" },
-                { "url", "Url" }
+                { "name", Name },
+                { "url", Url }
             });
         }
     }

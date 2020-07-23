@@ -48,7 +48,9 @@ namespace DrrrAsyncBot.Helpers
         public static void Configure(){
             // Load configuration
             var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
-            XmlConfigurator.Configure(logRepository, new FileInfo("log4net.config"));
+            XmlConfigurator.Configure(logRepository, new FileInfo("./log4net.config"));
+
+            Done("Logger has been set up.");
         }
 
         private static void log(ColorLogLevel level, string message, Exception exception = null)
