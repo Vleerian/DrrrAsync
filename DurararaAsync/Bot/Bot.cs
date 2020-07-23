@@ -140,6 +140,7 @@ namespace DrrrAsyncBot.Core
         private async void MessageLoop(CancellationToken cancellationToken)
         {
             await Task.Delay(500);
+            DateTime LastSent = DateTime.Now;
             Logger.Info("Messageloop started.");
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -307,6 +308,8 @@ namespace DrrrAsyncBot.Core
             while (!cancellationToken.IsCancellationRequested)
             {
                 await Task.Delay(500);
+                if(cancellationToken.IsCancellationRequested)
+                    break;
                 await ProcessUpdate();
             }
             Logger.Info("Update processor exited.");
