@@ -8,6 +8,8 @@ using Newtonsoft.Json.Linq;
 using System.Threading;
 using System.Collections.Generic;
 
+using DrrrAsyncBot.Helpers;
+
 namespace DrrrAsyncBot.Core
 {
     /// <summary>
@@ -55,10 +57,19 @@ namespace DrrrAsyncBot.Core
         public async Task<string> Post_String(string url, Dictionary<string, string> Data)
         {
             await Lock.WaitAsync();
-            var Response = await PostAsync(url, new FormUrlEncodedContent(Data));
-            Lock.Release();
+            string Response;
+            try{
+                var response = await PostAsync(url, new FormUrlEncodedContent(Data));
+                Response = await response.Content.ReadAsStringAsync();
+            }
+            catch (TaskCanceledException)
+            {
+                Logger.Warn("Timeout");
+                Response = "";
+            }
 
-            return await Response.Content.ReadAsStringAsync();
+            Lock.Release();
+            return "";
         }
 
         /// <summary>
@@ -67,7 +78,13 @@ namespace DrrrAsyncBot.Core
         /// <param name="url">The URL you want to post to</param>
         /// <param name="Data">The Key/Value pairs you want to send</param>
         /// <returns>A JObject parsed from the response</returns>
-        public async Task<JObject> Post_Json(string url, Dictionary<string, string> Data) => JObject.Parse(await Post_String(url, Data));
+        public async Task<JObject> Post_Json(string url, Dictionary<string, string> Data)
+        {
+            string raw = await Post_String(url, Data);
+            if(raw != null && raw != "")
+                return JObject.Parse(raw);
+            return null;
+        }
 
         /// <summary>
         /// Get_String wraps DownloadStringTaskAsync to make it look nice in source
@@ -77,9 +94,16 @@ namespace DrrrAsyncBot.Core
         public async Task<string> Get_String(string url)
         {
             await Lock.WaitAsync();
-            string Response = await GetStringAsync(url);
+            string Response;
+            try {
+                Response = await GetStringAsync(url);
+            }
+            catch (TaskCanceledException) { 
+                Logger.Warn("Timeout.");
+                Response = "";
+            }
+            
             Lock.Release();
-
             return Response;
         }
 
@@ -88,6 +112,12 @@ namespace DrrrAsyncBot.Core
         /// </summary>
         /// <param name="url">The URL you want to get a string from</param>
         /// <returns>A JObject parsed from the response</returns>
-        public async Task<JObject> Get_Json(string url) => JObject.Parse(await Get_String(url));
+        public async Task<JObject> Get_Json(string url)
+        {
+            string raw = await Get_String(url);
+            if(raw != null && raw != "")
+                return JObject.Parse(raw);
+            return null;
+        }
     }
 }

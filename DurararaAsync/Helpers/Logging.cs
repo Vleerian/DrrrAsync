@@ -44,15 +44,23 @@ namespace DrrrAsyncBot.Helpers
     {
         private static Type CallerStack = MethodBase.GetCurrentMethod().DeclaringType;
         private static readonly ILog logger = LogManager.GetLogger(CallerStack);
+        private static log4net.Core.Level Threshhold;
 
         public static void Configure(){
             // Load configuration
             var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
-            XmlConfigurator.Configure(logRepository, new FileInfo("log4net.config"));
+            XmlConfigurator.Configure(logRepository, new FileInfo("./log4net.config"));
+            Threshhold = logRepository.Threshold;
+            
+            Done("Logger has been set up.");
         }
 
         private static void log(ColorLogLevel level, string message, Exception exception = null)
         {
+            logger.Logger.Log(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType, level.level, message, exception);
+            
+            if(level.level.Value < Threshhold.Value)
+                return;
             string ExceptionLine = (exception != null) ? $" - {exception.ToString()}" : "";
             Console.Write($"[{DateTime.Now.ToString("dd'/'MM'/'yyyy HH:mm:ss")}] <");
             Console.ForegroundColor = level.color;
@@ -61,8 +69,6 @@ namespace DrrrAsyncBot.Helpers
             Console.Write($"> {message}{ExceptionLine}\n");
             if (exception != null && level.level.Value <= 30000)
                 Console.WriteLine(exception.StackTrace);
-
-            logger.Logger.Log(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType, level.level, message, exception);
         }
 
         public static void Fatal(string message) =>
