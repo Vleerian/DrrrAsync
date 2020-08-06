@@ -12,16 +12,8 @@ namespace DrrrAsyncBot.Core
     public class DrrrClient
     {
         // User Defined
-        private string name;
-        public string Name
-        {
-            get => name;
-            set
-            {
-                name = value;
-            }
-        }
-        public DrrrIcon Icon { get; set; } = DrrrIcon.Kuromu2x;
+        public string Name { get; protected set; }
+        public DrrrIcon Icon { get; protected set; }
 
         // Site-Defined
         public string ID { get; private set; }

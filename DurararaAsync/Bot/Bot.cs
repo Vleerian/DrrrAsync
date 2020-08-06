@@ -205,6 +205,7 @@ namespace DrrrAsyncBot.Core
         public async Task Setup()
         {
             Name = Config.Name;
+            Icon = Config.Icon;
             Logger.Info($"Logging in as : {Name}");
             await Login();
 
@@ -226,6 +227,14 @@ namespace DrrrAsyncBot.Core
             //Set up
             await Setup();
 
+            //Configure varibles needed for heartheat
+            string ID;
+            {
+                var profile = await Get_Profile();
+                ID = profile.Value<string>("uid");
+            }
+            DateTime HeartBeat = DateTime.Now;
+
             Logger.Info("Update processor started.");
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -233,6 +242,12 @@ namespace DrrrAsyncBot.Core
                 if(cancellationToken.IsCancellationRequested)
                     break;
                 await ProcessUpdate();
+                var now = DateTime.Now;
+                if((HeartBeat - now).TotalMinutes >= 15)
+                {
+                    await SendMessage("[HEARTBEAT]", To:ID);
+                    HeartBeat = now;
+                }
             }
             Logger.Info("Update processor exited.");
             await Task.Delay(500);
