@@ -17,7 +17,6 @@ namespace DrrrAsyncBot.Core
     /// </summary>
     public class HttpClientE : HttpClient
     {
-        private readonly SemaphoreSlim Lock = new SemaphoreSlim(1, 1);
         public readonly CookieContainer m_container;
         public readonly WebProxy Proxy;
 
@@ -56,7 +55,7 @@ namespace DrrrAsyncBot.Core
         /// <returns>The raw text of the response</returns>
         public async Task<string> Post_String(string url, Dictionary<string, string> Data)
         {
-            await Lock.WaitAsync();
+            await RateLimiter.WaitPost();
             string Response;
             try{
                 var response = await PostAsync(url, new FormUrlEncodedContent(Data));
@@ -68,7 +67,7 @@ namespace DrrrAsyncBot.Core
                 Response = "";
             }
 
-            Lock.Release();
+            RateLimiter.Release();
             return "";
         }
 
@@ -93,7 +92,7 @@ namespace DrrrAsyncBot.Core
         /// <returns>The raw text of the response</returns>
         public async Task<string> Get_String(string url)
         {
-            await Lock.WaitAsync();
+            await RateLimiter.WaitGet();
             string Response;
             try {
                 Response = await GetStringAsync(url);
@@ -103,7 +102,7 @@ namespace DrrrAsyncBot.Core
                 Response = "";
             }
             
-            Lock.Release();
+            RateLimiter.Release();
             return Response;
         }
 

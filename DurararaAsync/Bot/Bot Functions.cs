@@ -82,6 +82,7 @@ namespace DrrrAsyncBot.Core
         /// <returns></returns>
         public async Task PrintMessage(object Sender, AsyncMessageEvent e)
         {
+            var Client = (Bot)Sender;
             var Message = e.Message;
             StyleSheet MessageStyle = new StyleSheet(Color.White);
             MessageStyle.AddStyle("(?<=<).+?(?=#|>)", Color.Green);
@@ -92,7 +93,7 @@ namespace DrrrAsyncBot.Core
             MessageStyle.AddStyle("MUSIC", Color.Cyan);
 
             string Timestamp = $"[{DateTime.Now.ToString("dd'/'MM'/'yyyy HH:mm:ss")}]";
-
+            string ClientStr = $"{{{Client.Name}-{Client.Room.Name}}}";
             string AuthorBit = "";
             if (Message.Author != null)
                 AuthorBit = Message.Author.Tripcode != null ? $"<{Message.Author.Name}#{Message.Author.Tripcode}>" : $"<{Message.Author.Name}>";
@@ -104,41 +105,41 @@ namespace DrrrAsyncBot.Core
             switch (Message.Type)
             {
                 case "message":
-                    Mesg = $"{Timestamp}{(Message.Secret ? " DIRECT " : " ")}{AuthorBit}: {Message.Text}";
+                    Mesg = $"{(Message.Secret ? " DIRECT " : " ")}{AuthorBit}: {Message.Text}";
                     Mesg += $" ({Message.Url})" ?? "";
                     break;
                 case "me":
-                    Mesg = $"{Timestamp} {AuthorBit}: {Message.Author.Name}{Message.Content}";
+                    Mesg = $"{AuthorBit}: {Message.Author.Name}{Message.Content}";
                     break;
                 case "roll":
-                    Mesg = $"{Timestamp} {AuthorBit} Rolled {TargetBit}";
+                    Mesg = $"{AuthorBit} Rolled {TargetBit}";
                     break;
                 case "music":
-                    Mesg = $"{Timestamp} MUSIC - {AuthorBit} shared a song.";
+                    Mesg = $"MUSIC - {AuthorBit} shared a song.";
                     break;
                 case "kick":
                 case "ban":
-                    Mesg = $"{Timestamp} {Message.Type.ID.ToUpper()}ED - {TargetBit}";
+                    Mesg = $"{Message.Type.ID.ToUpper()}ED - {TargetBit}";
                     break;
                 case "join":
                 case "leave":
-                    Mesg = $"{Timestamp} {Message.Type.ID.ToUpper()} - {AuthorBit}";
+                    Mesg = $"{Message.Type.ID.ToUpper()} - {AuthorBit}";
                     break;
                 case "room-profile":
-                    Mesg = $"{Timestamp} Room updated.";
+                    Mesg = $"Room updated.";
                     break;
                 case "new-host":
-                    Mesg = $"{Timestamp} HANDOVER - {AuthorBit}";
+                    Mesg = $"HANDOVER - {AuthorBit}";
                     break;
                 case "system":
-                    Mesg = $"{Timestamp} <   SYSTEM    > - {Message.Text}";
+                    Mesg = $"<   SYSTEM    > - {Message.Text}";
                     break;
                 default:
                     Mesg = $"[{Message.Type}] {Message.Text}";
                     break;
             }
 
-            Console.WriteLineStyled(Mesg, MessageStyle);
+            Console.WriteLineStyled($"{Timestamp} {ClientStr} {Mesg}", MessageStyle);
 
             if (!Directory.Exists("./Logs"))
                 Directory.CreateDirectory("./Logs");

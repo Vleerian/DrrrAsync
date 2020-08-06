@@ -1,4 +1,5 @@
-﻿using System;
+﻿using System.Net.Http.Headers;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -17,8 +18,7 @@ namespace DrrrAsyncBot.Core
 {
     public partial class Bot : DrrrClient
     {
-        private Queue<DrrrMessageConfig> MessageQueue;
-
+    
         private Dictionary<string, Command> Commands;
         public List<ICommandProcessor> commandProcessors;
 
@@ -27,9 +27,7 @@ namespace DrrrAsyncBot.Core
         private Bot(DrrrBotConfig config) : base (config.ProxyURI, config.ProxyPort)
         {
             Config = config;
-            ShutdownToken = new CancellationTokenSource();
             Commands = new Dictionary<string, Command>();
-            MessageQueue = new Queue<DrrrMessageConfig>();
             commandProcessors = new List<ICommandProcessor>() {
                 new PermissionsProcessor()
             };
@@ -68,44 +66,6 @@ namespace DrrrAsyncBot.Core
         }
 
         /// <summary>
-        /// Hides the base send message, instead adding a message to the queue to be sent.
-        /// </summary>
-        /// <param name="aMessage">The body of the message being sent</param>
-        /// <param name="aUsername">Optional. The user to send a direct message to.</param>
-        /// <param name="aUrl">Optional. a URL to attach to the message.</param>
-        /// <returns></returns>
-        public async new Task SendMessage(string aMessage, string aUsername = "", string aUrl = "")
-        {
-            MessageQueue.Enqueue(new DrrrMessageConfig()
-            {
-                Message = aMessage,
-                Username = aUsername,
-                Url = aUrl,
-                Direct = false
-            });
-            await Task.CompletedTask;
-        }
-
-        /// <summary>
-        /// Adds a direct message to be added.
-        /// </summary>
-        /// <param name="aMessage">The body of the message being sent</param>
-        /// <param name="aUsername">Optional. The user to send a direct message to.</param>
-        /// <param name="aUrl">Optional. a URL to attach to the message.</param>
-        /// <returns></returns>
-        public async Task SendDirectMessage(string aMessage, string aUsername = "", string aUrl = "")
-        {
-            MessageQueue.Enqueue(new DrrrMessageConfig()
-            {
-                Message = aMessage,
-                Username = aUsername,
-                Url = aUrl,
-                Direct = true
-            });
-            await Task.CompletedTask;
-        }
-
-        /// <summary>
         /// The register command goes through all the methods in command module, and 
         /// those with the Command attribute are added to the CommandDictionary.
         /// </summary>
@@ -137,46 +97,12 @@ namespace DrrrAsyncBot.Core
             await Task.CompletedTask;
         }
 
-        private async void MessageLoop(CancellationToken cancellationToken)
-        {
-            await Task.Delay(500);
-            DateTime LastSent = DateTime.Now;
-            Logger.Info("Messageloop started.");
-            while (!cancellationToken.IsCancellationRequested)
-            {
-                await Task.Delay(250);
-                if (cancellationToken.IsCancellationRequested)
-                    break;
-                if (MessageQueue.Count > 0)
-                {
-                    var Message = MessageQueue.Dequeue();
-
-                    if(Message.Username != "")
-                    {
-                        if (Room.TryGetUser(Message.Username, out DrrrUser User))
-                            Message.Username = User.ID;
-                        else
-                        {
-                            Logger.Error("User is not in room.");
-                            continue;
-                        }
-                    }
-
-                    LastSent = DateTime.Now;
-                    await base.SendMessage(Message.Message, Message.Url, Message.Username);
-                }
-                if ((DateTime.Now - LastSent).TotalMinutes >= 15)
-                    await SendMessage("[HEARTBEAT]", Name);
-            }
-            Logger.Info("Messageloop exited.");
-        }
-
         public async new Task<bool> JoinRoom(string RoomName)
         {
             Logger.Debug("Retrieving roomlist.");
             var roomList = await GetLounge();
 
-            Logger.Debug("Searching for target room...");
+            Logger.Debug($"Searching for target room {RoomName}");
             DrrrRoom Found = roomList.Find(Room => Room.Name == RoomName);
             try
             {
@@ -226,15 +152,14 @@ namespace DrrrAsyncBot.Core
             }
         }
 
-        public async Task<bool> Reconnect()
+        public async Task<bool> Reconnect(CancellationToken ShutdownToken)
         {    
             int Attempts = 0;
             Logger.Warn($"RECONNECT ROUTINE ACTIVE");
-            ShutdownToken.Cancel();
             await Task.Delay(2000);
             do
             {
-                if(ShutdownToken.Token.IsCancellationRequested)
+                if(ShutdownToken.IsCancellationRequested)
                     return true;
                 
                 Logger.Info($"Attempting reconnect in 10 seconds. Attempt {++Attempts}");
@@ -270,7 +195,6 @@ namespace DrrrAsyncBot.Core
 
                 }
                 Logger.Done("Reconnect successful.");
-                MessageLoop(ShutdownToken.Token);
                 return true;
             }
             while (Attempts < 5);
@@ -281,7 +205,7 @@ namespace DrrrAsyncBot.Core
         public async Task Setup()
         {
             Name = Config.Name;
-            Logger.Info("Logging in.");
+            Logger.Info($"Logging in as : {Name}");
             await Login();
 
             if(!await JoinRoom(Config.Room.Name))
@@ -301,8 +225,6 @@ namespace DrrrAsyncBot.Core
         {
             //Set up
             await Setup();
-            
-            MessageLoop(cancellationToken);
 
             Logger.Info("Update processor started.");
             while (!cancellationToken.IsCancellationRequested)
@@ -316,16 +238,13 @@ namespace DrrrAsyncBot.Core
             await Task.Delay(500);
         }
 
-        public async Task Resume()
+        public async Task Resume(CancellationToken ShutdownToken)
         {
-            var cancellationToken = ShutdownToken.Token;
-            MessageLoop(ShutdownToken.Token);
-
             Logger.Info("Update processor started.");
-            while (!ShutdownToken.Token.IsCancellationRequested)
+            while (!ShutdownToken.IsCancellationRequested)
             {
                 await Task.Delay(500);
-                if(cancellationToken.IsCancellationRequested)
+                if(ShutdownToken.IsCancellationRequested)
                     break;
                 await ProcessUpdate();
             }
@@ -333,18 +252,15 @@ namespace DrrrAsyncBot.Core
             await Task.Delay(500);
         }
 
-        public void Shutdown() =>
-            ShutdownToken.Cancel();
-
-        // Wraps main
-        public void Run()
+        /// <summary>
+        /// MainAsync fire and forget. Creates it's own CancellationToken
+        /// </summary>
+        public async Task Run()
         {
-            var cancellationToken = ShutdownToken.Token;
-
-            //Launch the main function
-            MainAsync(ShutdownToken.Token).GetAwaiter().GetResult();
-
-            Shutdown();
+            var Shutdown = new CancellationTokenSource();
+            var ShutdownToken = Shutdown.Token;
+            await MainAsync(ShutdownToken);
+            Shutdown.Cancel();
         }
     }
 }

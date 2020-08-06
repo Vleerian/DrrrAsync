@@ -46,6 +46,6 @@ namespace DrrrAsyncBot.Core
         /// </summary>
         /// <param name="Message">The message you want to send</param>
         public async Task RespondDirect(string Message, string Url = "") =>
-            await Client.SendDirectMessage(Message, Author.Name, Url);
+            await Client.SendMessage(Message, Author.Name, Url);
     }
 }

@@ -30,7 +30,6 @@ namespace DrrrAsyncBot.Core
         public DateTime StartedAt { get; private set; }
         // Client State
         public bool LoggedIn { get; private set; }
-        protected CancellationTokenSource ShutdownToken;
 
         // Client Extensions
         protected HttpClientE WebClient;
