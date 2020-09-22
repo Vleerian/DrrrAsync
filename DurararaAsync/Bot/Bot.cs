@@ -231,9 +231,11 @@ namespace DrrrAsyncBot.Core
             string ID;
             {
                 var profile = await Get_Profile();
-                ID = profile.Value<string>("uid");
+                ID = profile["profile"].Value<string>("uid");
             }
-            DateTime HeartBeat = DateTime.Now;
+            Logger.Info($"ID: {ID}");
+            // We set the HeartBeat timer to 20 minutes before start. See README
+            DateTime HeartBeat = DateTime.Now.AddMinutes(-20);
 
             Logger.Info("Update processor started.");
             while (!cancellationToken.IsCancellationRequested)
@@ -241,13 +243,15 @@ namespace DrrrAsyncBot.Core
                 await Task.Delay(500);
                 if(cancellationToken.IsCancellationRequested)
                     break;
-                await ProcessUpdate();
-                var now = DateTime.Now;
-                if((HeartBeat - now).TotalMinutes >= 15)
+
+                // We process the heartbeat before update. See README
+                var diff = (DateTime.Now - HeartBeat).TotalMinutes;
+                if(diff >= 15)
                 {
                     await SendMessage("[HEARTBEAT]", To:ID);
-                    HeartBeat = now;
+                    HeartBeat = DateTime.Now;
                 }
+                await ProcessUpdate();
             }
             Logger.Info("Update processor exited.");
             await Task.Delay(500);

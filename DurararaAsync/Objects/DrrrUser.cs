@@ -1,5 +1,7 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
+
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace DrrrAsyncBot.Objects
 {
@@ -9,26 +11,21 @@ namespace DrrrAsyncBot.Objects
     [Serializable]
     public class DrrrUser
     {
+        [JsonProperty("id")]
         public string ID;
+        [JsonProperty("uid")]
+        public string UID;
+        [JsonProperty("name")]
         public string Name;
+        [JsonProperty("tripcode")]
         public string Tripcode;
+        [JsonProperty("icon")]
         public string Icon;
+        [JsonProperty("device")]
         public string Device;
+        [JsonProperty("loginedAt")]
         public string LoggedIn;
+        [JsonProperty("admin")]
         public bool Admin;
-        /// <summary>
-        /// The DrrrUser constructor populates itself using a JObject parsed using data from Drrr.com.
-        /// </summary>
-        /// <param name="UserObject">A JOBject parsed using data from Drrr.com</param>
-        public DrrrUser(JObject UserObject)
-        {
-            ID = UserObject.ContainsKey("id") ? UserObject["id"].Value<string>() : null;
-            Name = UserObject["name"].Value<string>();
-            Icon = UserObject.ContainsKey("icon") ? UserObject["icon"].Value<string>() : null;
-            Tripcode = UserObject.ContainsKey("tripcode") ? UserObject["tripcode"].Value<string>() : null;
-            Device = UserObject.ContainsKey("device") ? UserObject["device"].Value<string>() : null;
-            LoggedIn = UserObject.ContainsKey("loginedAt") ? UserObject["loginedAt"].Value<string>() : null;
-            Admin = UserObject.ContainsKey("admin") ? UserObject["admin"].Value<bool>() : false;
-        }
     }
 }

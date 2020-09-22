@@ -1,19 +1,21 @@
-﻿using Newtonsoft.Json.Linq;
+﻿
 using System;
-using System.Threading;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
 using DrrrAsyncBot.Objects;
 using DrrrAsyncBot.Helpers;
 
+using Newtonsoft.Json.Linq;
+
 namespace DrrrAsyncBot.Core
 {
     public class DrrrClient
     {
         // User Defined
-        public string Name { get; protected set; }
-        public DrrrIcon Icon { get; protected set; }
+        public string Name;
+        public DrrrIcon Icon;
 
         // Site-Defined
         public string ID { get; private set; }
@@ -107,19 +109,17 @@ namespace DrrrAsyncBot.Core
         public async Task<List<DrrrRoom>> GetLounge()
         {
             // Retreive lounge's json
-            JObject Lounge = await WebClient.Get_Json("https://drrr.com/lounge?api=json");
+            DrrrLounge Lounge = await WebClient.Get_Object<DrrrLounge>("https://drrr.com/lounge?api=json");
 
             // Update the client's DrrrUser using the profile data provided
-            JObject Profile = Lounge.Value<JObject>("profile");
-            ID = Profile["id"].Value<string>();
-            Name = Profile["name"].Value<string>();
-            User = new DrrrUser(Profile);
+            User = Lounge.Profile;
+            ID = User.ID;
+            Name = User.Name;
 
+            // Build the references for each room
+            Lounge.Rooms.Select(Room=>Room.makerefs());
             // Return a List of visible rooms.
-            List<DrrrRoom> Rooms = new List<DrrrRoom>();
-            foreach (JObject item in Lounge["rooms"])
-                Rooms.Add(new DrrrRoom(item));
-            return Rooms;
+            return Lounge.Rooms;
         }
 
         /// <summary>
@@ -128,7 +128,8 @@ namespace DrrrAsyncBot.Core
         /// <returns>A DrrrRoom object</returns>
         public async Task<DrrrRoom> GetRoom()
         {
-            Room = new DrrrRoom(await WebClient.Get_Json($"https://drrr.com/json.php?fast=1"));
+            Room = await WebClient.Get_Object<DrrrRoom>("https://drrr.com/json.php?fast=1");
+            Room.makerefs();
             return Room;
         }
 
@@ -138,10 +139,11 @@ namespace DrrrAsyncBot.Core
         /// <returns>A List of DrrrMessage objects</returns>
         public async Task<List<DrrrMessage>> GetRoomUpdate()
         {
-            var response = await WebClient.Get_Json($"https://drrr.com/json.php?update={Room.Update}");
-            if(response != null)
-                return Room.UpdateRoom(response);
-            return new List<DrrrMessage>();
+            DrrrRoom tmpRoom = await WebClient.Get_Object<DrrrRoom>($"https://drrr.com/json.php?update={Room.Update}");
+            if(tmpRoom == null)
+                return new List<DrrrMessage>();
+            Room.makerefs();
+            return Room.UpdateRoom(tmpRoom);
         }
 
         /// <summary>

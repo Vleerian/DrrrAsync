@@ -4,6 +4,7 @@ using System.Collections.Specialized;
 using System.Net;
 using System.Threading.Tasks;
 using System.Text;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Threading;
 using System.Collections.Generic;
@@ -72,7 +73,7 @@ namespace DrrrAsyncBot.Core
         }
 
         /// <summary>
-        /// Post_Json wraps UploadValuesTaskAsync to make it look nice in source
+        /// Post_Json wraps UploadValuesTaskAsync and JObject.Parse
         /// </summary>
         /// <param name="url">The URL you want to post to</param>
         /// <param name="Data">The Key/Value pairs you want to send</param>
@@ -84,6 +85,15 @@ namespace DrrrAsyncBot.Core
                 return JObject.Parse(raw);
             return null;
         }
+
+        /// <summary>
+        /// Post_Object wraps UploadValuesTaskAsync and JsonConvert.SerializeObject
+        /// </summary>
+        /// <param name="url">The URL you want to post to</param>
+        /// <param name="Data">The Key/Value pairs you want to send</param>
+        /// <returns>The raw response data (string)</returns>
+        public Task<string> Post_Object(string url, Dictionary<string, string> Data) =>
+            Post_String(url, Data);
 
         /// <summary>
         /// Get_String wraps DownloadStringTaskAsync to make it look nice in source
@@ -107,7 +117,7 @@ namespace DrrrAsyncBot.Core
         }
 
         /// <summary>
-        /// Get_Json wraps DownloadStringTaskAsync to make it look nice in source
+        /// Get_Json wraps DownloadStringTaskAsync and JObject.Parse
         /// </summary>
         /// <param name="url">The URL you want to get a string from</param>
         /// <returns>A JObject parsed from the response</returns>
@@ -117,6 +127,19 @@ namespace DrrrAsyncBot.Core
             if(raw != null && raw != "")
                 return JObject.Parse(raw);
             return null;
+        }
+
+        /// <summary>
+        /// Get_Object wraps DownloadStringTaskAsync and JsonConvert.DeserializeObject
+        /// </summary>
+        /// <param name="url">The URL you want to get a string from</param>
+        /// <returns>A JObject parsed from the response</returns>
+        public async Task<T> Get_Object<T>(string url)
+        {
+            string raw = await Get_String(url);
+            if(raw != null && raw != "")
+                return JsonConvert.DeserializeObject<T>(raw);
+            return default;
         }
     }
 }

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 using DrrrAsyncBot.Objects;
 
@@ -23,10 +19,11 @@ namespace DrrrAsyncBot.Core
 
             Secret = aMessage.Secret;
 
-            Type = aMessage.Type;
+            type = aMessage.Type;
             Room = aMessage.Room;
-            Timestamp = aMessage.Timestamp;
-            Author = aMessage.Author;
+            time = aMessage.time;
+            from = aMessage.from;
+            user = aMessage.user;
             Target = aMessage.Target;
 
             Client = aClient;

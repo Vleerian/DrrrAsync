@@ -1,5 +1,6 @@
 ﻿using System;
-using Newtonsoft.Json.Linq;
+
+using Newtonsoft.Json;
 
 namespace DrrrAsyncBot.Objects
 {
@@ -9,48 +10,45 @@ namespace DrrrAsyncBot.Objects
     [Serializable]
     public class DrrrMessage
     {
+        [JsonProperty("id")]
         public string ID;
+        [JsonProperty("message")]
         public string Text;
+        [JsonProperty("content")]
         public string Content;
+        [JsonProperty("url")]
         public string Url;
-
+        [JsonProperty("secret")]
         public bool Secret;
 
-        public DrrrMessageType Type;
-        public DrrrRoom Room;
-        public DateTime Timestamp;
-        public DrrrUser Author;
-        public DrrrUser Target;
-
-        /// <summary>
-        /// The DrrrMessage constructor populates itself using a JObject parsed using data from Drrr.com.
-        /// </summary>
-        /// <param name="MessageObject">A JOBject parsed using data from Drrr.com</param>
-        /// <param name="aRoom">The DrrrRoom object this message was posted in.</param>
-        public DrrrMessage(JObject MessageObject, DrrrRoom aRoom)
-        {
-            // Set the message's properties
-            ID = MessageObject["id"].Value<string>();
-            Text = MessageObject["message"].Value<string>();
-            Content = MessageObject.ContainsKey("content") ? MessageObject["content"].Value<string>() : null;
-            Url = MessageObject.ContainsKey("url") ? MessageObject["url"].Value<string>() : null;
-
-            Secret = MessageObject.ContainsKey("secret");
-
-            Room = aRoom;
-
-            DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-            Timestamp = dtDateTime.AddSeconds(MessageObject["time"].Value<Int64>()).ToLocalTime();
-
-            Type = DrrrMessageType.Types[MessageObject["type"].Value<string>()];
-
-            Author = null;
-            if(MessageObject.ContainsKey("from") || MessageObject.ContainsKey("user"))
-                Author = new DrrrUser((JObject)MessageObject["from"] ?? (JObject)MessageObject["user"]);
-
-            Target = MessageObject.ContainsKey("to") ? new DrrrUser((JObject)MessageObject["to"]) : null;
+        [JsonProperty("time")]
+        public double time;
+        public DateTime Timestamp {
+            get
+            {
+                DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+                return dtDateTime.AddSeconds(time).ToLocalTime();
+            }
         }
 
-        protected DrrrMessage() { }
+        [JsonProperty("type")]
+        public string type;
+        public DrrrMessageType Type {
+            get => (DrrrMessageType)type;
+        }
+        
+        [JsonProperty("from")]
+        public DrrrUser from;
+        [JsonProperty("user")]
+        public DrrrUser user;
+        public DrrrUser Author
+        {
+            get => from ?? user;
+        }
+        
+        [JsonProperty("to")]
+        public DrrrUser Target;
+
+        public DrrrRoom Room;
     }
 }
