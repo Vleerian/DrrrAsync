@@ -22,7 +22,12 @@ namespace DrrrAsyncBot.Objects
         public string Description;
 
         [JsonProperty("limit")]
-        public int Limit { get; private set; }
+        public string limit { get; private set;}
+
+        // Fix floating point room limits to avoid a potentially breaking change
+        public int Limit { get {
+            return int.Parse(limit.Split(".")[0]);
+        }}
         public int UserCount { get => Users.Count; }
         public bool Full { get => Limit <= UserCount; }
 
@@ -100,7 +105,7 @@ namespace DrrrAsyncBot.Objects
             // Update the room's attributes
             Name = tmpRoom.Name;
             Description = tmpRoom.Description;
-            Limit = tmpRoom.Limit;
+            limit = tmpRoom.limit;
 
             // Update the room's user list
             if(tmpRoom.Users.Count > 0)
