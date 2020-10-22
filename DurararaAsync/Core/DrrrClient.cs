@@ -1,4 +1,4 @@
-
+﻿
 using System.Net;
 using System.Security.AccessControl;
 using System;
@@ -141,11 +141,18 @@ namespace DrrrAsyncBot.Core
         /// <returns>A List of DrrrMessage objects</returns>
         public async Task<List<DrrrMessage>> GetRoomUpdate()
         {
-            DrrrRoom tmpRoom = await WebClient.Get_Object<DrrrRoom>($"https://drrr.com/json.php?update={Room.Update}");
+            try{
+                DrrrRoom tmpRoom = await WebClient.Get_Object<DrrrRoomFast>($"https://drrr.com/json.php?update={Room.Update}");
             if(tmpRoom == null)
                 return new List<DrrrMessage>();
             Room.makerefs();
             return Room.UpdateRoom(tmpRoom);
+            }
+            catch(System.Net.Http.HttpRequestException)
+            {
+                Logger.Warn("502 Error.");
+            }
+            return new List<DrrrMessage>();
         }
 
         /// <summary>
