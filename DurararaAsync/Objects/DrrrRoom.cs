@@ -22,11 +22,11 @@ namespace DrrrAsyncBot.Objects
         public string Description;
 
         [JsonProperty("limit")]
-        public string limit { get; private set;}
+        public double limit { get; private set;}
 
         // Fix floating point room limits to avoid a potentially breaking change
         public int Limit { get {
-            return int.Parse(limit.Split(".")[0]);
+            return (int)limit;
         }}
         public int UserCount { get => Users.Count; }
         public bool Full { get => Limit <= UserCount; }

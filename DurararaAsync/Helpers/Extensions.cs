@@ -10,6 +10,7 @@ namespace DrrrAsyncBot.Helpers
     public static class logExtensions
     {
         public static readonly log4net.Core.Level doneLevel = new log4net.Core.Level(40000, "Done");
+        public static readonly log4net.Core.Level warnLevel = new log4net.Core.Level(40000, "Warn");
 
         public static void Done (this ILog log, string message) =>
             log.Logger.Log(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType,

@@ -11,7 +11,7 @@ namespace DrrrAsyncBot.Helpers
     {
         public static readonly ColorLogLevel fatal = new ColorLogLevel(log4net.Core.Level.Fatal, ConsoleColor.Red);
         public static readonly ColorLogLevel error = new ColorLogLevel(log4net.Core.Level.Error, ConsoleColor.Yellow);
-        public static readonly ColorLogLevel warn = new ColorLogLevel(log4net.Core.Level.Warn, ConsoleColor.Yellow);
+        public static readonly ColorLogLevel warn = new ColorLogLevel(logExtensions.warnLevel, ConsoleColor.Yellow);
         public static readonly ColorLogLevel done = new ColorLogLevel(logExtensions.doneLevel, ConsoleColor.Green);
         public static readonly ColorLogLevel info = new ColorLogLevel(log4net.Core.Level.Info, ConsoleColor.Cyan);
         public static readonly ColorLogLevel debug = new ColorLogLevel(log4net.Core.Level.Debug, ConsoleColor.Blue);
@@ -57,7 +57,7 @@ namespace DrrrAsyncBot.Helpers
 
         private static void log(ColorLogLevel level, string message, Exception exception = null)
         {
-            logger.Logger.Log(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType, level.level, message, exception);
+            logger.Logger.Log(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType, level.level, message, exception ?? null);
             
             if(level.level.Value < Threshhold.Value)
                 return;

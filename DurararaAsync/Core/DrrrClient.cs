@@ -1,4 +1,6 @@
-﻿
+
+using System.Net;
+using System.Security.AccessControl;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -128,7 +130,7 @@ namespace DrrrAsyncBot.Core
         /// <returns>A DrrrRoom object</returns>
         public async Task<DrrrRoom> GetRoom()
         {
-            Room = await WebClient.Get_Object<DrrrRoom>("https://drrr.com/json.php?fast=1");
+            Room = await WebClient.Get_Object<DrrrRoomFast>("https://drrr.com/json.php?fast=1");
             Room.makerefs();
             return Room;
         }
