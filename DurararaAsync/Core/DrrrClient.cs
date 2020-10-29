@@ -1,10 +1,9 @@
 ﻿
-using System.Net;
-using System.Security.AccessControl;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Net.Http;
 
 using DrrrAsyncBot.Objects;
 using DrrrAsyncBot.Helpers;
@@ -130,7 +129,12 @@ namespace DrrrAsyncBot.Core
         /// <returns>A DrrrRoom object</returns>
         public async Task<DrrrRoom> GetRoom()
         {
-            Room = await WebClient.Get_Object<DrrrRoomFast>("https://drrr.com/json.php?fast=1");
+            try{
+                Room = await WebClient.Get_Object<DrrrRoomFast>("https://drrr.com/json.php?fast=1");
+            }
+            catch (TaskCanceledException) { Logger.Warn("Timed out fetching room data."); }
+            catch (HttpRequestException) { Logger.Warn("502 error fetching room data."); }
+
             Room.makerefs();
             return Room;
         }
@@ -141,18 +145,17 @@ namespace DrrrAsyncBot.Core
         /// <returns>A List of DrrrMessage objects</returns>
         public async Task<List<DrrrMessage>> GetRoomUpdate()
         {
+            DrrrRoom tmpRoom = null;
             try{
-                DrrrRoom tmpRoom = await WebClient.Get_Object<DrrrRoomFast>($"https://drrr.com/json.php?update={Room.Update}");
+                tmpRoom = await WebClient.Get_Object<DrrrRoomFast>($"https://drrr.com/json.php?update={Room.Update}");
+            }
+            catch (TaskCanceledException) { Logger.Warn("Timed out fetching room update data."); }
+            catch (HttpRequestException) { Logger.Warn("502 error fetching room update data."); }
+            
             if(tmpRoom == null)
                 return new List<DrrrMessage>();
             Room.makerefs();
             return Room.UpdateRoom(tmpRoom);
-            }
-            catch(System.Net.Http.HttpRequestException)
-            {
-                Logger.Warn("502 Error.");
-            }
-            return new List<DrrrMessage>();
         }
 
         /// <summary>
