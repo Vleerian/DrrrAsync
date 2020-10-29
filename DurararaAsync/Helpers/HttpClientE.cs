@@ -57,10 +57,11 @@ namespace DrrrAsyncBot.Core
         public async Task<string> Post_String(string url, Dictionary<string, string> Data)
         {
             await RateLimiter.WaitPost();
-            string Response = "";
             Exception tmp = null;
             try {
-                Response = await GetStringAsync(url);
+                var response = await PostAsync(url, new FormUrlEncodedContent(Data));
+                RateLimiter.Release();
+                return await response.Content.ReadAsStringAsync();
             }
             catch (Exception e) { 
                 tmp = e;
@@ -69,8 +70,8 @@ namespace DrrrAsyncBot.Core
             RateLimiter.Release();
             if(tmp != null)
                 throw tmp;
-                
-            return Response;
+
+            return "";
         }
 
         /// <summary>
@@ -104,10 +105,11 @@ namespace DrrrAsyncBot.Core
         public async Task<string> Get_String(string url)
         {
             await RateLimiter.WaitGet();
-            string Response = "";
             Exception tmp = null;
             try {
-                Response = await GetStringAsync(url);
+                string Response = await GetStringAsync(url);
+                RateLimiter.Release();
+                return Response;
             }
             catch (Exception e) { 
                 tmp = e;
@@ -116,8 +118,8 @@ namespace DrrrAsyncBot.Core
             RateLimiter.Release();
             if(tmp != null)
                 throw tmp;
-                
-            return Response;
+
+            return "";
         }
 
         /// <summary>
