@@ -36,13 +36,13 @@ namespace DrrrAsyncBot.Core
         /// <param name="Message">The message you want to send</param>
         /// <param name="Direct">Whether or not you want the mssage to be a direct message. Default: false</param>
         public async Task RespondAsync(string Message, string Url = "", bool Direct = false) =>
-            await Client.SendMessage(Message, (Direct) ? Author.Name : "", Url);
+            await Client.SendMessage(Message, Url, (Direct) ? Author.ID : "");
 
         /// <summary>
         /// Responds to a user with a direct message
         /// </summary>
         /// <param name="Message">The message you want to send</param>
         public async Task RespondDirect(string Message, string Url = "") =>
-            await Client.SendMessage(Message, Author.Name, Url);
+            await Client.SendMessage(Message, Url, Author.ID);
     }
 }
