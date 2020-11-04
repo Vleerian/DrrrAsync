@@ -1,4 +1,4 @@
-﻿using System.Net.Http.Headers;
+using System.Net.Http.Headers;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -23,10 +23,12 @@ namespace DrrrAsyncBot.Core
         public List<ICommandProcessor> commandProcessors;
 
         public DrrrBotConfig Config { get; private set; }
+        private string ConfigFile;
 
-        private Bot(DrrrBotConfig config) : base (config.ProxyURI, config.ProxyPort)
+        private Bot(DrrrBotConfig config, string configFile) : base (config.ProxyURI, config.ProxyPort)
         {
             Config = config;
+            ConfigFile = configFile;
             Commands = new Dictionary<string, Command>();
             commandProcessors = new List<ICommandProcessor>() {
                 new PermissionsProcessor()
@@ -41,8 +43,14 @@ namespace DrrrAsyncBot.Core
         /// </summary>
         /// <param name="Config">See: DrrrBotConfig</param>
         /// <returns>An instance of Bot</returns>
-        public static Bot Create(DrrrBotConfig Config)
+        public static Bot Create(string ConfigFile)
         {
+            var json = "";
+            using (var fs = File.OpenRead(ConfigFile))
+            using (var sr = new StreamReader(fs, new UTF8Encoding(false)))
+                json = sr.ReadToEnd();
+            var Config = JsonConvert.DeserializeObject<DrrrBotConfig>(json);
+
             if (Config.Name == null || Config.Name == "")
                 throw new Exception("No Name.");
             else if (Config.Room.Name == null || Config.Room.Name == "")
@@ -52,13 +60,13 @@ namespace DrrrAsyncBot.Core
             else if (Config.Icon == null)
                 throw new Exception("No Icon.");
 
-            return new Bot(Config);
+            return new Bot(Config, ConfigFile);
         }
 
-        public async void ReloadConfig(string FileName)
+        public async void ReloadConfig()
         {
             var json = "";
-            using (var fs = File.OpenRead(FileName))
+            using (var fs = File.OpenRead(ConfigFile))
             using (var sr = new StreamReader(fs, new UTF8Encoding(false)))
                 json = await sr.ReadToEndAsync();
             Config = JsonConvert.DeserializeObject<DrrrBotConfig>(json);
@@ -99,10 +107,10 @@ namespace DrrrAsyncBot.Core
 
         public async new Task<bool> JoinRoom(string RoomName)
         {
-            Logger.Debug("Retrieving roomlist.");
+            Logger.Debug($"{Name} - Retrieving roomlist.");
             var roomList = await GetLounge();
 
-            Logger.Debug($"Searching for target room {RoomName}");
+            Logger.Debug($"{Name} - Searching for target room {RoomName}");
             DrrrRoom Found = roomList.Find(Room => Room.Name == RoomName);
             try
             {
@@ -110,26 +118,26 @@ namespace DrrrAsyncBot.Core
                 {
                     if (Config.Room.Description != null)
                     {
-                        Logger.Info("Creating room.");
+                        Logger.Info($"{Name} - Creating room.");
                         await MakeRoom(Config.Room);
                         return true;
                     }
-                    Logger.Info("Room does not exist.");
+                    Logger.Info($"{Name} - Room does not exist.");
                 }
                 else if (Found.UserCount >= Found.Limit)
-                    Logger.Warn("Room is full.");
+                    Logger.Warn($"{Name} - Room is full.");
                 else if (Found.Users.Find(User => User.Name == Name) != null)
-                    Logger.Error("User exists in room.");
+                    Logger.Error($"{Name} - User exists in room.");
                 else
                 {
-                    Logger.Info("Joining room...");
+                    Logger.Info($"{Name} - Joining room...");
                     await base.JoinRoom(Found.RoomId);
                     return true;
                 }
             }
             catch (Exception e)
             {
-                Logger.Fatal("Error encountered while joining room.", e);
+                Logger.Fatal($"{Name} - Error encountered while joining room.", e);
             }
             return false;
         }
@@ -155,14 +163,14 @@ namespace DrrrAsyncBot.Core
         public async Task<bool> Reconnect(CancellationToken ShutdownToken)
         {    
             int Attempts = 0;
-            Logger.Warn($"RECONNECT ROUTINE ACTIVE");
+            Logger.Warn($"{Name} - RECONNECT ROUTINE ACTIVE");
             await Task.Delay(2000);
             do
             {
                 if(ShutdownToken.IsCancellationRequested)
                     return true;
                 
-                Logger.Info($"Attempting reconnect in 10 seconds. Attempt {++Attempts}");
+                Logger.Info($"{Name} - Attempting reconnect in 10 seconds. Attempt {++Attempts}");
                 await Task.Delay(10000);
                 JObject Profile = null;
                 try
@@ -171,34 +179,34 @@ namespace DrrrAsyncBot.Core
                 }
                 catch (Exception e)
                 {
-                    Logger.Error("Error getting profile.", e);
+                    Logger.Error($"{Name} - Error getting profile.", e);
                     continue;
                 }
 
                 if (Profile.ContainsKey("message"))
                 {
-                    Logger.Debug($"User is logged in. Checking if room is valid.");
+                    Logger.Debug($"{Name} - User is logged in. Checking if room is valid.");
 
                     JObject Room;
                     try
                     { Room = await Get_Room_Raw(); }
                     catch (Exception e)
                     {
-                        Logger.Error("Error getting room. Reconnect failed.", e);
+                        Logger.Error($"{Name} - Error getting room. Reconnect failed.", e);
                         return false;
                     }
                     if (Room.ContainsKey("message"))
                     {
-                        Logger.Warn($"User is no longer in room.");
+                        Logger.Warn($"{Name} - User is no longer in room.");
                         return false;
                     }
 
                 }
-                Logger.Done("Reconnect successful.");
+                Logger.Done($"{Name} - Reconnect successful.");
                 return true;
             }
             while (Attempts < 5);
-            Logger.Fatal("Maximum reconnect attempts exceeded.");
+            Logger.Fatal($"{Name} - Maximum reconnect attempts exceeded.");
             return false;
         }
 
@@ -237,7 +245,7 @@ namespace DrrrAsyncBot.Core
             // We set the HeartBeat timer to 20 minutes before start. See README
             DateTime HeartBeat = DateTime.Now.AddMinutes(-20);
 
-            Logger.Info("Update processor started.");
+            Logger.Info($"{Name} - Update processor started.");
             while (!cancellationToken.IsCancellationRequested)
             {
                 await Task.Delay(500);
@@ -253,13 +261,13 @@ namespace DrrrAsyncBot.Core
                 }
                 await ProcessUpdate();
             }
-            Logger.Info("Update processor exited.");
+            Logger.Info($"{Name} - Update processor exited.");
             await Task.Delay(500);
         }
 
         public async Task Resume(CancellationToken ShutdownToken)
         {
-            Logger.Info("Update processor started.");
+            Logger.Info($"{Name} - Update processor started.");
             while (!ShutdownToken.IsCancellationRequested)
             {
                 await Task.Delay(500);
@@ -267,7 +275,7 @@ namespace DrrrAsyncBot.Core
                     break;
                 await ProcessUpdate();
             }
-            Logger.Info("Update processor exited.");
+            Logger.Info($"{Name} - Update processor exited.");
             await Task.Delay(500);
         }
 
