@@ -72,6 +72,7 @@ namespace DrrrAsyncBot.Permission
         None = 0,
         Moderator = 1,
         Admin = 2,
-        Owner = 3
+        Operator = 3,
+        Owner = 4
     }
 }

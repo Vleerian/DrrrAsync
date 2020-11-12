@@ -82,6 +82,18 @@ namespace DrrrAsyncBot.Core
         }
 
         /// <summary>
+        /// Returns the Drrr-Session-1 cookie
+        /// </summary>
+        /// <returns></returns>
+        public async Task<string> GetClientToken()
+        {
+            JObject APICall = await WebClient.Get_Json("https://drrr.com/?api=json");
+            if(APICall != null && APICall.ContainsKey("authorization"))
+                return APICall.Value<string>("authorization");
+            return string.Empty;
+        }
+
+        /// <summary>
         /// Creates a session on Drrr.com
         /// </summary>
         /// <returns>True if success, throws an exception otherwise</returns>

@@ -24,9 +24,20 @@ namespace DrrrAsyncBot.Core
 
         public DrrrBotConfig Config { get; private set; }
         private string ConfigFile;
+        
+        // Controls the poll speed.
+        private int pollSpeed;
+        public int PollSpeed {
+            get { return pollSpeed; }
+            set {
+                if ( value < 500 ) pollSpeed = 500;
+                else pollSpeed = value;
+            }
+        }
 
         private Bot(DrrrBotConfig config, string configFile) : base (config.ProxyURI, config.ProxyPort)
         {
+            pollSpeed = 500;
             Config = config;
             ConfigFile = configFile;
             Commands = new Dictionary<string, Command>();
@@ -248,7 +259,7 @@ namespace DrrrAsyncBot.Core
             Logger.Info($"{Name} - Update processor started.");
             while (!cancellationToken.IsCancellationRequested)
             {
-                await Task.Delay(500);
+                await Task.Delay(pollSpeed);
                 if(cancellationToken.IsCancellationRequested)
                     break;
 
@@ -262,21 +273,21 @@ namespace DrrrAsyncBot.Core
                 await ProcessUpdate();
             }
             Logger.Info($"{Name} - Update processor exited.");
-            await Task.Delay(500);
+            await Task.Delay(pollSpeed);
         }
 
-        public async Task Resume(CancellationToken ShutdownToken)
+        public async Task UpdateProcessor(CancellationToken ShutdownToken)
         {
             Logger.Info($"{Name} - Update processor started.");
             while (!ShutdownToken.IsCancellationRequested)
             {
-                await Task.Delay(500);
+                await Task.Delay(pollSpeed);
                 if(ShutdownToken.IsCancellationRequested)
                     break;
                 await ProcessUpdate();
             }
             Logger.Info($"{Name} - Update processor exited.");
-            await Task.Delay(500);
+            await Task.Delay(pollSpeed);
         }
 
         /// <summary>
