@@ -70,9 +70,10 @@ namespace DrrrAsyncBot.Permission
 
     public enum PermLevel {
         None = 0,
-        Moderator = 1,
-        Admin = 2,
-        Operator = 3,
-        Owner = 4
+        Trusted = 1,
+        Moderator = 2,
+        Admin = 3,
+        Operator = 4,
+        Owner = 5
     }
 }
