@@ -7,6 +7,7 @@ using System.Net.Http;
 
 using DrrrAsyncBot.Objects;
 using DrrrAsyncBot.Helpers;
+using DrrrAsyncBot.Logging;
 
 using Newtonsoft.Json.Linq;
 
@@ -22,12 +23,14 @@ namespace DrrrAsyncBot.Core
         public string ID { get; private set; }
         public DrrrUser User { get; private set; }
         public DrrrRoom Room { get; private set; }
+        public DrrrLounge Lounge { get; private set; }
         public DateTime StartedAt { get; private set; }
         // Client State
         public bool LoggedIn { get; private set; }
 
         // Client Extensions
         protected HttpClientE WebClient;
+        public BasicLogger Logger { get; private set; }
 
         // Events
         public DrrrAsyncEvent On_Login;
@@ -55,6 +58,7 @@ namespace DrrrAsyncBot.Core
             On_Leave = new DrrrAsyncEvent<AsyncMessageEvent>();
             On_Me = new DrrrAsyncEvent<AsyncMessageEvent>();
             On_Post = new DrrrAsyncEvent<AsyncMessageEvent>();
+            Logger = BasicLogger.Default;
 
             WebClient = (ProxyURI != null) ? HttpClientE.GetProxyClient(ProxyURI, ProxyPort) : new HttpClientE();
             WebClient.Timeout = new TimeSpan(0, 0, 10);
@@ -74,6 +78,7 @@ namespace DrrrAsyncBot.Core
             On_Leave = new DrrrAsyncEvent<AsyncMessageEvent>();
             On_Me = new DrrrAsyncEvent<AsyncMessageEvent>();
             On_Post = new DrrrAsyncEvent<AsyncMessageEvent>();
+            Logger = BasicLogger.Default;
 
             WebClient = new HttpClientE();
             WebClient.Timeout = new TimeSpan(0, 0, 10);
@@ -122,7 +127,7 @@ namespace DrrrAsyncBot.Core
         public async Task<List<DrrrRoom>> GetLounge()
         {
             // Retreive lounge's json
-            DrrrLounge Lounge = await WebClient.Get_Object<DrrrLounge>("https://drrr.com/lounge?api=json");
+            Lounge = await WebClient.Get_Object<DrrrLounge>("https://drrr.com/lounge?api=json");
 
             // Update the client's DrrrUser using the profile data provided
             User = Lounge.Profile;
