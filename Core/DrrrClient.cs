@@ -44,6 +44,16 @@ namespace DrrrAsyncBot.Core
         public DrrrAsyncEvent<AsyncMessageEvent> On_Leave;
         public DrrrAsyncEvent<AsyncMessageEvent> On_Me;
         public DrrrAsyncEvent<AsyncMessageEvent> On_Post;
+        public DrrrAsyncEvent<AsyncRoomEvent> On_NewRoom { get; private set; }
+        public DrrrAsyncEvent<AsyncRoomEvent> On_RoomDeleted { get; private set; }
+
+        public DrrrAsyncEvent<AsyncRoomUpdateEventArgs> On_NewName { get; private set; }
+        public DrrrAsyncEvent<AsyncRoomUpdateEventArgs> On_NewDescription { get; private set; }
+
+        public DrrrAsyncEvent<AsyncUserUpdateEventArgs> On_UserLeft { get; private set; }
+        public DrrrAsyncEvent<AsyncUserUpdateEventArgs> On_UserJoined { get; private set; }
+
+        public DrrrAsyncEvent<AsyncRoomUpdateEventArgs> On_NewHost { get; private set; }
 
         public DrrrClient(string ProxyURI = null, int ProxyPort = 0)
         {
@@ -58,6 +68,13 @@ namespace DrrrAsyncBot.Core
             On_Leave = new DrrrAsyncEvent<AsyncMessageEvent>();
             On_Me = new DrrrAsyncEvent<AsyncMessageEvent>();
             On_Post = new DrrrAsyncEvent<AsyncMessageEvent>();
+            On_NewRoom = new DrrrAsyncEvent<AsyncRoomEvent>();
+            On_RoomDeleted = new DrrrAsyncEvent<AsyncRoomEvent>();
+            On_NewName = new DrrrAsyncEvent<AsyncRoomUpdateEventArgs>();
+            On_NewDescription = new DrrrAsyncEvent<AsyncRoomUpdateEventArgs>();
+            On_NewHost = new DrrrAsyncEvent<AsyncRoomUpdateEventArgs>();
+            On_UserJoined = new DrrrAsyncEvent<AsyncUserUpdateEventArgs>();
+            On_UserLeft = new DrrrAsyncEvent<AsyncUserUpdateEventArgs>();
             Logger = BasicLogger.Default;
 
             WebClient = (ProxyURI != null) ? HttpClientE.GetProxyClient(ProxyURI, ProxyPort) : new HttpClientE();
@@ -78,12 +95,18 @@ namespace DrrrAsyncBot.Core
             On_Leave = new DrrrAsyncEvent<AsyncMessageEvent>();
             On_Me = new DrrrAsyncEvent<AsyncMessageEvent>();
             On_Post = new DrrrAsyncEvent<AsyncMessageEvent>();
+            On_NewRoom = new DrrrAsyncEvent<AsyncRoomEvent>();
+            On_RoomDeleted = new DrrrAsyncEvent<AsyncRoomEvent>();
+            On_NewName = new DrrrAsyncEvent<AsyncRoomUpdateEventArgs>();
+            On_NewDescription = new DrrrAsyncEvent<AsyncRoomUpdateEventArgs>();
+            On_NewHost = new DrrrAsyncEvent<AsyncRoomUpdateEventArgs>();
+            On_UserJoined = new DrrrAsyncEvent<AsyncUserUpdateEventArgs>();
+            On_UserLeft = new DrrrAsyncEvent<AsyncUserUpdateEventArgs>();
             Logger = BasicLogger.Default;
 
             WebClient = new HttpClientE();
             WebClient.Timeout = new TimeSpan(0, 0, 10);
             WebClient.DefaultRequestHeaders.Add("User-Agent", "Bot");
-
         }
 
         /// <summary>
