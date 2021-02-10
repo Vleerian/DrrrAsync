@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 
 using DrrrAsyncBot.Objects;
+using DrrrAsyncBot.Logging;
 
 namespace DrrrAsyncBot.Core
 {
@@ -33,5 +34,31 @@ namespace DrrrAsyncBot.Core
 
         public AsyncRoomEvent(DrrrRoom aRoom) =>
             Room = aRoom;
+    }
+
+    public class AsyncUserUpdateEventArgs : DrrrAsyncEventArgs
+    {
+        public DrrrRoom Room;
+        public DrrrUser User;
+        public LogLevel type;
+
+        public AsyncUserUpdateEventArgs(DrrrRoom room, DrrrUser user)
+        {
+            Room = room;
+            User = user;
+        }
+    }
+
+    public class AsyncRoomUpdateEventArgs : DrrrAsyncEventArgs
+    {
+        public readonly DrrrRoom OldRoom;
+        public readonly DrrrRoom NewRoom;
+        public LogLevel type;
+
+        public AsyncRoomUpdateEventArgs(DrrrRoom oldRoom, DrrrRoom newRoom)
+        {
+            OldRoom = oldRoom;
+            NewRoom = newRoom;
+        }
     }
 }
