@@ -4,7 +4,6 @@ using System.Collections.Specialized;
 using System.Net;
 using System.Threading.Tasks;
 using System.Text;
-using Newtonsoft.Json.Linq;
 using System.Threading;
 using System.Collections.Generic;
 
@@ -18,7 +17,7 @@ namespace DrrrAsyncBot.Core
         private static DateTime lastGet;
         private static bool getReady {
             get{
-                if (lastGet == null)
+                if (lastGet == default)
                 {
                     lastGet = DateTime.Now;
                     return true;
@@ -34,7 +33,7 @@ namespace DrrrAsyncBot.Core
         private static DateTime lastPost;
         private static bool postReady {
             get{
-                if (lastPost == null)
+                if (lastPost == default)
                 {
                     lastPost = DateTime.Now;
                     return true;

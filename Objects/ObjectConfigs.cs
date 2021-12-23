@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using System.Text.Json.Serialization;
 using System.Collections.Generic;
 
 using DrrrAsyncBot.Permission;
@@ -7,20 +8,22 @@ namespace DrrrAsyncBot.Objects
 {
     public class DrrrBotConfig
     {
-        [JsonProperty("name")]
+        [JsonPropertyName("name")]
         public string Name;
-        [JsonProperty("room")]
+        [JsonPropertyName("room")]
         public DrrrRoomConfig Room;
-        [JsonProperty("prefix")]
+        [JsonPropertyName("prefix")]
         public string CommandSignal;
-        [JsonProperty("icon")]
+        [JsonPropertyName("icon")]
         public string Icon;
-        [JsonProperty("permissions")]
+        [JsonPropertyName("permissions")]
         public Dictionary<string, PermLevel> Permissions;
+        [JsonPropertyName("FlareSolverServer")]
+        public string FlareSolver;
 
-        [JsonProperty("proxy_uri")]
+        [JsonPropertyName("proxy_uri")]
         public string ProxyURI;
-        [JsonProperty("proxy_port")]
+        [JsonPropertyName("proxy_port")]
         public int ProxyPort;
 
         public bool Ready
@@ -44,17 +47,17 @@ namespace DrrrAsyncBot.Objects
 
     public class DrrrRoomConfig
     {
-        [JsonProperty("name")]
+        [JsonPropertyName("name")]
         public string Name;
-        [JsonProperty("description")]
+        [JsonPropertyName("description")]
         public string Description;
-        [JsonProperty("limit")]
+        [JsonPropertyName("limit")]
         public int Limit;
-        [JsonProperty("language")]
+        [JsonPropertyName("language")]
         public string Language;
-        [JsonProperty("adult")]
+        [JsonPropertyName("adult")]
         public bool Adult;
-        [JsonProperty("music")]
+        [JsonPropertyName("music")]
         public bool Music;
     }
 

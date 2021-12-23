@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DrrrAsyncBot.Objects
 {
@@ -11,7 +11,7 @@ namespace DrrrAsyncBot.Objects
     [Serializable]
     public class DrrrRoomFast : DrrrRoom
     {
-        [JsonProperty("host")]
+        [JsonPropertyName("host")]
         public string host;
 
         public new DrrrUser Host

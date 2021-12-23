@@ -3,7 +3,6 @@
 using DrrrAsyncBot.Objects;
 using DrrrAsyncBot.Core;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using System.IO;
 using System.Text;
 using DrrrAsyncBot.Permission;

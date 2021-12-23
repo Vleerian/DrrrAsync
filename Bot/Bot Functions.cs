@@ -5,13 +5,10 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Colorful;
 using DrrrAsyncBot.BotExtensions;
 using DrrrAsyncBot.Helpers;
 using DrrrAsyncBot.Objects;
 using DrrrAsyncBot.Permission;
-
-using Console = Colorful.Console;
 
 namespace DrrrAsyncBot.Core
 {
@@ -84,13 +81,6 @@ namespace DrrrAsyncBot.Core
         {
             var Client = (Bot)Sender;
             var Message = e.Message;
-            StyleSheet MessageStyle = new StyleSheet(Color.White);
-            MessageStyle.AddStyle("(?<=<).+?(?=#|>)", Color.Green);
-            MessageStyle.AddStyle("(?<=#).*(?=>)", Color.Blue);
-            MessageStyle.AddStyle("BANED|KICKED", Color.Red);
-            MessageStyle.AddStyle("JOIN|LEAVE", Color.Orange);
-            MessageStyle.AddStyle("DIRECT", Color.Magenta);
-            MessageStyle.AddStyle("MUSIC", Color.Cyan);
 
             string Timestamp = $"[{DateTime.Now.ToString("dd'/'MM'/'yyyy HH:mm:ss")}]";
             string ClientStr = $"{{{Client.Name}-{Client.Room.Name}}}";
@@ -131,6 +121,9 @@ namespace DrrrAsyncBot.Core
                 case "new-host":
                     Mesg = $"HANDOVER - {AuthorBit}";
                     break;
+                case "new-description":
+                    Mesg = $"Description chganged to {Message.Description}";
+                    break;
                 case "system":
                     Mesg = $"<   SYSTEM    > - {Message.Text}";
                     break;
@@ -139,7 +132,7 @@ namespace DrrrAsyncBot.Core
                     break;
             }
 
-            Console.WriteLineStyled($"{Timestamp} {ClientStr} {Mesg}", MessageStyle);
+            Console.WriteLine($"{Timestamp} {ClientStr} {Mesg}");
 
             if (!Directory.Exists("./Logs"))
                 Directory.CreateDirectory("./Logs");
