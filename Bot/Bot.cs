@@ -3,15 +3,16 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
 using DrrrAsyncBot.Helpers;
 using DrrrAsyncBot.Objects;
 using DrrrAsyncBot.Permission;
+
+using Newtonsoft.Json;
 using DrrrAsyncBot.BotExtensions;
+using Newtonsoft.Json.Linq;
 
 namespace DrrrAsyncBot.Core
 {
@@ -32,20 +33,6 @@ namespace DrrrAsyncBot.Core
                 if ( value < 500 ) pollSpeed = 500;
                 else pollSpeed = value;
             }
-        }
-
-        private Bot(DrrrBotConfig config, string configFile, string FlareSolver) : base(FlareSolver)
-        {
-            pollSpeed = 500;
-            Config = config;
-            ConfigFile = configFile;
-            Commands = new Dictionary<string, Command>();
-            commandProcessors = new List<ICommandProcessor>() {
-                new PermissionsProcessor()
-            };
-
-            //Set the default user agent to bot
-            WebClient.DefaultRequestHeaders.Add("User-Agent", "Bot");
         }
 
         private Bot(DrrrBotConfig config, string configFile) : base (config.ProxyURI, config.ProxyPort)
@@ -73,7 +60,7 @@ namespace DrrrAsyncBot.Core
             using (var fs = File.OpenRead(ConfigFile))
             using (var sr = new StreamReader(fs, new UTF8Encoding(false)))
                 json = sr.ReadToEnd();
-            var Config = JsonSerializer.Deserialize<DrrrBotConfig>(json);
+            var Config = JsonConvert.DeserializeObject<DrrrBotConfig>(json);
 
             if (Config.Name == null || Config.Name == "")
                 throw new Exception("No Name.");
@@ -84,8 +71,6 @@ namespace DrrrAsyncBot.Core
             else if (Config.Icon == null)
                 throw new Exception("No Icon.");
 
-            if(Config.FlareSolver != null)
-                return new Bot(Config, ConfigFile, Config.FlareSolver);
             return new Bot(Config, ConfigFile);
         }
 
@@ -95,7 +80,8 @@ namespace DrrrAsyncBot.Core
             using (var fs = File.OpenRead(ConfigFile))
             using (var sr = new StreamReader(fs, new UTF8Encoding(false)))
                 json = await sr.ReadToEndAsync();
-            Config = JsonSerializer.Deserialize<DrrrBotConfig>(json);
+            Config = JsonConvert.DeserializeObject<DrrrBotConfig>(json);
+
         }
 
         /// <summary>
@@ -197,7 +183,7 @@ namespace DrrrAsyncBot.Core
                 
                 Logger.Info($"{Name} - Attempting reconnect in 10 seconds. Attempt {++Attempts}");
                 await Task.Delay(10000);
-                JsonDocument Profile = null;
+                JObject Profile = null;
                 try
                 {
                     Profile = await Get_Profile();
@@ -208,11 +194,11 @@ namespace DrrrAsyncBot.Core
                     continue;
                 }
 
-                if (Profile.RootElement.TryGetProperty("message", out var _))
+                if (Profile.ContainsKey("message"))
                 {
                     Logger.Debug($"{Name} - User is logged in. Checking if room is valid.");
 
-                    JsonDocument Room;
+                    JObject Room;
                     try
                     { Room = await Get_Room_Raw(); }
                     catch (Exception e)
@@ -220,7 +206,7 @@ namespace DrrrAsyncBot.Core
                         Logger.Error($"{Name} - Error getting room. Reconnect failed.", e);
                         return false;
                     }
-                    if (Room.RootElement.TryGetProperty("message", out var _))
+                    if (Room.ContainsKey("message"))
                     {
                         Logger.Warn($"{Name} - User is no longer in room.");
                         return false;
@@ -264,7 +250,7 @@ namespace DrrrAsyncBot.Core
             string ID;
             {
                 var profile = await Get_Profile();
-                ID = profile.RootElement.GetProperty("uid").GetString();
+                ID = profile["profile"].Value<string>("uid");
             }
             Logger.Info($"ID: {ID}");
             // We set the HeartBeat timer to 20 minutes before start. See README

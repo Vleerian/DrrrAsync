@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Net.Http;
-using System.Net.Http.Json;
 using System.Collections.Specialized;
 using System.Net;
 using System.Threading.Tasks;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Text;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Threading;
 using System.Collections.Generic;
 
@@ -80,12 +79,12 @@ namespace DrrrAsyncBot.Core
         /// </summary>
         /// <param name="url">The URL you want to post to</param>
         /// <param name="Data">The Key/Value pairs you want to send</param>
-        /// <returns>A JsonDocument parsed from the response</returns>
-        public async Task<JsonDocument> Post_Json(string url, Dictionary<string, string> Data)
+        /// <returns>A JObject parsed from the response</returns>
+        public async Task<JObject> Post_Json(string url, Dictionary<string, string> Data)
         {
             string raw = await Post_String(url, Data);
             if(raw != null && raw != "")
-                return JsonDocument.Parse(raw);
+                return JObject.Parse(raw);
             return null;
         }
 
@@ -127,12 +126,12 @@ namespace DrrrAsyncBot.Core
         /// Get_Json wraps DownloadStringTaskAsync and JObject.Parse
         /// </summary>
         /// <param name="url">The URL you want to get a string from</param>
-        /// <returns>A JsonDocument parsed from the response</returns>
-        public async Task<JsonDocument> Get_Json(string url)
+        /// <returns>A JObject parsed from the response</returns>
+        public async Task<JObject> Get_Json(string url)
         {
             string raw = await Get_String(url);
             if(raw != null && raw != "")
-                return JsonDocument.Parse(raw);
+                return JObject.Parse(raw);
             return null;
         }
 
@@ -145,7 +144,7 @@ namespace DrrrAsyncBot.Core
         {
             string raw = await Get_String(url);
             if(raw != null && raw != "")
-                return JsonSerializer.Deserialize<T>(raw);
+                return JsonConvert.DeserializeObject<T>(raw);
             return default;
         }
     }

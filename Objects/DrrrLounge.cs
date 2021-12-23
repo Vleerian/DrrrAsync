@@ -1,22 +1,22 @@
 using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace DrrrAsyncBot.Objects
 {
     [Serializable]
     public class DrrrLounge
     {
-        [JsonPropertyName("redirect")]
+        [JsonProperty("redirect")]
         public string redirect;
-        [JsonPropertyName("create_room_url")]
+        [JsonProperty("create_room_url")]
         public string create_room_url;
-        [JsonPropertyName("active_user")]
+        [JsonProperty("active_user")]
         public int Active_Users;
 
-        [JsonPropertyName("rooms")]
+        [JsonProperty("rooms")]
         public List<DrrrRoom> Rooms;
-        [JsonPropertyName("profile")]
+        [JsonProperty("profile")]
         public DrrrUser Profile;
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace DrrrAsyncBot.Objects
 {
@@ -12,16 +12,16 @@ namespace DrrrAsyncBot.Objects
     public class DrrrRoom
     {
         // Room properties
-        [JsonPropertyName("language")]
+        [JsonProperty("language")]
         public string Language;
-        [JsonPropertyName("roomId")]
+        [JsonProperty("roomId")]
         public string RoomId;
-        [JsonPropertyName("name")]
+        [JsonProperty("name")]
         public string Name;
-        [JsonPropertyName("description")]
+        [JsonProperty("description")]
         public string Description;
 
-        [JsonPropertyName("limit")]
+        [JsonProperty("limit")]
         public double limit { get; private set;}
 
         // Fix floating point room limits to avoid a potentially breaking change
@@ -32,21 +32,21 @@ namespace DrrrAsyncBot.Objects
         public bool Full { get => Limit <= UserCount; }
 
         // Room flags
-        [JsonPropertyName("staticRoom")]
+        [JsonProperty("staticRoom")]
         public bool StaticRoom;
-        [JsonPropertyName("hiidenRoom")]
+        [JsonProperty("hiidenRoom")]
         public bool HiddenRoom;
-        [JsonPropertyName("gameRoom")]
+        [JsonProperty("gameRoom")]
         public bool GameRoom;
-        [JsonPropertyName("adultRoom")]
+        [JsonProperty("adultRoom")]
         public bool AdultRoom;
-        [JsonPropertyName("music")]
+        [JsonProperty("music")]
         public bool Music;
 
         // Misc properties
-        [JsonPropertyName("update")]
+        [JsonProperty("update")]
         public string Update;
-        [JsonPropertyName("since")]
+        [JsonProperty("since")]
         public long opened;
         public DateTime Opened {
             get {
@@ -55,11 +55,11 @@ namespace DrrrAsyncBot.Objects
             }
         }
 
-        [JsonPropertyName("users")]
+        [JsonProperty("users")]
         public List<DrrrUser> Users;
-        [JsonPropertyName("talks")]
+        [JsonProperty("talks")]
         public List<DrrrMessage> Messages;
-        [JsonPropertyName("host")]
+        [JsonProperty("host")]
         public DrrrUser Host;
 
         public DrrrRoom()

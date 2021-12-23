@@ -1,5 +1,7 @@
 ﻿using System;
-using System.Text.Json.Serialization;
+
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace DrrrAsyncBot.Objects
 {
@@ -9,38 +11,21 @@ namespace DrrrAsyncBot.Objects
     [Serializable]
     public class DrrrUser
     {
-        [JsonPropertyName("id")]
+        [JsonProperty("id")]
         public string ID;
-        [JsonPropertyName("uid")]
+        [JsonProperty("uid")]
         public string UID;
-        [JsonPropertyName("name")]
+        [JsonProperty("name")]
         public string Name;
-        [JsonPropertyName("tripcode")]
+        [JsonProperty("tripcode")]
         public string Tripcode;
-        [JsonPropertyName("icon")]
+        [JsonProperty("icon")]
         public string Icon;
-        [JsonPropertyName("device")]
+        [JsonProperty("device")]
         public string Device;
-        [JsonPropertyName("loginedAt")]
+        [JsonProperty("loginedAt")]
         public string LoggedIn;
-        [JsonPropertyName("admin")]
+        [JsonProperty("admin")]
         public bool Admin;
-
-        public bool HasTripcode()
-        {
-            if(Tripcode == null)
-                return false;
-            if(Tripcode == string.Empty)
-                return false;
-            return true;
-        }
-        
-        public string NiceName()
-        {
-            string NiceName = Name;
-            if(HasTripcode())
-                NiceName += $"#{Tripcode}";
-            return NiceName;
-        }
     }
 }

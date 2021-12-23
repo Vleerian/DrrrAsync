@@ -1,5 +1,6 @@
 ﻿using System;
-using System.Text.Json.Serialization;
+
+using Newtonsoft.Json;
 
 namespace DrrrAsyncBot.Objects
 {
@@ -9,20 +10,18 @@ namespace DrrrAsyncBot.Objects
     [Serializable]
     public class DrrrMessage
     {
-        [JsonPropertyName("id")]
+        [JsonProperty("id")]
         public string ID;
-        [JsonPropertyName("message")]
+        [JsonProperty("message")]
         public string Text;
-        [JsonPropertyName("content")]
+        [JsonProperty("content")]
         public string Content;
-        [JsonPropertyName("description")]
-        public string Description;
-        [JsonPropertyName("url")]
+        [JsonProperty("url")]
         public string Url;
-        [JsonPropertyName("secret")]
+        [JsonProperty("secret")]
         public bool Secret;
 
-        [JsonPropertyName("time")]
+        [JsonProperty("time")]
         public double time;
         public DateTime Timestamp {
             get
@@ -32,22 +31,22 @@ namespace DrrrAsyncBot.Objects
             }
         }
 
-        [JsonPropertyName("type")]
+        [JsonProperty("type")]
         public string type;
         public DrrrMessageType Type {
             get => (DrrrMessageType)type;
         }
         
-        [JsonPropertyName("from")]
+        [JsonProperty("from")]
         public DrrrUser from;
-        [JsonPropertyName("user")]
+        [JsonProperty("user")]
         public DrrrUser user;
         public DrrrUser Author
         {
             get => from ?? user;
         }
         
-        [JsonPropertyName("to")]
+        [JsonProperty("to")]
         public DrrrUser Target;
 
         public DrrrRoom Room;

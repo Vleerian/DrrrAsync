@@ -2,14 +2,14 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Collections.Generic;
 using System.Net.Http;
 
 using DrrrAsyncBot.Objects;
 using DrrrAsyncBot.Helpers;
 using DrrrAsyncBot.Logging;
+
+using Newtonsoft.Json.Linq;
 
 namespace DrrrAsyncBot.Core
 {
@@ -82,7 +82,7 @@ namespace DrrrAsyncBot.Core
             WebClient.DefaultRequestHeaders.Add("User-Agent", "Bot");
         }
 
-        public DrrrClient(string CloudfareSolverURI = null)
+        public DrrrClient()
         {
             On_Login = new DrrrAsyncEvent();
             On_Update = new DrrrAsyncEvent();
@@ -115,12 +115,10 @@ namespace DrrrAsyncBot.Core
         /// <returns></returns>
         public async Task<string> GetClientToken()
         {
-            var index = await WebClient.Get_Json("https://drrr.com/?api=json");
-            if(index == null)
-                return string.Empty;
-            if (!index.RootElement.TryGetProperty("authorization", out var auth))
-                return string.Empty;
-            return auth.GetString();
+            JObject APICall = await WebClient.Get_Json("https://drrr.com/?api=json");
+            if(APICall != null && APICall.ContainsKey("authorization"))
+                return APICall.Value<string>("authorization");
+            return string.Empty;
         }
 
         /// <summary>
@@ -130,14 +128,14 @@ namespace DrrrAsyncBot.Core
         public async Task<bool> Login()
         {
             // Call the index API to get the token
-            var index = await WebClient.Get_Json("https://drrr.com/?api=json");
-            var token = index.RootElement.GetProperty("token").GetString();
+            JObject APICall = await WebClient.Get_Json("https://drrr.com/?api=json");
+            string Token = APICall.Value<string>("token");
 
             // Send a second request to do the actual login.
             string response = await WebClient.Post_String("https://drrr.com", new Dictionary<string, string>() {
                 { "name",     Name    },
                 { "icon",     Icon.ID },
-                { "token",    token   },
+                { "token",    Token   },
                 { "login",    "ENTER" },
                 { "language", "en-US" }
             });
@@ -310,14 +308,14 @@ namespace DrrrAsyncBot.Core
         /// Gets the current user's profile
         /// </summary>
         /// <returns>A json object of the current user</returns>
-        public async Task<JsonDocument> Get_Profile() =>
+        public async Task<JObject> Get_Profile() =>
             await WebClient.Get_Json("https://drrr.com/profile/?api=json");
 
         /// <summary>
         /// Gets the raw JOBject for the current room
         /// </summary>
         /// <returns>The raw room JOBject</returns>
-        public async Task<JsonDocument> Get_Room_Raw() =>
+        public async Task<JObject> Get_Room_Raw() =>
             await WebClient.Get_Json("https://drrr.com/room/?api=json");
 
         /// <summary>
