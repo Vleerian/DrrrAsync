@@ -38,7 +38,11 @@ namespace DrrrAsync.Core
                 {
                     var cmdObject = Commands[Command];
 
+<<<<<<< HEAD
+                    if(!CheckPerms(Message.Author, cmdObject.Permission))
+=======
                     if(!CheckPerms(User, cmdObject.Permission))
+>>>>>>> master
                     {
                         Logger.Alert("Insufficient permissions.");
                         return;
