@@ -3,27 +3,41 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
-using DrrrAsyncBot.Helpers;
-using DrrrAsyncBot.Objects;
-using DrrrAsyncBot.Permission;
+using DrrrAsync.Helpers;
+using DrrrAsync.Objects;
 
-using Newtonsoft.Json;
-using DrrrAsyncBot.BotExtensions;
-using Newtonsoft.Json.Linq;
-
-namespace DrrrAsyncBot.Core
+namespace DrrrAsync.Core
 {
+    public enum PermLevel {
+        None = 0,
+        Trusted = 1,
+        Moderator = 2,
+        Admin = 3,
+        Operator = 4,
+        Owner = 5
+    }
+
     public partial class Bot : DrrrClient
     {
-    
         private Dictionary<string, Command> Commands;
-        public List<ICommandProcessor> commandProcessors;
 
         public DrrrBotConfig Config { get; private set; }
         private string ConfigFile;
+        
+        // Delegatges
+        public delegate void MessageEvent(Bot sender, AsyncMessageEvent args);
+
+        // Events
+        public event MessageEvent OnMessage;
+        public event MessageEvent OnDirectMessage;
+        public event MessageEvent OnJoin;
+        public event MessageEvent OnLeave;
+        public event MessageEvent OnPost;
         
         // Controls the poll speed.
         private int pollSpeed;
@@ -35,18 +49,18 @@ namespace DrrrAsyncBot.Core
             }
         }
 
-        private Bot(DrrrBotConfig config, string configFile) : base (config.ProxyURI, config.ProxyPort)
+        private Bot(DrrrBotConfig config, string configFile)
         {
             pollSpeed = 500;
             Config = config;
             ConfigFile = configFile;
             Commands = new Dictionary<string, Command>();
-            commandProcessors = new List<ICommandProcessor>() {
-                new PermissionsProcessor()
-            };
+
+            base.Name = config.Name;
+            base.Icon = config.Icon;
 
             //Set the default user agent to bot
-            WebClient.DefaultRequestHeaders.Add("User-Agent", "Bot");
+            httpClient.DefaultRequestHeaders.Add("User-Agent", "Bot");
         }
 
         /// <summary>
@@ -60,7 +74,7 @@ namespace DrrrAsyncBot.Core
             using (var fs = File.OpenRead(ConfigFile))
             using (var sr = new StreamReader(fs, new UTF8Encoding(false)))
                 json = sr.ReadToEnd();
-            var Config = JsonConvert.DeserializeObject<DrrrBotConfig>(json);
+            var Config = JsonSerializer.Deserialize<DrrrBotConfig>(json);
 
             if (Config.Name == null || Config.Name == "")
                 throw new Exception("No Name.");
@@ -80,7 +94,7 @@ namespace DrrrAsyncBot.Core
             using (var fs = File.OpenRead(ConfigFile))
             using (var sr = new StreamReader(fs, new UTF8Encoding(false)))
                 json = await sr.ReadToEndAsync();
-            Config = JsonConvert.DeserializeObject<DrrrBotConfig>(json);
+            Config = JsonSerializer.Deserialize<DrrrBotConfig>(json);
 
         }
 
@@ -116,13 +130,37 @@ namespace DrrrAsyncBot.Core
             await Task.CompletedTask;
         }
 
+        /// <summary>
+        /// Check if a user is permitted to execute a command
+        /// </summary>
+        /// <param name="user">The user you want to check</param>
+        /// <param name="aPermission">The permisison level you want them to check against</param>
+        /// <returns>True if they pass, false if they don't.</returns>
+        public bool CheckPerms(DrrrUser user, PermLevel aPermission)
+        {
+            //Don't bother permission checking if anyone should be able to run it
+            if (aPermission == 0)
+                return true;
+
+            //Make sure the user CAN have permissions, and that they actually do
+            if (user.Tripcode == null || !Config.Permissions.ContainsKey(user.Tripcode))
+                return false;
+            PermLevel User_Permission = Config.Permissions[user.Tripcode];
+
+            //Lower permission level = less permission. Therefore, if you permission lever is greater or equal to
+            //the command's permission level, you are allowed to execute it.
+            if (User_Permission >= aPermission)
+                return true;
+            return false;
+        }
+
         public async new Task<bool> JoinRoom(string RoomName)
         {
             Logger.Debug($"{Name} - Retrieving roomlist.");
             var roomList = await GetLounge();
 
             Logger.Debug($"{Name} - Searching for target room {RoomName}");
-            DrrrRoom Found = roomList.Find(Room => Room.Name == RoomName);
+            LoungeRoom Found = roomList.Rooms.Where(Room => Room.Name == RoomName).FirstOrDefault();
             try
             {
                 if (Found == null)
@@ -153,106 +191,56 @@ namespace DrrrAsyncBot.Core
             return false;
         }
 
-        public async Task ProcessUpdate()
+        double LastTime = 0;
+        public async void WorkLoop(CancellationToken token)
         {
-            foreach (var Message in await GetRoomUpdate())
+            while(!token.IsCancellationRequested)
             {
-                if (Message.Type == DrrrMessageType.Message)
+                await Task.Delay(PollSpeed);
+                var Room = await GetRoom();
+                var Messages = Room.Messages.Where(M => M.time > LastTime);
+                foreach (var Message in Messages)
                 {
-                    if (Message.Secret)
-                        await On_Direct_Message?.InvokeAsync(this, new AsyncMessageEvent(Message));
-                    else
-                        await On_Message?.InvokeAsync(this, new AsyncMessageEvent(Message));
+                    if (Message.Type == DrrrMessageType.Message)
+                    {
+                        if (Message.Secret)
+                            OnDirectMessage?.Invoke(this, new AsyncMessageEvent(Message));
+                        else
+                            OnMessage?.Invoke(this, new AsyncMessageEvent(Message));
+                    }
+                    if (Message.Type == DrrrMessageType.Join)
+                        OnJoin?.Invoke(this, new AsyncMessageEvent(Message));
+                    
+                    OnPost?.Invoke(this, new AsyncMessageEvent(Message));
                 }
-                if (Message.Type == DrrrMessageType.Join)
-                    await On_Join?.InvokeAsync(this, new AsyncMessageEvent(Message));
-
-                await On_Post?.InvokeAsync(this, new AsyncMessageEvent(Message));
+                var last = Messages.FirstOrDefault();
+                if(last != default)
+                    LastTime = last.time;
             }
         }
 
-        public async Task<bool> Reconnect(CancellationToken ShutdownToken)
-        {    
-            int Attempts = 0;
-            Logger.Warn($"{Name} - RECONNECT ROUTINE ACTIVE");
-            await Task.Delay(2000);
-            do
-            {
-                if(ShutdownToken.IsCancellationRequested)
-                    return true;
-                
-                Logger.Info($"{Name} - Attempting reconnect in 10 seconds. Attempt {++Attempts}");
-                await Task.Delay(10000);
-                JObject Profile = null;
-                try
-                {
-                    Profile = await Get_Profile();
-                }
-                catch (Exception e)
-                {
-                    Logger.Error($"{Name} - Error getting profile.", e);
-                    continue;
-                }
-
-                if (Profile.ContainsKey("message"))
-                {
-                    Logger.Debug($"{Name} - User is logged in. Checking if room is valid.");
-
-                    JObject Room;
-                    try
-                    { Room = await Get_Room_Raw(); }
-                    catch (Exception e)
-                    {
-                        Logger.Error($"{Name} - Error getting room. Reconnect failed.", e);
-                        return false;
-                    }
-                    if (Room.ContainsKey("message"))
-                    {
-                        Logger.Warn($"{Name} - User is no longer in room.");
-                        return false;
-                    }
-
-                }
-                Logger.Done($"{Name} - Reconnect successful.");
-                return true;
-            }
-            while (Attempts < 5);
-            Logger.Fatal($"{Name} - Maximum reconnect attempts exceeded.");
-            return false;
-        }
-
-        public async Task Setup()
+        public async void MainAsync(CancellationToken cancellationToken)
         {
-            Name = Config.Name;
-            Icon = Config.Icon;
-            Logger.Info($"Logging in as : {Name}");
+            // Log in to the site
             await Login();
 
-            if(!await JoinRoom(Config.Room.Name))
-                throw new ApplicationException("Unable to join room.");
+            // Set up events
+            OnMessage += ProcCommands;
+            OnDirectMessage += ProcCommands;
 
-            On_Post.Register(PrintMessage);
-            On_Message.Register(ProcCommands);
-            On_Direct_Message.Register(ProcCommands);
+            OnMessage += PrintMessage;
+            OnDirectMessage += PrintMessage;
 
-            //Print the room's history, if joining the room
-            var JoinMessages = await GetRoom();
-            foreach (var Message in JoinMessages.Messages)
-                await PrintMessage(this, new AsyncMessageEvent(Message));
-        }
+            // Join the target room
+            await JoinRoom(Config.Room.Name);
+            // Print message history, set the LastTime variable, and define user state
+            await GetRoom();
+            Room.Messages.ForEach(M => PrintMessage(this, new AsyncMessageEvent(M)));
+            LastTime = Room.Messages.FirstOrDefault().time;
 
-        public async Task MainAsync(CancellationToken cancellationToken)
-        {
-            //Set up
-            await Setup();
+            // start the work loop
+            WorkLoop(cancellationToken);
 
-            //Configure varibles needed for heartheat
-            string ID;
-            {
-                var profile = await Get_Profile();
-                ID = profile["profile"].Value<string>("uid");
-            }
-            Logger.Info($"ID: {ID}");
             // We set the HeartBeat timer to 20 minutes before start. See README
             DateTime HeartBeat = DateTime.Now.AddMinutes(-20);
 
@@ -267,24 +255,9 @@ namespace DrrrAsyncBot.Core
                 var diff = (DateTime.Now - HeartBeat).TotalMinutes;
                 if(diff >= 15)
                 {
-                    await SendMessage("[HEARTBEAT]", To:ID);
+                    await SendMessage("[HEARTBEAT]", To:User.ID);
                     HeartBeat = DateTime.Now;
                 }
-                await ProcessUpdate();
-            }
-            Logger.Info($"{Name} - Update processor exited.");
-            await Task.Delay(pollSpeed);
-        }
-
-        public async Task UpdateProcessor(CancellationToken ShutdownToken)
-        {
-            Logger.Info($"{Name} - Update processor started.");
-            while (!ShutdownToken.IsCancellationRequested)
-            {
-                await Task.Delay(pollSpeed);
-                if(ShutdownToken.IsCancellationRequested)
-                    break;
-                await ProcessUpdate();
             }
             Logger.Info($"{Name} - Update processor exited.");
             await Task.Delay(pollSpeed);
@@ -293,12 +266,12 @@ namespace DrrrAsyncBot.Core
         /// <summary>
         /// MainAsync fire and forget. Creates it's own CancellationToken
         /// </summary>
-        public async Task Run()
+        public CancellationTokenSource Run()
         {
             var Shutdown = new CancellationTokenSource();
             var ShutdownToken = Shutdown.Token;
-            await MainAsync(ShutdownToken);
-            Shutdown.Cancel();
+            MainAsync(ShutdownToken);
+            return Shutdown;
         }
     }
 }

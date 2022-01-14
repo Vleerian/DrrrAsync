@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Text.Json.Serialization;
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using DrrrAsync;
 
-namespace DrrrAsyncBot.Objects
+namespace DrrrAsync.Objects
 {
     /// <summary>
     /// A container for information pertaining to a user on Drrr.Com
@@ -11,21 +11,21 @@ namespace DrrrAsyncBot.Objects
     [Serializable]
     public class DrrrUser
     {
-        [JsonProperty("id")]
-        public string ID;
-        [JsonProperty("uid")]
-        public string UID;
-        [JsonProperty("name")]
-        public string Name;
-        [JsonProperty("tripcode")]
-        public string Tripcode;
-        [JsonProperty("icon")]
-        public string Icon;
-        [JsonProperty("device")]
-        public string Device;
-        [JsonProperty("loginedAt")]
-        public string LoggedIn;
-        [JsonProperty("admin")]
-        public bool Admin;
+        [JsonPropertyName("id")]
+        public string ID { get; set; }
+        [JsonPropertyName("uid")]
+        public string UID { get; set; }
+        [JsonPropertyName("name"), JsonConverter(typeof(AutoNumberToStringConverter))]
+        public string Name { get; set; }
+        [JsonPropertyName("tripcode"), JsonConverter(typeof(AutoNumberToStringConverter))]
+        public string Tripcode { get; set; }
+        [JsonPropertyName("icon")]
+        public string Icon { get; set; }
+        [JsonPropertyName("device")]
+        public string Device { get; set; }
+        [JsonPropertyName("loginedAt")]
+        public double LoggedIn { get; set; }
+        [JsonPropertyName("admin")]
+        public bool Admin { get; set; }
     }
 }

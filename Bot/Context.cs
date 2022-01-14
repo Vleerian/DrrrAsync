@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
 
-using DrrrAsyncBot.Objects;
+using DrrrAsync.Objects;
 
-namespace DrrrAsyncBot.Core
+namespace DrrrAsync.Core
 {
     public class Context : DrrrMessage
     {

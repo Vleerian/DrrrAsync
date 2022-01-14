@@ -1,8 +1,7 @@
 ﻿using System;
+using System.Text.Json.Serialization;
 
-using Newtonsoft.Json;
-
-namespace DrrrAsyncBot.Objects
+namespace DrrrAsync.Objects
 {
     /// <summary>
     /// A container for information pertaining to a message on Drrr.Com
@@ -10,19 +9,21 @@ namespace DrrrAsyncBot.Objects
     [Serializable]
     public class DrrrMessage
     {
-        [JsonProperty("id")]
-        public string ID;
-        [JsonProperty("message")]
-        public string Text;
-        [JsonProperty("content")]
-        public string Content;
-        [JsonProperty("url")]
-        public string Url;
-        [JsonProperty("secret")]
-        public bool Secret;
+        [JsonPropertyName("id")]
+        public string ID { get; set; }
+        [JsonPropertyName("message")]
+        public string Text { get; set; }
+        [JsonPropertyName("content")]
+        public string Content { get; set; }
+        [JsonPropertyName("url")]
+        public string Url { get; set; }
+        [JsonPropertyName("secret")]
+        public bool Secret { get; set; }
 
-        [JsonProperty("time")]
-        public double time;
+        [JsonPropertyName("time")]
+        public double time { get; set; }
+
+        [JsonIgnore]
         public DateTime Timestamp {
             get
             {
@@ -31,24 +32,26 @@ namespace DrrrAsyncBot.Objects
             }
         }
 
-        [JsonProperty("type")]
-        public string type;
+        [JsonPropertyName("type")]
+        public string type { get; set; }
+        [JsonIgnore]
         public DrrrMessageType Type {
             get => (DrrrMessageType)type;
         }
         
-        [JsonProperty("from")]
-        public DrrrUser from;
-        [JsonProperty("user")]
-        public DrrrUser user;
+        [JsonPropertyName("from")]
+        public DrrrUser from { get; set; }
+        [JsonPropertyName("user")]
+        public DrrrUser user { get; set; }
+        [JsonIgnore]
         public DrrrUser Author
         {
             get => from ?? user;
         }
         
-        [JsonProperty("to")]
-        public DrrrUser Target;
-
-        public DrrrRoom Room;
+        [JsonPropertyName("to")]
+        public DrrrUser Target { get; set; }
+        [JsonIgnore]
+        public DrrrRoom Room { get; set; }
     }
 }

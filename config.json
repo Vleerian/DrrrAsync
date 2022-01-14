@@ -1,0 +1,15 @@
+{
+  "name":"",
+  "prefix":"#",
+  "icon":"Kanra2x",
+  "room": {
+    "name": "",
+    "description": "",
+    "limit": 5,
+    "language": "en-US",
+    "adult": false,
+    "music": false
+  },
+  "permissions": {
+  }
+}

@@ -1,21 +1,18 @@
 ﻿using System;
 
-namespace DrrrAsyncBot.Core
+namespace DrrrAsync.Core
 {
     /// <summary>
-    /// The attribute added to a module to 'group' all it's commands
-    /// Commands in groups are executed with the group's name leading
-    /// I.E
-    /// CommandName
-    /// becomes
-    /// GroupName CommandName
+    /// Commands with this attribute may only be used by the bot's owner
     /// </summary>
-    public class GroupAttribute : Attribute
+    public class RequiresPermission : Attribute
     {
-        public string Name;
+        private PermLevel permission_;
+        public PermLevel Permission { get => permission_; }
 
-        public GroupAttribute(string name) =>
-            Name = name;
+        public RequiresPermission(PermLevel aPerm) =>
+            permission_ = aPerm;
+
     }
 
     /// <summary>

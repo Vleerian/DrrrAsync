@@ -2,8 +2,11 @@
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Net.Http;
+using System.Net.Http.Json;
 
-namespace DrrrAsyncBot.Helpers
+namespace DrrrAsync.Helpers
 {
 
     /// <summary>

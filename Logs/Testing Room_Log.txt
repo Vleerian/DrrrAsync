@@ -1,0 +1,541 @@
+JOIN - <Authority2>
+KICKED - <Authority2>
+JOIN - <Authority2>
+JOIN - <Vleerian#Pride/kekg>
+JOIN - <Authority2>
+LEAVE - <Izang>
+JOIN - <Izang>
+KICKED - <Authority2>
+LEAVE - <Ms.Roboto>
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+JOIN - <Ms.Roboto>
+ <Authority2>: [HEARTBEAT] ()
+JOIN - <Authority2>
+KICKED - <Authority2>
+JOIN - <Authority2>
+JOIN - <Vleerian#Pride/kekg>
+JOIN - <Authority2>
+KICKED - <Authority2>
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+JOIN - <Authority2>
+LEAVE - <Izang>
+JOIN - <Izang>
+KICKED - <Authority2>
+LEAVE - <Ms.Roboto>
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+JOIN - <Ms.Roboto>
+ <Authority2>: [HEARTBEAT] ()
+JOIN - <Authority2>
+KICKED - <Authority2>
+JOIN - <Authority2>
+JOIN - <Vleerian#Pride/kekg>
+JOIN - <Authority2>
+KICKED - <Authority2>
+JOIN - <Authority2>
+KICKED - <Authority2>
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+JOIN - <Authority2>
+LEAVE - <Izang>
+JOIN - <Izang>
+KICKED - <Authority2>
+LEAVE - <Ms.Roboto>
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+JOIN - <Ms.Roboto>
+ <Authority2>: [HEARTBEAT] ()
+JOIN - <Authority2>
+KICKED - <Authority2>
+JOIN - <Authority2>
+JOIN - <Vleerian#Pride/kekg>
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Authority2>: [HEARTBEAT] ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Authority2>: [HEARTBEAT] ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Authority2>: [HEARTBEAT] ()
+JOIN - <Authority2>
+KICKED - <Authority2>
+JOIN - <Authority2>
+KICKED - <Authority2>
+JOIN - <Authority2>
+KICKED - <Authority2>
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+JOIN - <Authority2>
+LEAVE - <Izang>
+JOIN - <Izang>
+KICKED - <Authority2>
+LEAVE - <Ms.Roboto>
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+JOIN - <Ms.Roboto>
+ <Authority2>: [HEARTBEAT] ()
+JOIN - <Authority2>
+KICKED - <Authority2>
+JOIN - <Authority2>
+JOIN - <Vleerian#Pride/kekg>
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Authority2>: [HEARTBEAT] ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Authority2>: [HEARTBEAT] ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Authority2>: [HEARTBEAT] ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Authority2>: [HEARTBEAT] ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Authority2>: [HEARTBEAT] ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Authority2>: [HEARTBEAT] ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Authority2>: [HEARTBEAT] ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Authority2>: [HEARTBEAT] ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Authority2>: [HEARTBEAT] ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Authority2>: [HEARTBEAT] ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Authority2>: [HEARTBEAT] ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Authority2>: [HEARTBEAT] ()
+JOIN - <Authority2>
+KICKED - <Authority2>
+JOIN - <Authority2>
+KICKED - <Authority2>
+JOIN - <Authority2>
+KICKED - <Authority2>
+JOIN - <Authority2>
+KICKED - <Authority2>
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+JOIN - <Authority2>
+LEAVE - <Izang>
+JOIN - <Izang>
+KICKED - <Authority2>
+LEAVE - <Ms.Roboto>
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+JOIN - <Ms.Roboto>
+ <Authority2>: [HEARTBEAT] ()
+JOIN - <Authority2>
+KICKED - <Authority2>
+JOIN - <Authority2>
+JOIN - <Vleerian#Pride/kekg>
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Authority2>: [HEARTBEAT] ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Authority2>: [HEARTBEAT] ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Authority2>: [HEARTBEAT] ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Authority2>: [HEARTBEAT] ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Authority2>: [HEARTBEAT] ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Authority2>: [HEARTBEAT] ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Authority2>: [HEARTBEAT] ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Authority2>: [HEARTBEAT] ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Authority2>: [HEARTBEAT] ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Authority2>: [HEARTBEAT] ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Authority2>: [HEARTBEAT] ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Authority2>: [HEARTBEAT] ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Authority2>: [HEARTBEAT] ()
+JOIN - <Authority2>
+JOIN - <等风来>
+LEAVE - <Authority2>
+JOIN - <Authority2>
+KICKED - <Authority2>
+JOIN - <Authority2>
+KICKED - <Authority2>
+JOIN - <Authority2>
+KICKED - <Authority2>
+JOIN - <Authority2>
+KICKED - <Authority2>
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+JOIN - <Authority2>
+LEAVE - <Izang>
+JOIN - <Izang>
+KICKED - <Authority2>
+LEAVE - <Ms.Roboto>
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+JOIN - <Ms.Roboto>
+ <Authority2>: [HEARTBEAT] ()
+JOIN - <Authority2>
+KICKED - <Authority2>
+JOIN - <Authority2>
+JOIN - <Vleerian#Pride/kekg>
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Authority2>: [HEARTBEAT] ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Authority2>: [HEARTBEAT] ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Authority2>: [HEARTBEAT] ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Authority2>: [HEARTBEAT] ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Authority2>: [HEARTBEAT] ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Authority2>: [HEARTBEAT] ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Authority2>: [HEARTBEAT] ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Authority2>: [HEARTBEAT] ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Authority2>: [HEARTBEAT] ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Authority2>: [HEARTBEAT] ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Authority2>: [HEARTBEAT] ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Authority2>: [HEARTBEAT] ()
+JOIN - <Authority2>
+ <等风来>: ? ()
+KICKED - <Authority2>
+JOIN - <Authority2>
+JOIN - <等风来>
+LEAVE - <Authority2>
+JOIN - <Authority2>
+KICKED - <Authority2>
+JOIN - <Authority2>
+KICKED - <Authority2>
+JOIN - <Authority2>
+KICKED - <Authority2>
+JOIN - <Authority2>
+KICKED - <Authority2>
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+JOIN - <Authority2>
+LEAVE - <Izang>
+JOIN - <Izang>
+KICKED - <Authority2>
+LEAVE - <Ms.Roboto>
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+JOIN - <Ms.Roboto>
+ <Authority2>: [HEARTBEAT] ()
+ <等风来>: ? ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <等风来>: ? ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <等风来>: ? ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ <Vleerian#Pride/kekg>: Breaks immediately kek. ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <等风来>: ? ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ <Ms.Roboto>: dokidoki ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <等风来>: ? ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <等风来>: ? ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <等风来>: ? ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <等风来>: ? ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <等风来>: ? ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <等风来>: ? ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <等风来>: ? ()
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: working on a bot. ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <等风来>: ? ()
+ <Vleerian#Pride/kekg>: working on a bot. ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <等风来>: ? ()
+ <Vleerian#Pride/kekg>: working on a bot. ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <等风来>: ? ()
+ <Vleerian#Pride/kekg>: working on a bot. ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <等风来>: ? ()
+ <Vleerian#Pride/kekg>: working on a bot. ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <等风来>: ? ()
+ <Vleerian#Pride/kekg>: working on a bot. ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <等风来>: ? ()
+ <Vleerian#Pride/kekg>: working on a bot. ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <等风来>: ? ()
+ <Vleerian#Pride/kekg>: working on a bot. ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <等风来>: ? ()
+ <Vleerian#Pride/kekg>: working on a bot. ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <等风来>: ? ()
+ <Vleerian#Pride/kekg>: working on a bot. ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <等风来>: ? ()
+ <Vleerian#Pride/kekg>: working on a bot. ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <等风来>: ? ()
+ <Vleerian#Pride/kekg>: working on a bot. ()
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <等风来>: ? ()
+JOIN - <Authority2>
+LEAVE - <等风来>
+ <等风来>: 没人吗 ()
+KICKED - <Authority2>
+ <Vleerian#Pride/kekg>: working on a bot. ()
+JOIN - <Authority2>
+ <等风来>: ? ()
+KICKED - <Authority2>
+JOIN - <Authority2>
+JOIN - <等风来>
+LEAVE - <Authority2>
+JOIN - <Authority2>
+KICKED - <Authority2>
+JOIN - <Authority2>
+KICKED - <Authority2>
+JOIN - <Authority2>
+KICKED - <Authority2>
+JOIN - <Authority2>
+KICKED - <Authority2>
+ <Vleerian#Pride/kekg>: Very nice lol. ()
+ <Vleerian#Pride/kekg>: Epik ()
+JOIN - <Authority2>
+LEAVE - <Izang>
+JOIN - <Izang>
+KICKED - <Authority2>
+ DIRECT <Authority2>: [HEARTBEAT] ()
+ <Vleerian#Pride/kekg>: Wew. ()

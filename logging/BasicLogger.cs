@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace DrrrAsyncBot.Logging
+namespace DrrrAsync.Logging
 {
     /// <summary>
 	/// A basic logging class that implements ILogger
@@ -11,10 +11,8 @@ namespace DrrrAsyncBot.Logging
     /// even if only to avoid re-implementing the typesafe log methods
     /// </remarks>
 	/// <author>Atagait Denral</author>
-    public class BasicLogger
+    public class BasicLogger : ILogger
     {
-        public static BasicLogger Default = new BasicLogger("GLOBAL", LogLevel.Information);
-
         public LogLevel threshhold;
         public readonly string LoggerName;
         
@@ -93,14 +91,6 @@ namespace DrrrAsyncBot.Logging
         public void Alert   (string Message, Exception e = null) => Log(LogLevel.Alert, Message, e);
         public void Error   (string Message, Exception e = null) => Log(LogLevel.Error, Message, e);
         public void Fatal   (string Message, Exception e = null) => Log(LogLevel.Fatal, Message, e);
-        public void NewRoom   (string Message, Exception e = null) => Log(LogLevel.NewRoom, Message, e);
-        public void NewName   (string Message, Exception e = null) => Log(LogLevel.NewName, Message, e);
-        public void NewDesc   (string Message, Exception e = null) => Log(LogLevel.NewDesc, Message, e);
-        public void NewHost   (string Message, Exception e = null) => Log(LogLevel.NewHost, Message, e);
-        public void Update   (string Message, Exception e = null) => Log(LogLevel.Update, Message, e);
-        public void Deleted   (string Message, Exception e = null) => Log(LogLevel.Deleted, Message, e);
-        public void UserJoin   (string Message, Exception e = null) => Log(LogLevel.UserJoin, Message, e);
-        public void UserLeave   (string Message, Exception e = null) => Log(LogLevel.UserLeave, Message, e);
         #endregion
     }
 }

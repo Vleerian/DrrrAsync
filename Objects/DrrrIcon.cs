@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System;
 
-namespace DrrrAsyncBot.Objects
+namespace DrrrAsync.Objects
 {
     [Serializable]
     public sealed class DrrrIcon

@@ -1,139 +1,84 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
-namespace DrrrAsyncBot.Objects
+namespace DrrrAsync.Objects
 {
+    [Serializable]
+    public class DrrrRoomAPI
+    {
+        [JsonPropertyName("profile")]
+        public DrrrUser profile { get; set; }
+        [JsonPropertyName("user")]
+        public DrrrUser user { get; set; }
+
+        [JsonPropertyName("room")]
+        public DrrrRoom room { get; set; }
+    }
+
     /// <summary>
     /// A container for information pertaining to a room on Drrr.com
     /// </summary>
     [Serializable]
     public class DrrrRoom
     {
-        // Room properties
-        [JsonProperty("language")]
-        public string Language;
-        [JsonProperty("roomId")]
-        public string RoomId;
-        [JsonProperty("name")]
-        public string Name;
-        [JsonProperty("description")]
-        public string Description;
+        public DrrrRoom()
+        {
+            Users = new List<DrrrUser>();
+        }
 
-        [JsonProperty("limit")]
-        public double limit { get; private set;}
+        // Room properties
+        [JsonPropertyName("language")]
+        public string Language { get; set; }
+        [JsonPropertyName("roomId"), JsonConverter(typeof(AutoNumberToStringConverter))]
+        public string RoomId { get; set; }
+        [JsonPropertyName("name"), JsonConverter(typeof(AutoNumberToStringConverter))]
+        public string Name { get; set; }
+        [JsonPropertyName("description"), JsonConverter(typeof(AutoNumberToStringConverter))]
+        public string Description { get; set; }
+
+        [JsonPropertyName("limit")]
+        public double limit { get; set;}
 
         // Fix floating point room limits to avoid a potentially breaking change
+        [JsonIgnore]
         public int Limit { get {
             return (int)limit;
         }}
+        [JsonIgnore]
         public int UserCount { get => Users.Count; }
+        [JsonIgnore]
         public bool Full { get => Limit <= UserCount; }
 
         // Room flags
-        [JsonProperty("staticRoom")]
-        public bool StaticRoom;
-        [JsonProperty("hiidenRoom")]
-        public bool HiddenRoom;
-        [JsonProperty("gameRoom")]
-        public bool GameRoom;
-        [JsonProperty("adultRoom")]
-        public bool AdultRoom;
-        [JsonProperty("music")]
-        public bool Music;
+        [JsonPropertyName("staticRoom")]
+        public bool StaticRoom { get; set; }
+        [JsonPropertyName("hiidenRoom")]
+        public bool HiddenRoom { get; set; }
+        [JsonPropertyName("gameRoom")]
+        public bool GameRoom { get; set; }
+        [JsonPropertyName("adultRoom")]
+        public bool AdultRoom { get; set; }
+        [JsonPropertyName("music")]
+        public bool Music { get; set; }
 
-        // Misc properties
-        [JsonProperty("update")]
-        public string Update;
-        [JsonProperty("since")]
-        public long opened;
+        [JsonPropertyName("since")]
+        public long opened { get; set; }
         public DateTime Opened {
             get {
                 DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
                 return dtDateTime.AddSeconds(opened).ToLocalTime();
             }
         }
+        [JsonPropertyName("update")]
+        public double update { get; set; }
 
-        [JsonProperty("users")]
-        public List<DrrrUser> Users;
-        [JsonProperty("talks")]
-        public List<DrrrMessage> Messages;
-        [JsonProperty("host")]
-        public DrrrUser Host;
-
-        public DrrrRoom()
-        {
-            Users = new List<DrrrUser>();
-        }
-
-        public DrrrRoom makerefs()
-        {
-            foreach (var message in Messages)
-            {
-                message.Room = this;
-            }
-            return this;
-        }
-
-        /// <summary>
-        /// Attempts to get a user.
-        /// </summary>
-        /// <returns>True if the user was retrieved, false otherwise</returns>
-        public bool TryGetUser(string Name, out DrrrUser RefUser)
-        {
-            RefUser = GetUser(Name);
-            return RefUser != null;
-        }
-
-        /// <summary>
-        /// Gets a user from a room
-        /// </summary>
-        /// <returns>The DrrrUser matching the provided name</returns>
-        public DrrrUser GetUser(string Name)
-        {
-            return Users.Find(N => N.Name == Name);
-        }
-
-        /// <summary>
-        /// Updates a room using data from a provided JObject containing room data.
-        /// </summary>
-        /// <param name="RoomObject">A JObject parsed using data from Drrr.com</param>
-        /// <returns>A List<> of new DrrrMessages</returns>
-        public List<DrrrMessage> UpdateRoom(DrrrRoom tmpRoom)
-        {
-            // Update the room's attributes
-            Name = tmpRoom.Name;
-            Description = tmpRoom.Description;
-            limit = tmpRoom.limit;
-
-            // Update the room's user list
-            if(tmpRoom.Users.Count > 0)
-                Users = tmpRoom.Users;
-
-            // Update the host
-            if(tmpRoom.Host != null)
-                Host = tmpRoom.Host;
-
-            // Update the room's message list, adding new messages
-            // Populate a temporary list to return new messages only.
-            List<DrrrMessage> New_Messages = new List<DrrrMessage>();
-            if(tmpRoom.Messages.Count > 0)
-            {
-                foreach (DrrrMessage message in tmpRoom.Messages)
-                {
-                    // If it's not a room-profile message, and doesn't exist in the messages array
-                    // Add it to New_Messages
-                    if (message.type != "room-profile" &&
-                        !Messages.Any(Mesg => Mesg.ID == message.ID))
-                    {
-                        Messages.Add(message);
-                        New_Messages.Add(message);
-                    }
-                }
-            }
-            
-            return New_Messages;
-        }
+        [JsonPropertyName("users")]
+        public List<DrrrUser> Users { get; set; }
+        [JsonPropertyName("talks")]
+        public List<DrrrMessage> Messages { get; set; }
+        [JsonPropertyName("host")]
+        public string host { get; set; }
     }
 }

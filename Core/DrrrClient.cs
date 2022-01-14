@@ -2,16 +2,18 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
+using System.Net.Http.Json;
 
-using DrrrAsyncBot.Objects;
-using DrrrAsyncBot.Helpers;
-using DrrrAsyncBot.Logging;
+using DrrrAsync.Objects;
+using DrrrAsync.Helpers;
+using DrrrAsync.Logging;
 
-using Newtonsoft.Json.Linq;
-
-namespace DrrrAsyncBot.Core
+namespace DrrrAsync.Core
 {
     public class DrrrClient
     {
@@ -21,105 +23,35 @@ namespace DrrrAsyncBot.Core
 
         // Site-Defined
         public string ID { get; private set; }
-        public DrrrUser User { get; private set; }
-        public DrrrRoom Room { get; private set; }
-        public DrrrLounge Lounge { get; private set; }
+        public DrrrUser User { get; protected set; }
+        public DrrrRoom Room { get; protected set; }
+        public DrrrLounge Lounge { get; protected set; }
         public DateTime StartedAt { get; private set; }
         // Client State
         public bool LoggedIn { get; private set; }
 
-        // Client Extensions
-        protected HttpClientE WebClient;
+        // Client Components
+        protected static CookieContainer clientCookies;
+        protected static HttpClientHandler clientHandler;
+        protected static HttpClient httpClient;
+
         public BasicLogger Logger { get; private set; }
-
-        // Events
-        public DrrrAsyncEvent On_Login;
-        public DrrrAsyncEvent On_Update;
-        public DrrrAsyncEvent On_Ready;
-        public DrrrAsyncEvent<AsyncMessageEvent> On_Join;
-        public DrrrAsyncEvent<AsyncMessageEvent> On_Message;
-        public DrrrAsyncEvent<AsyncMessageEvent> On_Direct_Message;
-        public DrrrAsyncEvent<AsyncMessageEvent> On_Kick;
-        public DrrrAsyncEvent<AsyncMessageEvent> On_Ban;
-        public DrrrAsyncEvent<AsyncMessageEvent> On_Leave;
-        public DrrrAsyncEvent<AsyncMessageEvent> On_Me;
-        public DrrrAsyncEvent<AsyncMessageEvent> On_Post;
-        public DrrrAsyncEvent<AsyncRoomEvent> On_NewRoom { get; private set; }
-        public DrrrAsyncEvent<AsyncRoomEvent> On_RoomDeleted { get; private set; }
-
-        public DrrrAsyncEvent<AsyncRoomUpdateEventArgs> On_NewName { get; private set; }
-        public DrrrAsyncEvent<AsyncRoomUpdateEventArgs> On_NewDescription { get; private set; }
-
-        public DrrrAsyncEvent<AsyncUserUpdateEventArgs> On_UserLeft { get; private set; }
-        public DrrrAsyncEvent<AsyncUserUpdateEventArgs> On_UserJoined { get; private set; }
-
-        public DrrrAsyncEvent<AsyncRoomUpdateEventArgs> On_NewHost { get; private set; }
-
-        public DrrrClient(string ProxyURI = null, int ProxyPort = 0)
-        {
-            On_Login = new DrrrAsyncEvent();
-            On_Update = new DrrrAsyncEvent();
-            On_Ready = new DrrrAsyncEvent();
-            On_Join = new DrrrAsyncEvent<AsyncMessageEvent>();
-            On_Message = new DrrrAsyncEvent<AsyncMessageEvent>();
-            On_Direct_Message = new DrrrAsyncEvent<AsyncMessageEvent>();
-            On_Kick = new DrrrAsyncEvent<AsyncMessageEvent>();
-            On_Ban = new DrrrAsyncEvent<AsyncMessageEvent>();
-            On_Leave = new DrrrAsyncEvent<AsyncMessageEvent>();
-            On_Me = new DrrrAsyncEvent<AsyncMessageEvent>();
-            On_Post = new DrrrAsyncEvent<AsyncMessageEvent>();
-            On_NewRoom = new DrrrAsyncEvent<AsyncRoomEvent>();
-            On_RoomDeleted = new DrrrAsyncEvent<AsyncRoomEvent>();
-            On_NewName = new DrrrAsyncEvent<AsyncRoomUpdateEventArgs>();
-            On_NewDescription = new DrrrAsyncEvent<AsyncRoomUpdateEventArgs>();
-            On_NewHost = new DrrrAsyncEvent<AsyncRoomUpdateEventArgs>();
-            On_UserJoined = new DrrrAsyncEvent<AsyncUserUpdateEventArgs>();
-            On_UserLeft = new DrrrAsyncEvent<AsyncUserUpdateEventArgs>();
-            Logger = BasicLogger.Default;
-
-            WebClient = (ProxyURI != null) ? HttpClientE.GetProxyClient(ProxyURI, ProxyPort) : new HttpClientE();
-            WebClient.Timeout = new TimeSpan(0, 0, 10);
-            WebClient.DefaultRequestHeaders.Add("User-Agent", "Bot");
-        }
 
         public DrrrClient()
         {
-            On_Login = new DrrrAsyncEvent();
-            On_Update = new DrrrAsyncEvent();
-            On_Ready = new DrrrAsyncEvent();
-            On_Join = new DrrrAsyncEvent<AsyncMessageEvent>();
-            On_Message = new DrrrAsyncEvent<AsyncMessageEvent>();
-            On_Direct_Message = new DrrrAsyncEvent<AsyncMessageEvent>();
-            On_Kick = new DrrrAsyncEvent<AsyncMessageEvent>();
-            On_Ban = new DrrrAsyncEvent<AsyncMessageEvent>();
-            On_Leave = new DrrrAsyncEvent<AsyncMessageEvent>();
-            On_Me = new DrrrAsyncEvent<AsyncMessageEvent>();
-            On_Post = new DrrrAsyncEvent<AsyncMessageEvent>();
-            On_NewRoom = new DrrrAsyncEvent<AsyncRoomEvent>();
-            On_RoomDeleted = new DrrrAsyncEvent<AsyncRoomEvent>();
-            On_NewName = new DrrrAsyncEvent<AsyncRoomUpdateEventArgs>();
-            On_NewDescription = new DrrrAsyncEvent<AsyncRoomUpdateEventArgs>();
-            On_NewHost = new DrrrAsyncEvent<AsyncRoomUpdateEventArgs>();
-            On_UserJoined = new DrrrAsyncEvent<AsyncUserUpdateEventArgs>();
-            On_UserLeft = new DrrrAsyncEvent<AsyncUserUpdateEventArgs>();
-            Logger = BasicLogger.Default;
+            Logger = new BasicLogger("DrrrClient", LogLevel.Information);
 
-            WebClient = new HttpClientE();
-            WebClient.Timeout = new TimeSpan(0, 0, 10);
-            WebClient.DefaultRequestHeaders.Add("User-Agent", "Bot");
+            clientCookies = new();
+            clientHandler = new () { CookieContainer = clientCookies };
+            httpClient = new(clientHandler);
         }
 
         /// <summary>
         /// Returns the Drrr-Session-1 cookie
         /// </summary>
         /// <returns></returns>
-        public async Task<string> GetClientToken()
-        {
-            JObject APICall = await WebClient.Get_Json("https://drrr.com/?api=json");
-            if(APICall != null && APICall.ContainsKey("authorization"))
-                return APICall.Value<string>("authorization");
-            return string.Empty;
-        }
+        public string GetClientToken() =>
+            clientCookies.GetCookies(new Uri("https://drrr.com"))["drrr-session-1"].Value;
 
         /// <summary>
         /// Creates a session on Drrr.com
@@ -128,15 +60,21 @@ namespace DrrrAsyncBot.Core
         public async Task<bool> Login()
         {
             // Call the index API to get the token
-            JObject APICall = await WebClient.Get_Json("https://drrr.com/?api=json");
-            string Token = APICall.Value<string>("token");
+            string token;
+            {
+                var index = await httpClient.GetAsync("https://drrr.com/?api=json");
+                var json = await index.Content.ReadAsStringAsync();
+                var doc = JsonDocument.Parse(json);
+                token = doc.RootElement.GetProperty("token").GetString();
+            }
 
             // Send a second request to do the actual login.
-            string response = await WebClient.Post_String("https://drrr.com", new Dictionary<string, string>() {
-                { "name",     Name    },
-                { "icon",     Icon.ID },
-                { "token",    Token   },
-                { "login",    "ENTER" },
+            var response = await httpClient.PostAsync("https://drrr.com", new Dictionary<string, string>()
+            {
+                { "name", Name },
+                { "icon", Icon.ID },
+                { "token", token },
+                { "login", "ENTER" },
                 { "language", "en-US" }
             });
 
@@ -147,35 +85,26 @@ namespace DrrrAsyncBot.Core
         /// Retrieves the Lounge on drrr.com
         /// </summary>
         /// <returns>A List of DrrrRoom objects</returns>
-        public async Task<List<DrrrRoom>> GetLounge()
+        public async Task<DrrrLounge> GetLounge()
         {
             // Retreive lounge's json
-            Lounge = await WebClient.Get_Object<DrrrLounge>("https://drrr.com/lounge?api=json");
+            Lounge = await httpClient.GetJsonAsync<DrrrLounge>("https://drrr.com/lounge?api=json");
 
             // Update the client's DrrrUser using the profile data provided
             User = Lounge.Profile;
             ID = User.ID;
             Name = User.Name;
 
-            // Build the references for each room
-            Lounge.Rooms.Select(Room=>Room.makerefs());
-            // Return a List of visible rooms.
-            return Lounge.Rooms;
+            return Lounge;
         }
 
-        /// <summary>
-        /// Gets data from the current room on Drrr.com
-        /// </summary>
-        /// <returns>A DrrrRoom object</returns>
         public async Task<DrrrRoom> GetRoom()
         {
-            try{
-                Room = await WebClient.Get_Object<DrrrRoomFast>("https://drrr.com/json.php?fast=1");
-            }
-            catch (TaskCanceledException) { Logger.Warn("Timed out fetching room data."); }
-            catch (HttpRequestException) { Logger.Warn("502 error fetching room data."); }
+            var API = await httpClient.GetJsonAsync<DrrrRoomAPI>("https://drrr.com/room/?api=json");
 
-            Room.makerefs();
+            Room = API.room;
+            User = API.user;
+
             return Room;
         }
 
@@ -183,19 +112,18 @@ namespace DrrrAsyncBot.Core
         /// Gets the newest data only for the current room
         /// </summary>
         /// <returns>A List of DrrrMessage objects</returns>
-        public async Task<List<DrrrMessage>> GetRoomUpdate()
+        public async Task<DrrrRoom> GetRoomUpdate()
         {
             DrrrRoom tmpRoom = null;
             try{
-                tmpRoom = await WebClient.Get_Object<DrrrRoomFast>($"https://drrr.com/json.php?update={Room.Update}");
+                tmpRoom = await httpClient.GetJsonAsync<DrrrRoom>($"https://drrr.com/json.php?update={Room.update}");
             }
             catch (TaskCanceledException) { Logger.Warn("Timed out fetching room update data."); }
             catch (HttpRequestException) { Logger.Warn("502 error fetching room update data."); }
             
-            if(tmpRoom == null)
-                return new List<DrrrMessage>();
-            Room.makerefs();
-            return Room.UpdateRoom(tmpRoom);
+            tmpRoom.Messages.ForEach(M => M.Room = tmpRoom);
+            
+            return tmpRoom;
         }
 
         /// <summary>
@@ -206,17 +134,17 @@ namespace DrrrAsyncBot.Core
         {
             // Join the room
             Logger.Info($"Joining room {roomId}");
-            await WebClient.Get_String($"http://drrr.com/room/?id={roomId}");
+            await httpClient.GetAsync($"http://drrr.com/room/?id={roomId}");
         }
 
         /// <summary>
         /// Creates a room on drrr.com
         /// </summary>
         /// <param name="Config">How the room will be configured</param>
-        public async Task MakeRoom(DrrrRoomConfig Config)
+        public async Task<string> MakeRoom(DrrrRoomConfig Config)
         {
             // Send a POST to create the room.
-            string response = await WebClient.Post_String("https://drrr.com/create_room/", new Dictionary<string, string>() {
+            var response = await httpClient.PostAsync("https://drrr.com/create_room/", new Dictionary<string, string>() {
                 { "name", Config.Name },
                 { "description", Config.Description },
                 { "limit", Config.Limit.ToString() },
@@ -225,19 +153,23 @@ namespace DrrrAsyncBot.Core
                 { "submit", "Create Room" },
                 { "music", Config.Music?"true":"false" }
             });
+            return response;
         }
 
         /// <summary>
         /// Leaves the current room
         /// </summary>
         /// <returns>Whatever the site returns</returns>
-        public async Task<string> LeaveRoom()
+        public async Task<bool> LeaveRoom()
         {
             if ((DateTime.Now - StartedAt).TotalSeconds > 40)
-                return await WebClient.Post_String("https://drrr.com/room/?ajax=1", new Dictionary<string, string>() {
+            {
+                await httpClient.PostAsync("https://drrr.com/room/?ajax=1", new Dictionary<string, string>() {
                     { "leave", "leave" }
                 });
-            return "Cannot Leave";
+                return true;
+            }
+            return false;
         }
 
         /// <summary>
@@ -247,7 +179,7 @@ namespace DrrrAsyncBot.Core
         /// <returns>Whatever the site returns</returns>
         public async Task<string> GiveHost(DrrrUser user)
         {
-            return await WebClient.Post_String("https://drrr.com/room/?ajax=1", new Dictionary<string, string>() {
+            return await httpClient.PostAsync("https://drrr.com/room/?ajax=1", new Dictionary<string, string>() {
                 { "new_host", user.ID }
             });
         }
@@ -259,7 +191,7 @@ namespace DrrrAsyncBot.Core
         /// <returns>Whatever the site returns</returns>
         public async Task<string> Ban(DrrrUser user)
         {
-            return await WebClient.Post_String("https://drrr.com/room/?ajax=1", new Dictionary<string, string>() {
+            return await httpClient.PostAsync("https://drrr.com/room/?ajax=1", new Dictionary<string, string>() {
                 { "ban", user.ID }
             });
         }
@@ -271,7 +203,7 @@ namespace DrrrAsyncBot.Core
         /// <returns>Whatever the site returns</returns>
         public async Task<string> Report_And_Ban(DrrrUser user)
         {
-            return await WebClient.Post_String("https://drrr.com/room/?ajax=1", new Dictionary<string, string>() {
+            return await httpClient.PostAsync("https://drrr.com/room/?ajax=1", new Dictionary<string, string>() {
                 { "report_and_ban_user", user.ID }
             });
         }
@@ -283,7 +215,7 @@ namespace DrrrAsyncBot.Core
         /// <returns>Whatever the site returns</returns>
         public async Task<string> Kick(DrrrUser user)
         {
-            return await WebClient.Post_String("https://drrr.com/room/?ajax=1", new Dictionary<string, string>() {
+            return await httpClient.PostAsync("https://drrr.com/room/?ajax=1", new Dictionary<string, string>() {
                 { "kick", user.ID }
             });
         }
@@ -297,7 +229,7 @@ namespace DrrrAsyncBot.Core
         /// <returns>Whatever the site returns</returns>
         public virtual async Task<string> SendMessage(string Message, string Url = "", string To = "")
         {
-            return await WebClient.Post_String("https://drrr.com/room/?ajax=1", new Dictionary<string, string>() {
+            return await httpClient.PostAsync("https://drrr.com/room/?ajax=1", new Dictionary<string, string>() {
                 { "message", Message },
                 { "url",     Url     },
                 { "to",      To      }
@@ -308,15 +240,8 @@ namespace DrrrAsyncBot.Core
         /// Gets the current user's profile
         /// </summary>
         /// <returns>A json object of the current user</returns>
-        public async Task<JObject> Get_Profile() =>
-            await WebClient.Get_Json("https://drrr.com/profile/?api=json");
-
-        /// <summary>
-        /// Gets the raw JOBject for the current room
-        /// </summary>
-        /// <returns>The raw room JOBject</returns>
-        public async Task<JObject> Get_Room_Raw() =>
-            await WebClient.Get_Json("https://drrr.com/room/?api=json");
+        public async Task<DrrrUser> Get_Profile() =>
+            await httpClient.GetJsonAsync<DrrrUser>("https://drrr.com/profile/?api=json");
 
         /// <summary>
         /// Sets the room's title
@@ -325,7 +250,7 @@ namespace DrrrAsyncBot.Core
         /// <returns>Whatever the site returns</returns>
         public async Task<string> SetRoomTitle(string Title)
         {
-            return await WebClient.Post_String("https://drrr.com/room/?ajax=1", new Dictionary<string, string>() {
+            return await httpClient.PostAsync("https://drrr.com/room/?ajax=1", new Dictionary<string, string>() {
                 { "room_name", Title }
             });
         }
@@ -337,7 +262,7 @@ namespace DrrrAsyncBot.Core
         /// <returns>Whatever the site returns</returns>
         public async Task<string> SetRoomDescription(string Description)
         {
-            return await WebClient.Post_String("https://drrr.com/room/?ajax=1", new Dictionary<string, string>() {
+            return await httpClient.PostAsync("https://drrr.com/room/?ajax=1", new Dictionary<string, string>() {
                 { "room_description", Description }
             });
         }
@@ -350,7 +275,7 @@ namespace DrrrAsyncBot.Core
         /// <returns>Whatever the site returns</returns>
         public async Task<string> PlayMusic(string Name, string Url)
         {
-            return await WebClient.Post_String("https://drrr.com/room/?ajax=1", new Dictionary<string, string>() {
+            return await httpClient.PostAsync("https://drrr.com/room/?ajax=1", new Dictionary<string, string>() {
                 { "music", "music" },
                 { "name", Name },
                 { "url", Url }

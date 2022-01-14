@@ -1,27 +1,28 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using System.Text.Json.Serialization;
 using System.Collections.Generic;
 
-using DrrrAsyncBot.Permission;
+using DrrrAsync.Core;
 
-namespace DrrrAsyncBot.Objects
+namespace DrrrAsync.Objects
 {
     public class DrrrBotConfig
     {
-        [JsonProperty("name")]
-        public string Name;
-        [JsonProperty("room")]
-        public DrrrRoomConfig Room;
-        [JsonProperty("prefix")]
-        public string CommandSignal;
-        [JsonProperty("icon")]
-        public string Icon;
-        [JsonProperty("permissions")]
-        public Dictionary<string, PermLevel> Permissions;
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
+        [JsonPropertyName("room")]
+        public DrrrRoomConfig Room { get; set; }
+        [JsonPropertyName("prefix")]
+        public string CommandSignal { get; set; }
+        [JsonPropertyName("icon")]
+        public string Icon { get; set; }
+        [JsonPropertyName("permissions")]
+        public Dictionary<string, PermLevel> Permissions { get; set; }
 
-        [JsonProperty("proxy_uri")]
-        public string ProxyURI;
-        [JsonProperty("proxy_port")]
-        public int ProxyPort;
+        [JsonPropertyName("proxy_uri")]
+        public string ProxyURI { get; set; }
+        [JsonPropertyName("proxy_port")]
+        public int ProxyPort { get; set; }
 
         public bool Ready
         {
@@ -44,18 +45,18 @@ namespace DrrrAsyncBot.Objects
 
     public class DrrrRoomConfig
     {
-        [JsonProperty("name")]
-        public string Name;
-        [JsonProperty("description")]
-        public string Description;
-        [JsonProperty("limit")]
-        public int Limit;
-        [JsonProperty("language")]
-        public string Language;
-        [JsonProperty("adult")]
-        public bool Adult;
-        [JsonProperty("music")]
-        public bool Music;
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
+        [JsonPropertyName("description")]
+        public string Description { get; set; }
+        [JsonPropertyName("limit")]
+        public int Limit { get; set; }
+        [JsonPropertyName("language")]
+        public string Language { get; set; }
+        [JsonPropertyName("adult")]
+        public bool Adult { get; set; }
+        [JsonPropertyName("music")]
+        public bool Music { get; set; }
     }
 
     public class DrrrUserConfig

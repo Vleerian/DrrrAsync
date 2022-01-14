@@ -1,22 +1,17 @@
 ﻿using System;
 
-using DrrrAsyncBot.Objects;
-using DrrrAsyncBot.Core;
+using DrrrAsync.Objects;
+using DrrrAsync.Core;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using System.IO;
 using System.Text;
-using DrrrAsyncBot.Permission;
-using DrrrAsyncBot.Helpers;
+using DrrrAsync.Helpers;
 using System.Drawing;
 using System.Linq;
 
-namespace DrrrAsyncBot
+namespace DrrrAsync
 {
     class Program
     {
-        static void Main(string[] args)
-        {
-        }
     }
 }

@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Text;
 
-using DrrrAsyncBot.Objects;
-using DrrrAsyncBot.Logging;
+using DrrrAsync.Objects;
+using DrrrAsync.Logging;
 
-namespace DrrrAsyncBot.Core
+namespace DrrrAsync.Core
 {
     public class DrrrAsyncEventArgs
     {

@@ -5,15 +5,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Colorful;
-using DrrrAsyncBot.BotExtensions;
-using DrrrAsyncBot.Helpers;
-using DrrrAsyncBot.Objects;
-using DrrrAsyncBot.Permission;
+using DrrrAsync.Helpers;
 
-using Console = Colorful.Console;
-
-namespace DrrrAsyncBot.Core
+namespace DrrrAsync.Core
 {
     public partial class Bot
     {
@@ -23,7 +17,7 @@ namespace DrrrAsyncBot.Core
         /// <param name="Sender">The object which sent the event - usually Bot</param>
         /// <param name="e">The command message</param>
         /// <returns></returns>
-        public async Task ProcCommands(object Sender, AsyncMessageEvent e)
+        public async void ProcCommands(object Sender, AsyncMessageEvent e)
         {
             var Message = e.Message;
             //It has to be a message, and it has to start with the command signal
@@ -42,26 +36,18 @@ namespace DrrrAsyncBot.Core
                 //Check for the command or aliases.
                 if (Commands.ContainsKey(Command))
                 {
-                    var commandEvent = new CommandEvent()
-                    {
-                        Context = new Context(this, Message),
-                        CommandName = Command,
-                        Command = Commands[Command],
-                        Args = CommandParams.ToArray(),
-                        Execute = true
-                    };
+                    var cmdObject = Commands[Command];
 
-                    //Run preprocessors
-                    commandProcessors.ForEach(C => C.Preprocess(ref commandEvent));
+                    if(!CheckPerms(User, cmdObject.Permission))
+                    {
+                        Logger.Alert("Insufficient permissions.");
+                        return;
+                    }
 
                     //Execute the command
                     try
                     {
-                        if(commandEvent.Execute)
-                        {
-                            await Commands[commandEvent.CommandName].Call(new object[] { commandEvent.Context, commandEvent.Args });
-                            commandProcessors.ForEach(C => C.Postproceess(commandEvent));
-                        }
+                        await cmdObject.Call(new object[] { new Context(this, Message), CommandParams.ToArray() });
                     }
                     catch (Exception err)
                     {
@@ -80,17 +66,10 @@ namespace DrrrAsyncBot.Core
         /// <param name="Sender">The object which sent the event - usually Bot</param>
         /// <param name="e">The message</param>
         /// <returns></returns>
-        public async Task PrintMessage(object Sender, AsyncMessageEvent e)
+        public async void PrintMessage(object Sender, AsyncMessageEvent e)
         {
             var Client = (Bot)Sender;
             var Message = e.Message;
-            StyleSheet MessageStyle = new StyleSheet(Color.White);
-            MessageStyle.AddStyle("(?<=<).+?(?=#|>)", Color.Green);
-            MessageStyle.AddStyle("(?<=#).*(?=>)", Color.Blue);
-            MessageStyle.AddStyle("BANED|KICKED", Color.Red);
-            MessageStyle.AddStyle("JOIN|LEAVE", Color.Orange);
-            MessageStyle.AddStyle("DIRECT", Color.Magenta);
-            MessageStyle.AddStyle("MUSIC", Color.Cyan);
 
             string Timestamp = $"[{DateTime.Now.ToString("dd'/'MM'/'yyyy HH:mm:ss")}]";
             string ClientStr = $"{{{Client.Name}-{Client.Room.Name}}}";
@@ -139,7 +118,7 @@ namespace DrrrAsyncBot.Core
                     break;
             }
 
-            Console.WriteLineStyled($"{Timestamp} {ClientStr} {Mesg}", MessageStyle);
+            Console.WriteLine($"{Timestamp} {ClientStr} {Mesg}");
 
             if (!Directory.Exists("./Logs"))
                 Directory.CreateDirectory("./Logs");
