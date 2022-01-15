@@ -121,7 +121,9 @@ namespace DrrrAsync.Core
             catch (TaskCanceledException) { Logger.Warn("Timed out fetching room update data."); }
             catch (HttpRequestException) { Logger.Warn("502 error fetching room update data."); }
             
-            tmpRoom.Messages.ForEach(M => M.Room = tmpRoom);
+            if(tmpRoom != null && tmpRoom.Messages != null)
+                tmpRoom.Messages.ForEach(M => M.Room = tmpRoom);
+            Room.update = tmpRoom.update;
             
             return tmpRoom;
         }

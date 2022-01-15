@@ -197,20 +197,38 @@ namespace DrrrAsync.Core
             while(!token.IsCancellationRequested)
             {
                 await Task.Delay(PollSpeed);
-                var Room = await GetRoom();
-                var Messages = Room.Messages.Where(M => M.time > LastTime);
+
+                IEnumerable<DrrrMessage> Messages;
+                try{
+                    var Room = await GetRoomUpdate();
+                    if(Room == null || Room.Messages == null)
+                        continue;
+                    Messages = Room.Messages.Where(M => M.time > LastTime);
+                }
+                catch(Exception e)
+                {
+                    Logger.Error("Error in work loop", e);
+                    continue;
+                }
+
                 foreach (var Message in Messages)
                 {
-                    if (Message.Type == DrrrMessageType.Message)
+                    switch(Message.Type.ID)
                     {
-                        if (Message.Secret)
-                            OnDirectMessage?.Invoke(this, new AsyncMessageEvent(Message));
-                        else
-                            OnMessage?.Invoke(this, new AsyncMessageEvent(Message));
+                        case "message":
+                        case "me":
+                            if (Message.Secret)
+                                OnDirectMessage?.Invoke(this, new AsyncMessageEvent(Message));
+                            else
+                                OnMessage?.Invoke(this, new AsyncMessageEvent(Message));
+                            break;
+                        case "join":
+                            OnJoin?.Invoke(this, new AsyncMessageEvent(Message));
+                            break;
+                        case "leave":
+                            OnLeave?.Invoke(this, new AsyncMessageEvent(Message));
+                            break;
                     }
-                    if (Message.Type == DrrrMessageType.Join)
-                        OnJoin?.Invoke(this, new AsyncMessageEvent(Message));
-                    
                     OnPost?.Invoke(this, new AsyncMessageEvent(Message));
                 }
                 var last = Messages.FirstOrDefault();
@@ -227,9 +245,7 @@ namespace DrrrAsync.Core
             // Set up events
             OnMessage += ProcCommands;
             OnDirectMessage += ProcCommands;
-
-            OnMessage += PrintMessage;
-            OnDirectMessage += PrintMessage;
+            OnPost += PrintMessage;
 
             // Join the target room
             await JoinRoom(Config.Room.Name);
@@ -253,7 +269,7 @@ namespace DrrrAsync.Core
 
                 // We process the heartbeat before update. See README
                 var diff = (DateTime.Now - HeartBeat).TotalMinutes;
-                if(diff >= 15)
+                if(diff >= 10)
                 {
                     await SendMessage("[HEARTBEAT]", To:User.ID);
                     HeartBeat = DateTime.Now;
