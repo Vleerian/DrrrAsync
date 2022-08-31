@@ -80,5 +80,30 @@ namespace DrrrAsync.Objects
         public List<DrrrMessage> Messages { get; set; }
         [JsonPropertyName("host")]
         public string host { get; set; }
+        
+        [JsonIgnore]
+        public DrrrUser Host {
+            get => Users.Where(U=>U.ID == host).FirstOrDefault();
+        }
+
+        public DrrrRoom Patch(DrrrRoom UpdateData)
+        {
+            if(UpdateData == null || UpdateData == default)
+                return this;
+            // These attributes are guaranteed with the room update
+            Name = UpdateData.Name;
+            Description = UpdateData.Description;
+            limit = UpdateData.limit;
+
+            // Update the user list if that is provided
+            if(UpdateData.Users?.Count > 0)
+                Users = UpdateData.Users;
+            
+            // Update the host
+            if(UpdateData.Host != null)
+                host = UpdateData.host;
+            
+            return this;
+        }
     }
 }

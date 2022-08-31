@@ -74,7 +74,10 @@ namespace DrrrAsync.Core
             using (var fs = File.OpenRead(ConfigFile))
             using (var sr = new StreamReader(fs, new UTF8Encoding(false)))
                 json = sr.ReadToEnd();
-            var Config = JsonSerializer.Deserialize<DrrrBotConfig>(json);
+            var Config = JsonSerializer.Deserialize<DrrrBotConfig>(json, new JsonSerializerOptions(){
+                AllowTrailingCommas = true,
+                PropertyNameCaseInsensitive = true
+            });
 
             if (Config.Name == null || Config.Name == "")
                 throw new Exception("No Name.");
@@ -202,7 +205,10 @@ namespace DrrrAsync.Core
                 try{
                     var Room = await GetRoomUpdate();
                     if(Room == null || Room.Messages == null)
+                    {
+                        Logger.Warn("No room data retrieved.");
                         continue;
+                    }
                     Messages = Room.Messages.Where(M => M.time > LastTime);
                 }
                 catch(Exception e)

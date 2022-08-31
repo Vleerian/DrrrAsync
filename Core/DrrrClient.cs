@@ -116,14 +116,23 @@ namespace DrrrAsync.Core
         {
             DrrrRoom tmpRoom = null;
             try{
-                tmpRoom = await httpClient.GetJsonAsync<DrrrRoom>($"https://drrr.com/json.php?update={Room.update}");
+                tmpRoom = await httpClient.GetJsonAsync<DrrrRoom>($"https://drrr.com/json.php?update={Room.update+0.5}");
             }
             catch (TaskCanceledException) { Logger.Warn("Timed out fetching room update data."); }
             catch (HttpRequestException) { Logger.Warn("502 error fetching room update data."); }
             
             if(tmpRoom != null && tmpRoom.Messages != null)
                 tmpRoom.Messages.ForEach(M => M.Room = tmpRoom);
-            Room.update = tmpRoom.update;
+            else
+                return null;
+            
+            try {
+                Room.Patch(tmpRoom);
+            }
+            catch(Exception e)
+            {
+                Logger.Error("Room patching failed.");
+            }
             
             return tmpRoom;
         }

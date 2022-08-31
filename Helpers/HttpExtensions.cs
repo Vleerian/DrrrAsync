@@ -34,15 +34,13 @@ namespace DrrrAsync.Helpers
         public static async Task<T> GetJsonAsync<T>(this HttpClient client, string url)
         {
             await RateLimiter.WaitGet();
-            T result;
-            try
-            {
+            T result = default;
+            try{
                 result = await client.GetFromJsonAsync<T>(url);
             }
-            catch ( Exception e )
+            catch(Exception e)
             {
                 HttpLogger.Error("HTTP Exception", e);
-                return default;
             }
             RateLimiter.Release();
             return result;
