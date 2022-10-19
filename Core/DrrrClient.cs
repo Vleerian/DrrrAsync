@@ -232,6 +232,18 @@ namespace DrrrAsync.Core
         }
 
         /// <summary>
+        /// Unbans a user
+        /// </summary>
+        /// <param name="user">The user you want to ban</param>
+        /// <returns>Whatever the site returns</returns>
+        public async Task<string> Unban(DrrrUser user)
+        {
+            return await httpClient.PostAsync("https://drrr.com/room/?ajax=1", new Dictionary<string, string>() {
+                { "unban", user.ID }
+            });
+        }
+
+        /// <summary>
         /// Sends a message to the room
         /// </summary>
         /// <param name="Message">The message being sent</param>
