@@ -25,9 +25,9 @@ namespace DrrrAsync.Core
     public partial class Bot : DrrrClient
     {
         private Dictionary<string, Command> Commands;
-
         public DrrrBotConfig Config { get; private set; }
         private string ConfigFile;
+        private Queue<string> MessageIDs = new();
         
         // Delegatges
         public delegate void MessageEvent(Bot sender, AsyncMessageEvent args);
@@ -353,6 +353,14 @@ namespace DrrrAsync.Core
 
                 foreach (var Message in Messages)
                 {
+                    // Some strange behavior on Drrr can cause messages to get double-processed
+                    // So in addition to filtering out old messages, Bots track message IDs to prevent
+                    // the same message from being processed twice
+                    if(MessageIDs.Contains(Message.ID))
+                        continue;
+                    MessageIDs.Dequeue();
+                    MessageIDs.Enqueue(Message.ID);
+
                     switch(Message.Type.ID)
                     {
                         case "message":
@@ -390,7 +398,11 @@ namespace DrrrAsync.Core
             await JoinRoom(Config.Room.Name);
             // Print message history, set the LastTime variable, and define user state
             await GetRoom();
-            Room.Messages.ForEach(M => PrintMessage(this, new AsyncMessageEvent(M)));
+            foreach (var message in Room.Messages)
+            {
+                PrintMessage(this, new AsyncMessageEvent(message));
+                MessageIDs.Enqueue(message.ID);
+            }
             LastTime = Room.Messages.FirstOrDefault().time;
 
             // start the work loop

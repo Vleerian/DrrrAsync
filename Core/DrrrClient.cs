@@ -131,7 +131,7 @@ namespace DrrrAsync.Core
             }
             catch(Exception e)
             {
-                Logger.Error("Room patching failed.");
+                Logger.Error("Room patching failed.", e);
             }
             
             return tmpRoom;
