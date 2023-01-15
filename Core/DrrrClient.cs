@@ -304,5 +304,57 @@ namespace DrrrAsync.Core
                 { "url", Url }
             });
         }
+
+        /// <summary>
+        /// Gives a user Player status
+        /// </summary>
+        /// <param name="user">The user to make into a player</param>
+        /// <returns>Whatever the site returns</returns>
+        public async Task<string> SetPlayer(DrrrUser user)
+        {
+            return await httpClient.PostAsync("https://drrr.com/room/?ajax=1", new Dictionary<string, string>() {
+                { "player", "true" },
+                { "to", user.ID },
+            });
+        }
+
+        /// <summary>
+        /// Gives a user Non-Player status
+        /// </summary>
+        /// <param name="user">The user to make into a non-player</param>
+        /// <returns>Whatever the site returns</returns>
+        public async Task<string> SetNonPlayer(DrrrUser user)
+        {
+            return await httpClient.PostAsync("https://drrr.com/room/?ajax=1", new Dictionary<string, string>() {
+                { "player", "false" },
+                { "to", user.ID },
+            });
+        }
+
+        /// <summary>
+        /// Gives sets a user to alive in a game room
+        /// </summary>
+        /// <param name="user">The user to make alive</param>
+        /// <returns>Whatever the site returns</returns>
+        public async Task<string> SetAlive(DrrrUser user)
+        {
+            return await httpClient.PostAsync("https://drrr.com/room/?ajax=1", new Dictionary<string, string>() {
+                { "alive", "true" },
+                { "to", user.ID },
+            });
+        }
+
+        /// <summary>
+        /// Gives sets a user to dead in a game room
+        /// </summary>
+        /// <param name="user">The user to make dead</param>
+        /// <returns>Whatever the site returns</returns>
+        public async Task<string> SetDead(DrrrUser user)
+        {
+            return await httpClient.PostAsync("https://drrr.com/room/?ajax=1", new Dictionary<string, string>() {
+                { "alive", "false" },
+                { "to", user.ID },
+            });
+        }
     }
 }
