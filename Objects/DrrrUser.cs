@@ -27,5 +27,7 @@ namespace DrrrAsync.Objects
         public double LoggedIn { get; set; }
         [JsonPropertyName("admin")]
         public bool Admin { get; set; }
+        [JsonPropertyName("player")]
+        public bool? Player { get; set; }
     }
 }
