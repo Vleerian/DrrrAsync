@@ -22,6 +22,8 @@ namespace DrrrAsync.Objects
         public static readonly DrrrMessageType AsyncResponse = new DrrrMessageType { ID = "async-response" };
         public static readonly DrrrMessageType Error = new DrrrMessageType { ID = "error" };
         public static readonly DrrrMessageType Unban = new DrrrMessageType { ID = "unban" };
+        public static readonly DrrrMessageType Player = new DrrrMessageType { ID = "player" };
+        public static readonly DrrrMessageType Alive = new DrrrMessageType { ID = "alive" };
 
         public static Dictionary<string, DrrrMessageType> Types = new Dictionary<string, DrrrMessageType> {
             { "message", Message },
@@ -38,7 +40,9 @@ namespace DrrrAsync.Objects
             { "system", System },
             { "async-response", AsyncResponse },
             { "error", Error },
-            { "unban", Unban}
+            { "unban", Unban},
+            { "player", Player},
+            { "alive", Alive},
         };
 
         public static implicit operator string(DrrrMessageType type) => type.ID;
